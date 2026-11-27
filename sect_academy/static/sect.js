@@ -188,8 +188,48 @@ export function mountSect(h) {
     if (ev) z.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
+  // Posting by hand: drag a disciple from the roster onto a room (or tap one, then a room). While a disciple is in
+  // hand every room says how well they suit it and how many places it has.
+  let selPawn = '';                                 // the disciple picked up (tap) or being dragged
+  let dragging = false;
+  function postTo(room) {
+    const pid = selPawn; selPawn = ''; dragging = false; sceneSig = '';
+    const r = S.rooms.find((x) => x.id === room);
+    if (pid && r && r.slots) order('post', { pawn: pid, room });
+    else { paintScene(); if (pid && r) toast(`No one is posted to the ${r.name}.`); }
+  }
+  function cancelPick() { if (!selPawn) return; selPawn = ''; dragging = false; sceneSig = ''; paintScene(); }
+  function startDrag(e, pid, btn) {
+    if (e.button !== undefined && e.button !== 0) return;
+    const x0 = e.clientX; const y0 = e.clientY; let ghost = null;
+    const move = (ev) => {
+      if (!ghost && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 8) return;
+      if (!ghost) {
+        selPawn = pid; dragging = true; sceneSig = ''; paintScene();
+        ghost = document.createElement('div'); ghost.className = 'dragghost'; ghost.innerHTML = btn.querySelector('.face') ? btn.querySelector('.face').outerHTML : '';
+        document.body.appendChild(ghost);
+      }
+      ghost.style.left = `${ev.clientX}px`; ghost.style.top = `${ev.clientY}px`;
+      const over = document.elementFromPoint(ev.clientX, ev.clientY);
+      const room = over && over.closest('[data-room]');
+      document.querySelectorAll('.room.over').forEach((n) => { if (n !== room) n.classList.remove('over'); });
+      if (room) room.classList.add('over');
+    };
+    const up = (ev) => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      if (!ghost) return;                           // a tap: the click handler picks the disciple up
+      ghost.remove();
+      heldAt = Date.now();
+      const over = ev.type === 'pointerup' ? document.elementFromPoint(ev.clientX, ev.clientY) : null;
+      const room = over && over.closest('[data-room]');
+      if (room) postTo(room.dataset.room); else cancelPick();
+    };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+  }
+
   function paintScene() {
     const z = $('#z-scene'); if (!z) return;
+    if (dragging && z.firstChild) return;          // never repaint under a drag
     const building = S.builds.map((b) => b.room);
     const staff = {};
     S.pawns.forEach((p) => {
@@ -198,7 +238,9 @@ export function mountSect(h) {
       if (site) (staff[site] = staff[site] || []).push(p);
     });
     const trayText = (r) => (r.tray || []).slice(0, 2).map((t) => `+${t.n} ${t.name}`).join(' ');
-    const sig = JSON.stringify([S.rooms.map((r) => r.level), building, Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.rooms.map((r) => r.affordable), S.rooms.map(trayText), S.treasures.length]);
+    const held = selPawn ? S.pawns.find((p) => p.id === selPawn) : null;
+    const sig = JSON.stringify([S.rooms.map((r) => [r.level, r.affordable, trayText(r), r.tray_full, r.posted.length, r.slots]), building,
+      Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.treasures.length, selPawn, dragging, S.pawns.map((p) => p.id + p.post)]);
     if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
     const lookL = LOOK('label');
@@ -206,24 +248,55 @@ export function mountSect(h) {
     const rooms = S.rooms.map((r) => {
       const [x, y, w, hh] = siteRect(r.id);
       const crew = (staff[r.id] || []).slice(0, 5).map((p) => face(p, 30)).join('');
-      // A room you can afford to raise glows softly on its name plate (no badge, no arrow); a room whose crew made
-      // something since dawn has its lanterns brightened and says what.
-      const tray = trayText(r);
+      // A room you can afford to raise glows softly on its name plate (no badge, no arrow).
       const name = lookL === 'B'
         ? `<span class="pl-name">${esc(r.name)}</span>${r.open ? `<span class="pl-lv">${r.level}</span>` : building.includes(r.id) ? '<span class="pl-lv">building</span>' : ''}`
         : `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : building.includes(r.id) ? '<i class="pl-note">building</i>' : ''}`;
-      return `<button class="room look${lookL} ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${tray ? 'tray' : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
-        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${tray ? `, made ${esc(tray)} since dawn` : ''}"${r.affordable ? ' title="Ready to raise"' : ''}>
+      const fit = held ? (r.slots ? (r.posted.length >= r.slots && held.post !== r.id ? 'full' : held.fit[r.id] || 'poor') : 'none') : '';
+      const fitWord = { good: 'suits them well', fair: 'suits them', poor: 'suits them poorly', full: 'is full', none: 'takes no post' }[fit] || '';
+      return `<button class="room look${lookL} ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
+        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${fitWord}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}"${r.affordable && !held ? ' title="Ready to raise"' : ''}>
         <span class="crew" aria-hidden="true">${crew}</span>
-        ${tray ? `<span class="trayn" aria-hidden="true">${esc(tray)}</span>` : ''}
+        ${held && r.slots ? `<span class="slotn" aria-hidden="true">${r.posted.length}/${r.slots}</span>` : ''}
         <span class="plaque">${name}</span></button>`;
     }).join('');
+    // A tray is a button of its own over the room: what the crew made since dawn, brighter when a morning's work waits.
+    const trays = held ? '' : S.rooms.filter((r) => r.tray.length).map((r) => {
+      const [x, y, w, hh] = siteRect(r.id);
+      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.5}%"
+        aria-label="${esc(r.name)} made ${esc(trayText(r))} since the last look. Inspect the work">${r.tray.slice(0, 2).map((t) => `<b class="num">+${t.n}</b> ${esc(t.name)}`).join(' ')}</button>`;
+    }).join('');
+    const roster = S.pawns.filter((p) => !p.away).map((p) => `<button class="token ${selPawn === p.id ? 'on' : ''}" data-token="${esc(p.id)}" aria-pressed="${selPawn === p.id}"
+        aria-label="${esc(p.name)}${p.post ? `, posted to the ${esc((S.rooms.find((r) => r.id === p.post) || {}).name || '')}` : ''}. Pick up to post">${face(p, 34)}<span><b>${esc(p.name.split(' ').slice(-1)[0])}</b><small>${esc(p.post ? (S.rooms.find((r) => r.id === p.post) || {}).name || '' : p.doing || '')}</small></span></button>`).join('');
     const [vx, vy, vw, vh] = VAULT;
-    z.innerHTML = `<div class="hq">${sectScene()}<div class="daylight" id="daylight"></div>${rooms}
+    z.innerHTML = `<div class="hq ${held ? 'holding' : ''}">${sectScene()}<div class="daylight" id="daylight"></div>${rooms}${trays}
       <button class="room vault" data-vault style="left:${vx}%;top:${vy}%;width:${vw}%;height:${vh}%" aria-label="Treasure vault: manuals, treasures and the world beyond">
-        <span class="plaque">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></button></div>`;
-    z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.room); });
+        <span class="plaque">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></button></div>
+      <div class="roster" role="group" aria-label="Post disciples to rooms"><span class="rhint">${held ? `Now choose a room for ${esc(held.name)}. <button class="btn" data-unpick>Cancel</button>` : 'Drag a disciple onto a room to post them there, or tap one and then a room.'}</span><div class="tokens">${roster}</div></div>`;
+    z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => { if (Date.now() - heldAt < 400) return; if (selPawn) postTo(b.dataset.room); else roomSheet(b.dataset.room); }; });
+    z.querySelectorAll('[data-token]').forEach((b) => {
+      b.onpointerdown = (e) => startDrag(e, b.dataset.token, b);
+      b.onclick = () => { if (Date.now() - heldAt < 400) return; selPawn = selPawn === b.dataset.token ? '' : b.dataset.token; sceneSig = ''; paintScene(); };
+    });
+    z.querySelectorAll('[data-tray]').forEach((b) => { b.onclick = () => collect(b); });
+    const un = $('[data-unpick]', z); if (un) un.onclick = cancelPick;
+    z.onkeydown = (e) => { if (e.key === 'Escape' && selPawn) { e.stopPropagation(); cancelPick(); } };
     $('[data-vault]', z).onclick = () => { tab = 'world'; sessionStorage.setItem('sect.tab', tab); paintTabs(); $('#z-tabs').scrollIntoView({ behavior: 'smooth' }); };
+  }
+
+  // Tapping a tray: the numbers count up and lift away, then the server's answer (the crew's thought) is toasted.
+  function collect(b) {
+    if (b.classList.contains('taken')) return;
+    b.classList.add('taken');
+    const nums = [...b.querySelectorAll('.num')].map((n) => [n, Number(n.textContent.replace(/\D/g, '')) || 0]);
+    const t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / 450);
+      nums.forEach(([n, v]) => { n.textContent = `+${Math.round(v * k)}`; });
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    setTimeout(() => { sceneSig = ''; order('inspect', { room: b.dataset.tray }); }, 700);
   }
 
   // The near goal, always in view: the next Main Hall level, what it opens, and the three rooms it waits on.

@@ -305,3 +305,154 @@ def test_an_old_save_over_the_new_caps_keeps_its_rooms(st):
     s2 = {"colony": colony.sanitize(c, T0), "settings": {"tz_offset_min": 0}}
     assert s2["colony"]["rooms"]["library"] == 3 and s2["colony"]["rooms"]["alchemy"] == 2
     assert colony.view(s2, T0)["rooms"]
+
+
+# ---------------------------------------------------------------------------
+# stage 4: posts by drag, trays to tap, rushes at a shown risk
+# ---------------------------------------------------------------------------
+def test_a_post_sets_first_priority_and_respects_the_slots(st):
+    c = st["colony"]
+    a, b, m = c["pawns"][1], c["pawns"][2], c["pawns"][0]
+    prio = dict(a["prio"])
+    assert colony.set_post(st, a["id"], "fields", T0)["ok"]
+    assert a["prio"]["farm"] == 1 and a["post"] == "fields"
+    assert {j: v for j, v in a["prio"].items() if j != "farm"} == {j: v for j, v in prio.items() if j != "farm"}   # the rest unchanged
+    assert colony.room_slots(c, "fields") == 2
+    assert colony.set_post(st, b["id"], "fields", T0)["ok"]
+    err = colony.set_post(st, m["id"], "fields", T0)
+    assert not err["ok"] and "full (2 of 2)" in err["error"]
+    assert not colony.set_post(st, a["id"], "library", T0)["ok"]                  # not built
+    assert colony.set_post(st, a["id"], "storehouse", T0)["ok"] is False          # not built either
+    c["rooms"]["storehouse"] = 1
+    assert colony.set_post(st, a["id"], "storehouse", T0)["ok"]
+    assert a["prio"]["farm"] == 2 and all(a["prio"][j] == 1 for j in ("wood", "mine", "forage"))
+    v = colony.view(st, T0)
+    room = next(r for r in v["rooms"] if r["id"] == "storehouse")
+    assert room["posted"] == [a["id"]] and room["slots"] == 3
+    assert next(p for p in v["pawns"] if p["id"] == a["id"])["fit"]["fields"] in ("good", "fair", "poor")
+    colony.set_priority(st, a["id"], "wood", 3, T0)                               # the detailed grid wins: the post is gone
+    assert a["post"] == ""
+
+
+def _made_today(c, room_job="farm", res="rice", pid=None, n=12.0):
+    c["hour"] = 24 * 3 + 14
+    c["made_from"] = 0
+    pid = pid or c["pawns"][1]["id"]
+    c["made"] = {str(24 * 3 + 9): {f"{res}|{room_job}|{pid}": n, f"h|{room_job}|{pid}": 1.0}}
+
+
+def test_tapping_a_tray_cheers_the_crew_once_a_day_and_adds_nothing(st):
+    c = st["colony"]
+    _made_today(c)
+    res = dict(c["res"])
+    assert colony.trays(c)["fields"] == [("rice", 12.0)]
+    out = colony.inspect_tray(st, "fields", T0)
+    assert out["ok"] and out["made"][0]["n"] == 12 and c["res"] == res               # nothing added: it is in the stores already
+    p = c["pawns"][1]
+    t = next(t for t in p["thoughts"] if t["k"] == "inspect_fields")
+    assert t["v"] == colony.INSPECT_MOOD and t["until"] == c["hour"] + colony.INSPECT_HOURS
+    assert "fields" not in colony.trays(c)                                          # the count starts again
+    c["made"][str(c["hour"] + 1)] = {f"rice|farm|{p['id']}": 3.0, f"h|farm|{p['id']}": 1.0}
+    c["hour"] += 2
+    p["thoughts"] = []
+    assert colony.inspect_tray(st, "fields", T0)["ok"] and not p["thoughts"]        # once a room a day
+    assert not colony.inspect_tray(st, "fields", T0)["ok"]                          # nothing new to look at
+
+
+def test_a_tray_reads_full_after_a_working_morning(st):
+    c = st["colony"]
+    _made_today(c)
+    assert colony.tray_full(c, "fields")                                            # 8 hours since dawn
+    v = next(r for r in colony.view(st, T0)["rooms"] if r["id"] == "fields")
+    assert v["tray_full"] and v["tray"]
+
+
+def test_never_tapping_changes_nothing_in_the_sim(st):
+    import copy
+    c = st["colony"]
+    c["res"].update(wood=200.0, stone=200.0)
+    twin = {"colony": copy.deepcopy(c), "settings": copy.deepcopy(st["settings"])}
+    for h in range(48):
+        colony.advance(st, 1, T0)
+        colony.advance(twin, 1, T0)
+        if h % 6 == 0:
+            for room in list(colony.trays(c)):
+                colony.inspect_tray(st, room, T0)
+        for s_ in (st, twin):
+            if s_["colony"]["pending"]:
+                colony.resolve(s_, s_["colony"]["pending"]["options"][-1]["id"], T0)
+    assert {k: round(v, 3) for k, v in c["res"].items()} == {k: round(v, 3) for k, v in twin["colony"]["res"].items()}
+
+
+def test_rush_odds_are_a_ledger_and_the_roll_matches(st):
+    c = st["colony"]
+    _made_today(c, n=24.0)
+    rows = colony.rush_rows(c, "fields")
+    assert rows[0] == ("Any rush risks an incident", colony.RUSH_BASE) and colony.rush_chance(c, "fields") == sum(v for _, v in rows)
+    c["rushes"] = [{"k": "fields", "h": c["hour"] - 24}, {"k": "fields", "h": c["hour"] - 2}]
+    rows = colony.rush_rows(c, "fields")
+    assert [v for label, v in rows if label.startswith("Rushed")] == [round(15 * 0.85), round(15 * (1 - 0.15 * 2 / 24))]
+    assert colony.rush_chance(c, "fields") == sum(v for _, v in rows)
+    c["rushes"] = [{"k": "fields", "h": c["hour"]}] * 8
+    assert colony.rush_chance(c, "fields") == colony.RUSH_CAP
+    c["rushes"] = []
+    # the roll: same seed, same chance -> the resolver's draw decides exactly as the shown odds say
+    out = colony.rush_output(c, "fields")
+    assert out["rice"] > 0
+    chance = colony.rush_chance(c, "fields")
+    r = colony._rng(c, "rush", c["hour"], "fields", 0)
+    incident = r.random() * 100 < chance
+    rice = c["res"]["rice"]
+    res = colony.rush(st, "fields", T0)
+    assert res["ok"] and res["incident"] == incident
+    if not incident:
+        assert c["res"]["rice"] > rice
+    assert c["rushes"][-1]["k"] == "fields"
+
+
+def test_a_failed_rush_wounds_but_never_kills_and_idles_the_room(st, monkeypatch):
+    c = st["colony"]
+    _made_today(c, n=24.0)
+    p = c["pawns"][1]
+    p["health"] = 6.0
+    monkeypatch.setattr(colony, "rush_chance", lambda c_, t: 100)
+    monkeypatch.setattr(colony, "contain_chance", lambda c_, t: 0)
+    rice = c["res"]["rice"]
+    res = colony.rush(st, "fields", T0)
+    assert res["ok"] and res["incident"] and not res["contained"]
+    assert c["res"]["rice"] == rice and p in c["pawns"] and p["health"] > 0
+    assert c["room_idle"]["fields"] == c["hour"] + colony.RUSH_IDLE and not colony._job_open(c, "farm", {})
+    assert not colony.rush(st, "fields", T0)["ok"]                                 # still idle
+    assert c["scenes"][-1]["kind"] == "incident" and not c["scenes"][-1]["ok"]
+
+
+def test_rushing_a_build_finishes_it_or_sets_it_back(st, monkeypatch):
+    c = st["colony"]
+    c["res"].update(wood=999.0, stone=999.0)
+    assert colony.queue_build(st, "ward", T0)["ok"]
+    monkeypatch.setattr(colony, "rush_chance", lambda c_, t: 0)
+    assert colony.rush(st, "", T0, 0)["ok"] and c["rooms"]["ward"] == 1 and not c["builds"]
+    assert colony.queue_build(st, "ward", T0)["ok"]
+    b = c["builds"][0]
+    need, wood = b["need"], b["cost"]["wood"]
+    monkeypatch.setattr(colony, "rush_chance", lambda c_, t: 100)
+    monkeypatch.setattr(colony, "contain_chance", lambda c_, t: 0)
+    assert colony.rush(st, "", T0, 0)["ok"]
+    assert b["need"] == need + colony.RUSH_BUILD_BACK and b["cost"]["wood"] == pytest.approx(wood * 0.9)
+    assert colony.view(st, T0)["builds"][0]["rush"]["chance"] >= 0
+
+
+def test_no_rush_or_tray_moves_while_away(st):
+    c = st["colony"]
+    c["last_real"] = T0
+    colony.catch_up(st, T0 + 10 * colony.SECS_PER_HOUR_OFFLINE)
+    assert c["rushes"] == [] and c["room_idle"] == {} and c["tray_seen"] == {}
+
+
+def test_room_play_state_survives_a_bad_save(st):
+    c = st["colony"]
+    c["rushes"] = [{"k": "fields", "h": 5}, {"k": "nope", "h": 1}, "x"]
+    c["tray_seen"] = {"fields": "x", "nope": 3}
+    c["pawns"][1]["post"] = "dungeon"
+    s2 = colony.sanitize(c, T0)
+    assert s2["rushes"] == [{"k": "fields", "h": 5}] and s2["tray_seen"] == {"fields": -1} and s2["pawns"][1]["post"] == ""
