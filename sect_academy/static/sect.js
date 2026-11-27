@@ -205,7 +205,7 @@ export function mountSect(h) {
     const move = (ev) => {
       if (!ghost && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 8) return;
       if (!ghost) {
-        selPawn = pid; dragging = true; sceneSig = ''; paintScene();
+        selPawn = pid; dragging = false; sceneSig = ''; paintScene(); dragging = true;
         ghost = document.createElement('div'); ghost.className = 'dragghost'; ghost.innerHTML = btn.querySelector('.face') ? btn.querySelector('.face').outerHTML : '';
         document.body.appendChild(ghost);
       }
@@ -263,7 +263,7 @@ export function mountSect(h) {
     // A tray is a button of its own over the room: what the crew made since dawn, brighter when a morning's work waits.
     const trays = held ? '' : S.rooms.filter((r) => r.tray.length).map((r) => {
       const [x, y, w, hh] = siteRect(r.id);
-      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.5}%"
+      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.42}%"
         aria-label="${esc(r.name)} made ${esc(trayText(r))} since the last look. Inspect the work">${r.tray.slice(0, 2).map((t) => `<b class="num">+${t.n}</b> ${esc(t.name)}`).join(' ')}</button>`;
     }).join('');
     const roster = S.pawns.filter((p) => !p.away).map((p) => `<button class="token ${selPawn === p.id ? 'on' : ''}" data-token="${esc(p.id)}" aria-pressed="${selPawn === p.id}"
@@ -361,6 +361,7 @@ export function mountSect(h) {
     });
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-roomtile]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.roomtile); });
+    z.querySelectorAll('[data-rushbuild]').forEach((b) => { b.onclick = () => rushSheet(Number(b.dataset.rushbuild)); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-blueprint]').forEach((b) => { b.onclick = () => order('blueprint', { index: Number(b.dataset.blueprint) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
@@ -445,7 +446,7 @@ export function mountSect(h) {
         <li class="row dim small">A day of study draws a Master's Blueprint (${B.blueprint_cut}% off one job, up to 3 kept); five study days in a week lend the Master as a builder for 24 sect hours.</li></ul></details>`;
   }
   function benchButtons(i) {
-    return `${S.builders.blueprints ? `<button class="btn" data-blueprint="${i}" title="Takes ${S.builders.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}<button class="btn" data-cancel="${i}">Cancel</button>`;
+    return `<button class="btn" data-rushbuild="${i}" title="Finish it now, at a risk">Rush</button>${S.builders.blueprints ? `<button class="btn" data-blueprint="${i}" title="Takes ${S.builders.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}<button class="btn" data-cancel="${i}">Cancel</button>`;
   }
 
   // Look A, the workshop: builders as workbenches with a painted crop of the room and a big countdown; rooms as
@@ -726,15 +727,40 @@ export function mountSect(h) {
     draw();
   }
 
+  // The odds of a rush, as two ledgers: the chance of an incident, and the chance the crew contain one.
+  function rushHtml(R, what) {
+    const rows = (list) => list.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${o.v > 0 ? '+' : ''}${o.v}%</span></li>`).join('');
+    return `<div class="rushbox"><h3>Rush ${esc(what)}</h3>
+      <p class="small">${R.out && R.out.length ? `Delivers ${esc(R.out.map((x) => `${x.n} ${x.name}`).join(' and '))} now, six hours of the crew's work.` : 'Finishes the job now.'}</p>
+      <div class="rushodds"><div><b class="num">${R.chance}%</b><small>chance of an incident (${esc(R.incident.toLowerCase())})</small></div>
+        <div><b class="num">${R.contain}%</b><small>the crew contain it if it comes</small></div></div>
+      <details class="fold"><summary>Why ${R.chance}%</summary><ul class="list odds">${rows(R.rows)}</ul></details>
+      <details class="fold"><summary>Why ${R.contain}% to contain it</summary><ul class="list odds">${rows(R.contain_rows)}</ul>
+        <p class="dim small">${R.crew.length ? `The crew: ${esc(R.crew.join(', '))}.` : 'No crew to lean on.'}</p></details>
+      <p class="dim small">If it is not contained: ${R.out && R.out.length ? 'the rushed work is lost, the room stands idle six hours and the crew are hurt' : 'two more hours of work and a tenth of the materials spoiled'}. No one dies of a rush. Each rush makes the next one riskier for two days.</p></div>`;
+  }
+  function rushSheet(index) {
+    const b = S.builds.filter((x) => x.running)[index]; if (!b || !b.rush) return;
+    openSheet(`<h2>${esc(b.name)} to level ${b.level}</h2>${rushHtml(b.rush, 'the build')}
+      <button class="btn primary" data-dorush>Rush it (${b.rush.chance}% risk)</button>`);
+    const go = $('[data-dorush]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('rush-build', { index }); };
+  }
+
   function roomSheet(id) {
     const r = S.rooms.find((x) => x.id === id); if (!r) return;
+    const crew = r.posted.map((pid) => (S.pawns.find((p) => p.id === pid) || {}).name).filter(Boolean);
+    const R = r.rush;
     openSheet(`<h2>${esc(r.name)}</h2><p class="dim">${r.open ? `Level ${r.level} of ${r.max}` : 'Not built yet'}${r.queued ? ' · under construction' : ''}</p><p>${esc(r.effect)}</p>
+      ${r.slots ? `<p class="small">Posted here (${esc(r.post_jobs.join(', '))} first): ${r.posted.length} of ${r.slots}${crew.length ? `, ${esc(crew.join(', '))}` : ''}. Drag a disciple from the roster under the map onto the room to post them.</p>` : ''}
+      ${r.tray.length ? `<p class="small">Made since the last look: ${esc(r.tray.map((t) => `${t.n} ${t.name}`).join(', '))}. It is in the stores already; tapping the tray on the map is the Master's inspection, which pleases the crew (+3 mood for 12 hours, once a day).</p>` : ''}
       ${r.cost ? (r.locked ? `<p class="tag red">${esc(r.locked)}</p>`
-        : `<button class="btn ${r.affordable ? 'primary' : ''}" data-go ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>
+    : `<button class="btn ${r.affordable ? 'primary' : ''}" data-go ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>
            <p class="dim small" style="margin-top:8px">${r.affordable ? `Materials are spent now. ${esc(readyIn(r.hours))}. Disciples with Build as a priority help.`
-             : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`)
-        : '<p class="tag gold">Highest level reached</p>'}`);
+    : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`)
+    : '<p class="tag gold">Highest level reached</p>'}
+      ${R ? (R.idle ? `<p class="warn">Putting things right after an incident: idle ${R.idle} more hours.</p>` : R.out.length ? `${rushHtml(R, 'the work')}<button class="btn" data-dorush>Rush it (${R.chance}% risk)</button>` : '<p class="dim small">Nobody has worked here today, so there is nothing to rush.</p>') : ''}`);
     const go = $('[data-go]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
+    const ru = $('[data-dorush]', $('#sheet')); if (ru) ru.onclick = async () => { closeSheet(); await order('rush', { room: id }); };
   }
 
   function paintStyle() {

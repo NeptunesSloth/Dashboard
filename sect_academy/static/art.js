@@ -47,7 +47,7 @@ export function backdrop(name) { return `/art/bg_${BACKDROPS.has(name) ? name : 
    The server says whether that file exists (scene.painted), so a missing picture is never requested;
    until then the closest backdrop stands in. */
 const SCENE_FALLBACK = { raid: 'map', tournament: 'technique', festival: 'hall', funeral: 'leader', tribulation: 'seclusion', breakthrough: 'seclusion', realm: 'treasure',
-  sickness: 'pill', blight: 'map', infiltrator: 'leader', theft: 'treasure',
+  sickness: 'pill', blight: 'map', infiltrator: 'leader', theft: 'treasure', incident: 'pill',
   festival_spring: 'hall', festival_moon: 'hall', festival_ghost: 'hall', festival_winter: 'hall' };
 /** The backdrop for a result scene of a known kind. */
 export function scene(kind, painted = false) {

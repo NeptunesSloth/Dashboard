@@ -1021,3 +1021,43 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .lrow.locked { padding-block: 3px; } .lrow.locked .lthumb { width: 38px; height: 38px; }
 .lgo { display: grid; justify-items: end; gap: 2px; } .lgo .btn { min-height: 34px; padding: 2px 16px; font-size: .88rem; }
 .lneed { color: #ff9f8a; text-align: right; max-width: 22ch; }
+
+/* ---------------- room play: posts, trays, rushes ---------------- */
+/* a tray: a lantern-lit tag over the room; a morning's work makes it burn bright and gently pulse */
+.traybtn { position: absolute; z-index: 2; transform: translate(-50%, -50%); display: inline-flex; gap: 6px; align-items: baseline; white-space: nowrap; cursor: pointer;
+  padding: 3px 12px; border-radius: 14px; border: 1px solid #a97a1c; background: #1a120bd9; color: #f4dca8; font: 600 clamp(.6rem, .95vw, .78rem)/1.4 var(--serif);
+  box-shadow: 0 0 10px #e9b44c33; transition: transform .2s, opacity .3s; }
+.traybtn .num { font: 700 1.15em var(--serif); color: #ffd98a; }
+.traybtn:hover, .traybtn:focus-visible { border-color: #f0c15e; box-shadow: 0 0 16px #e9b44c80; outline: none; }
+.traybtn.full { border-color: #f0c15e; background: radial-gradient(120% 140% at 50% 0%, #6b4512f0, #24170cf0 70%); color: #fff0cc;
+  box-shadow: 0 0 0 1px #f0c15e66, 0 0 22px 4px #f0a83a88; font-size: clamp(.66rem, 1.05vw, .86rem); }
+.traybtn.full .num { color: #fff3d6; text-shadow: 0 0 8px #ffb64a; }
+.room.trayfull::before { background: radial-gradient(70% 70% at 50% 45%, #ffb64a55 0%, #ffb64a22 45%, transparent 78%); }
+.traybtn.taken { transform: translate(-50%, -140%); opacity: 0; transition: transform .6s ease-out .25s, opacity .45s ease-in .4s; }
+@media (prefers-reduced-motion: no-preference) { .traybtn.full { animation: traypulse 2.4s ease-in-out infinite; } }
+@keyframes traypulse { 50% { box-shadow: 0 0 0 1px #f0c15e99, 0 0 30px 8px #f0a83aaa; } }
+/* the roster under the map: pick a disciple up and drop them on a room */
+.roster { display: grid; gap: 6px; margin-top: 10px; }
+.rhint { font-size: .86rem; color: var(--dim); } .rhint .btn { min-height: 28px; padding: 1px 10px; font-size: .8rem; margin-left: 6px; }
+.tokens { display: flex; flex-wrap: wrap; gap: 6px; }
+.token { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 22px; border: 1px solid #4a3a28; background: #1a130e;
+  color: var(--ink); cursor: grab; touch-action: none; font: inherit; text-align: left; }
+.token span { display: grid; line-height: 1.15; } .token b { font: 700 .86rem var(--serif); color: #f8e6bf; } .token small { font-size: .7rem; color: var(--dim); }
+.token:hover, .token:focus-visible { border-color: #a97a1c; outline: none; }
+.token.on { border-color: #f0c15e; box-shadow: 0 0 12px #e9b44c66; background: #2a1e0c; }
+.dragghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -60%) scale(1.15); filter: drop-shadow(0 6px 10px #000c); }
+.dragghost .face { width: 46px; height: 46px; }
+/* while a disciple is in hand: each room glows for how well they suit it */
+.hq.holding .room.closed { opacity: .5; }
+.hq.holding .room.fit-good { background: #3fae8226; box-shadow: inset 0 0 0 2px #3fae82, inset 0 0 30px #3fae8240; }
+.hq.holding .room.fit-fair { background: #e9b44c1f; box-shadow: inset 0 0 0 2px #e9b44ccc, inset 0 0 26px #e9b44c33; }
+.hq.holding .room.fit-poor { background: #9a8f8014; box-shadow: inset 0 0 0 2px #9a8f8099; }
+.hq.holding .room.fit-full, .hq.holding .room.fit-none { background: #0a0705a0; }
+.hq.holding .room.over { box-shadow: inset 0 0 0 3px #fff3d6, inset 0 0 40px #f0c15e66; }
+.room .slotn { position: absolute; right: 8px; top: 6px; padding: 0 8px; border-radius: 9px; font: 700 .78rem/1.5 var(--serif); background: #120d0ae6; color: #f8e6bf; border: 1px solid #7d6a4a; }
+.room.fit-good .slotn { border-color: #3fae82; } .room.fit-full .slotn { color: #ff9f8a; border-color: #a13624; }
+/* the rush odds */
+.rushbox { margin: 14px 0 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid #5a4426; background: #0000003d; }
+.rushbox h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.rushodds { display: flex; gap: 18px; margin: 8px 0; } .rushodds div { display: grid; } .rushodds b { font: 700 1.5rem/1.1 var(--serif); color: #f8e6bf; }
+.rushodds small { color: var(--dim); font-size: .78rem; max-width: 22ch; }
