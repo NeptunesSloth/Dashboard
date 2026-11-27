@@ -1,0 +1,397 @@
+id: spanish-b2
+title: "Spanish — B2 Upper Intermediate"
+kind: language
+language: Spanish
+lang: es-ES
+hall: tongues_south
+blurb: "Argue, persuade and write formally: every past subjunctive, if-sentences of all types, the passive, verbal periphrases, ser/estar shifts, reported speech, 60 idioms and 25 conversations for debates, interviews and complaints."
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: es-b2-01
+    title: "What they wanted me to do: the imperfect subjunctive — the world of work"
+    goal: "I can say what my employer wanted, asked or expected of me, and talk about hiring, promotion and working conditions."
+    notes: |
+      The **imperfecto de subjuntivo** is the past partner of the present subjunctive. When the main verb is in a past tense or the conditional, the subjunctive after *que* moves into it.
+
+      | Main verb | que + | Example |
+      | present | present subjunctive | Quiere que **venga**. |
+      | past (quería, pidió, era…) | imperfect subjunctive | Quería que **viniera**. |
+      | conditional | imperfect subjunctive | Preferiría que **viniera**. |
+
+      - Form it from the *ellos* form of the indefinido: drop **-ron**, add *-ra, -ras, -ra, -ramos, -rais, -ran*: *pidieron → pidiera*, *dijeron → dijera*, *hicieron → hiciera*.
+      - The *nosotros* form carries an accent: *hiciéramos, fuéramos, tuviéramos*.
+      - The **-se** endings (*hiciese, fuese*) mean exactly the same; they are commoner in Spain and in writing.
+      - Every B1 trigger carries over: wishes and requests, feelings, doubt, *para que*, and a person who may not exist (*buscaban a alguien que supiera…*).
+      - **Quisiera** (from *querer*) is the most polite "I would like": *Quisiera hablar con usted*.
+    items:
+      - {id: es-b2-01-curriculum, type: vocab, l2: "el currículum", l1: "the CV / the résumé",
+         alt: ["el currículo", "el currículum vitae", "la hoja de vida"],
+         ex: "Te envío mi currículum por correo.", ex_l1: "I'll send you my CV by e-mail.",
+         note: "Colombia and parts of Latin America say la hoja de vida. Plural: los currículums."}
+      - {id: es-b2-01-plantilla, type: vocab, l2: "la plantilla", l1: "the staff / the workforce (of a company)", alt: ["el personal"],
+         ex: "La empresa quiere reducir la plantilla.", ex_l1: "The company wants to cut its workforce.",
+         note: "Spain. Latin America usually says el personal. Also a template (in a document)."}
+      - {id: es-b2-01-ascenso, type: vocab, l2: "el ascenso", l1: "the promotion (at work)",
+         ex: "Después de cinco años, por fin me dieron un ascenso.", ex_l1: "After five years, they finally gave me a promotion.",
+         note: "The verb is ascender (e → ie): me ascendieron = I was promoted. A sales promotion is una promoción or una oferta."}
+      - {id: es-b2-01-despedir, type: vocab, l2: "despedir", l1: "to dismiss / to fire (from a job)", alt: ["echar"],
+         ex: "Han despedido a veinte trabajadores.", ex_l1: "They have fired twenty workers.",
+         note: "e → i: despido, despides. despedirse (reflexive) = to say goodbye. Colloquial: echar."}
+      - {id: es-b2-01-despido, type: vocab, l2: "el despido", l1: "the dismissal / the redundancy",
+         ex: "El despido fue injusto.", ex_l1: "The dismissal was unfair."}
+      - {id: es-b2-01-contratar, type: vocab, l2: "contratar", l1: "to hire / to take on (a worker)",
+         ex: "Van a contratar a tres personas más.", ex_l1: "They are going to take on three more people.",
+         note: "Personal a before the people hired. Related: el contrato (the contract)."}
+      - {id: es-b2-01-autonomo, type: vocab, l2: "el autónomo", l1: "the self-employed worker / the freelancer (male)",
+         alt: ["el trabajador autónomo", "el trabajador independiente", "el freelance"],
+         ex: "Mi hermano es autónomo: trabaja desde casa.", ex_l1: "My brother is self-employed: he works from home.",
+         note: "Spain: ser autónomo. Latin America: trabajador independiente. Feminine: la autónoma."}
+      - {id: es-b2-01-jornada, type: vocab, l2: "la jornada laboral", l1: "the working day (the hours you work)", alt: ["la jornada de trabajo"],
+         ex: "Mi jornada laboral es de ocho horas.", ex_l1: "My working day is eight hours long.",
+         note: "trabajar a jornada completa / a media jornada = to work full-time / part-time."}
+      - {id: es-b2-01-horas-extra, type: vocab, l2: "las horas extra", l1: "overtime (the extra hours)", alt: ["las horas extras"],
+         ex: "Este mes he hecho muchas horas extra.", ex_l1: "This month I've done a lot of overtime.",
+         note: "hacer horas extra = to work overtime. Both extra and extras are heard."}
+      - {id: es-b2-01-teletrabajo, type: vocab, l2: "el teletrabajo", l1: "remote working / working from home (the noun)", alt: ["el trabajo en remoto", "el trabajo a distancia"],
+         ex: "Desde la pandemia hago teletrabajo dos días a la semana.", ex_l1: "Since the pandemic I've worked from home two days a week.",
+         note: "The verb is teletrabajar. Also trabajar en remoto."}
+      - {id: es-b2-01-sindicato, type: vocab, l2: "el sindicato", l1: "the trade union / the labor union",
+         ex: "El sindicato ha convocado una huelga.", ex_l1: "The union has called a strike.",
+         note: "convocar una huelga = to call a strike."}
+      - {id: es-b2-01-salario-minimo, type: vocab, l2: "el salario mínimo", l1: "the minimum wage",
+         ex: "El gobierno va a subir el salario mínimo.", ex_l1: "The government is going to raise the minimum wage.",
+         note: "el salario is more formal than el sueldo; both mean pay."}
+      - {id: es-b2-01-dimitir, type: vocab, l2: "dimitir", l1: "to resign (from a post)", alt: ["renunciar"],
+         ex: "El director dimitió después del escándalo.", ex_l1: "The director resigned after the scandal.",
+         note: "dimitir is the word for officials and politicians. To quit an ordinary job, people say dejar el trabajo or (especially in Latin America) renunciar."}
+      - {id: es-b2-01-formacion, type: vocab, l2: "la formación", l1: "training / education (for a job)",
+         ex: "La empresa ofrece formación a todos los empleados.", ex_l1: "The company offers training to all its employees.",
+         note: "False friend: a formation of things is una disposición. la formación profesional = vocational training."}
+      - {id: es-b2-01-becario, type: vocab, l2: "el becario", l1: "the intern / the trainee (male)", alt: ["el pasante", "el practicante"],
+         ex: "Este verano tenemos dos becarios en la oficina.", ex_l1: "This summer we have two interns in the office.",
+         note: "Spain. Also a grant holder (from la beca). Latin America: el pasante. Feminine: la becaria."}
+      - {id: es-b2-01-practicas, type: vocab, l2: "las prácticas", l1: "the internship / the work placement", alt: ["la pasantía"],
+         ex: "Hice las prácticas en un banco.", ex_l1: "I did my work placement at a bank.",
+         note: "Plural in Spain: hacer prácticas. Latin America: la pasantía."}
+      - {id: es-b2-01-rendimiento, type: vocab, l2: "el rendimiento", l1: "the performance (how well someone or something does)",
+         ex: "Su rendimiento ha mejorado mucho este año.", ex_l1: "Her performance has improved a lot this year.",
+         note: "A show is un espectáculo, a theatre performance una función."}
+      - {id: es-b2-01-exigir, type: vocab, l2: "exigir", l1: "to demand / to require",
+         ex: "Este puesto exige mucha experiencia.", ex_l1: "This post requires a lot of experience.",
+         note: "Spelling: exijo, exija (g → j before o and a). exigir que + subjunctive."}
+      - {id: es-b2-01-negociar, type: vocab, l2: "negociar", l1: "to negotiate",
+         ex: "Queremos negociar las condiciones del contrato.", ex_l1: "We want to negotiate the terms of the contract."}
+      - {id: es-b2-01-echar-mano, type: vocab, l2: "echar una mano", l1: "to lend a hand / to help out (idiom)", alt: ["echar un cable"],
+         ex: "¿Me echas una mano con la mudanza?", ex_l1: "Will you give me a hand with the move?",
+         note: "Spain also says echar un cable."}
+      - {id: es-b2-01-pilas, type: vocab, l2: "ponerse las pilas", l1: "to get your act together / to get cracking (idiom)",
+         ex: "Si quieres el ascenso, tienes que ponerte las pilas.", ex_l1: "If you want the promotion, you have to get your act together.",
+         note: "Literally 'to put your batteries in'. Very common in Spain and Latin America."}
+      - {id: es-b2-01-enchufe, type: vocab, l2: "tener enchufe", l1: "to have connections / to know the right people (to get a job)", alt: ["tener palanca"],
+         ex: "Consiguió el puesto porque tiene enchufe.", ex_l1: "He got the job because he has connections.",
+         note: "Spain: enchufe (literally a plug), un enchufado = someone who got in through connections. Much of Latin America: tener palanca."}
+      - {id: es-b2-01-hasta-arriba, type: vocab, l2: "estar hasta arriba de trabajo", l1: "to be up to your eyes in work (idiom)",
+         alt: ["estar hasta arriba", "estar a tope de trabajo", "estar hasta el cuello de trabajo"],
+         ex: "Esta semana no puedo quedar: estoy hasta arriba de trabajo.", ex_l1: "I can't meet up this week: I'm up to my eyes in work."}
+      - {id: es-b2-01-pan-comido, type: phrase, l2: "Es pan comido.", l1: "It's a piece of cake. (idiom: very easy)", alt: ["Está tirado", "Es facilísimo"],
+         note: "Literally 'it's eaten bread'. Spain also says está tirado."}
+      - {id: es-b2-01-me-pidio-quedara, type: phrase, l2: "Me pidió que me quedara hasta tarde.", l1: "She asked me to stay late.",
+         alt: ["Me pidió que me quedase hasta tarde"], note: "pidió (past) → que + imperfect subjunctive: quedaron → quedara."}
+      - {id: es-b2-01-querian-empezara, type: phrase, l2: "Querían que empezara el lunes.", l1: "They wanted me to start on Monday.",
+         alt: ["Querían que empezase el lunes", "Querían que comenzara el lunes", "Querían que comenzase el lunes"]}
+      - {id: es-b2-01-seria-mejor, type: phrase, l2: "Sería mejor que lo habláramos con calma.", l1: "It would be better if we discussed it calmly.",
+         alt: ["Sería mejor que lo hablásemos con calma", "Sería mejor que lo habláramos tranquilamente"],
+         note: "A conditional in the main clause also takes the imperfect subjunctive."}
+      - {id: es-b2-01-c1, type: cloze, text: "Mi jefa quería que yo ___ el informe antes del viernes.", answer: "terminara",
+         alt: ["terminase", "acabara", "acabase"],
+         l1: "My boss wanted me to finish the report before Friday.", note: "quería (past) → imperfect subjunctive: terminaron → terminara"}
+      - {id: es-b2-01-c2, type: cloze, text: "Nos pidieron que ___ más horas extra.", answer: "hiciéramos", alt: ["hiciésemos"],
+         l1: "They asked us to do more overtime.", note: "hicieron → hiciéramos; the nosotros form takes an accent"}
+      - {id: es-b2-01-c3, type: cloze, text: "Era importante que todos ___ puntuales.", answer: "fueran", alt: ["fuesen"],
+         l1: "It was important for everyone to be punctual.", note: "era importante que → imperfect subjunctive: ser → fueran"}
+      - {id: es-b2-01-c4, type: cloze, text: "No creía que la empresa ___ a nadie nuevo.", answer: "contratara", alt: ["contratase"],
+         l1: "I didn't think the company would hire anyone new.", note: "no creía que (doubt, past) → imperfect subjunctive"}
+      - {id: es-b2-01-c5, type: cloze, text: "Me sorprendió que te ___ tan pronto.", answer: "ascendieran", alt: ["ascendiesen"],
+         l1: "It surprised me that they promoted you so soon.", note: "ascender: ascendieron → ascendieran"}
+      - {id: es-b2-01-c6, type: cloze, text: "El director nos reunió para que le ___ nuestra opinión.", answer: "diéramos", alt: ["diésemos"],
+         l1: "The director got us together so that we would give him our opinion.", note: "para que after a past verb → imperfect subjunctive: dieron → diéramos"}
+      - {id: es-b2-01-c7, type: cloze, text: "___ hablar con la directora, por favor.", answer: "Quisiera", alt: ["Querría"],
+         l1: "I would like to speak to the director, please. (very polite)", note: "quisiera = the most polite way to say 'I would like'"}
+      - {id: es-b2-01-c8, type: cloze, text: "Les exigieron que ___ el contrato ese mismo día.", answer: "firmaran", alt: ["firmasen"],
+         l1: "They demanded that they sign the contract that same day.", note: "exigir que + subjunctive; past → firmaran"}
+      - {id: es-b2-01-c9, type: cloze, text: "Te dije que no ___ con ese tono al cliente.", answer: "hablaras", alt: ["hablases"],
+         l1: "I told you not to speak to the client in that tone.", note: "a reported order in the past → imperfect subjunctive"}
+      - {id: es-b2-01-c10, type: cloze, text: "Buscaban a alguien que ___ inglés y alemán.", answer: "supiera", alt: ["supiese", "hablara", "hablase"],
+         l1: "They were looking for someone who knew English and German.", note: "a person who may not exist, in the past → imperfect subjunctive: supieron → supiera"}
+      - {id: es-b2-01-c11, type: cloze, text: "Preferiría que me ___ por correo electrónico.", answer: "escribieras", alt: ["escribieses"],
+         l1: "I'd prefer you to write to me by e-mail. (informal)", note: "conditional main verb → imperfect subjunctive"}
+      - {id: es-b2-01-c12, type: cloze, text: "Fue una pena que el sindicato no ___ llegar a un acuerdo.", answer: "pudiera", alt: ["pudiese"],
+         l1: "It was a shame that the union couldn't reach an agreement.", note: "poder: pudieron → pudiera"}
+      - {id: es-b2-01-c13, type: cloze, text: "Mis padres querían que ___ Derecho, pero yo elegí Bellas Artes.", answer: "estudiara", alt: ["estudiase"],
+         l1: "My parents wanted me to study law, but I chose fine arts.", note: "two subjects (they wanted, I study) → que + subjunctive"}
+      - {id: es-b2-01-c14, type: cloze, text: "El sindicato exigió que la empresa ___ los sueldos.", answer: "subiera", alt: ["subiese", "aumentara", "aumentase"],
+         l1: "The union demanded that the company raise wages.", note: "exigió (past) → imperfect subjunctive"}
+      - {id: es-b2-01-c15, type: cloze, text: "Me molestó que nadie ___ en cuenta mi opinión.", answer: "tuviera", alt: ["tuviese"],
+         l1: "It annoyed me that nobody took my opinion into account.", note: "tener en cuenta = to take into account; tuvieron → tuviera"}
+      - {id: es-b2-01-c16, type: cloze, text: "Le pedí que me ___ la verdad.", answer: "dijera", alt: ["dijese"],
+         l1: "I asked him to tell me the truth.", note: "decir: dijeron → dijera (no i after j)"}
+      - {id: es-b2-01-c17, type: cloze, text: "Me alegró mucho que ___ a la fiesta de despedida.", answer: "vinierais",
+         alt: ["vinieseis", "vinieran", "viniesen"],
+         l1: "I was really glad that you (plural) came to the leaving party.", note: "venir: vinieron → vinierais. Latin America: que ustedes vinieran"}
+
+  # ---------------------------------------------------------------- 2
+  - id: es-b2-02
+    title: "As if it were true: como si, ojalá and polite wishes — money and the economy"
+    goal: "I can talk about prices, debt, taxes and the cost of living, and say what I wish were different."
+    notes: |
+      Some expressions take the imperfect subjunctive whatever the tense around them.
+
+      | Expression | Meaning | Example |
+      | como si + imperfect subj. | as if | Gasta como si **fuera** rico. |
+      | ojalá + present subj. | I hope (possible) | Ojalá **bajen** los precios. |
+      | ojalá + imperfect subj. | I wish (unlikely or impossible) | Ojalá **tuviera** más dinero. |
+      | me gustaría que + imperfect subj. | I'd like (someone) to | Me gustaría que me **ayudaras**. |
+      | ¿Y si + imperfect subj.? | What if we…? (suggestion) | ¿Y si **pidiéramos** un préstamo? |
+
+      - **como si** never takes the present: *habla como si lo supiera todo* (not *sepa*).
+      - With **ojalá**, the tense is the message: the present hopes, the imperfect regrets that something is not so.
+      - **¡Ni que…!** + imperfect subjunctive is a sarcastic "anyone would think…": *¡Ni que fuera de oro!*
+      - Conditionals of wanting (*me gustaría, me encantaría, preferiría*) are followed by the imperfect subjunctive.
+    items:
+      - {id: es-b2-02-crisis, type: vocab, l2: "la crisis", l1: "the crisis / the recession",
+         ex: "Muchas empresas cerraron durante la crisis.", ex_l1: "Many companies closed during the recession.",
+         note: "Same form in the plural: las crisis."}
+      - {id: es-b2-02-inflacion, type: vocab, l2: "la inflación", l1: "inflation (rising prices)",
+         ex: "La inflación ha subido este año.", ex_l1: "Inflation has gone up this year."}
+      - {id: es-b2-02-impuesto, type: vocab, l2: "el impuesto", l1: "the tax",
+         ex: "Pagamos demasiados impuestos.", ex_l1: "We pay too many taxes.",
+         note: "Spanish usually talks about taxes in the plural: los impuestos."}
+      - {id: es-b2-02-deuda, type: vocab, l2: "la deuda", l1: "the debt",
+         ex: "Tardé cinco años en pagar la deuda.", ex_l1: "It took me five years to pay off the debt.",
+         note: "estar endeudado = to be in debt."}
+      - {id: es-b2-02-prestamo, type: vocab, l2: "el préstamo", l1: "the loan",
+         ex: "Pedí un préstamo para comprar el coche.", ex_l1: "I took out a loan to buy the car.",
+         note: "pedir un préstamo = to ask for / take out a loan. From prestar (to lend)."}
+      - {id: es-b2-02-hipoteca, type: vocab, l2: "la hipoteca", l1: "the mortgage",
+         ex: "La mitad de mi sueldo se va en la hipoteca.", ex_l1: "Half my salary goes on the mortgage."}
+      - {id: es-b2-02-presupuesto, type: vocab, l2: "el presupuesto", l1: "the budget / the estimate (quote)",
+         ex: "Pide un presupuesto antes de hacer la obra.", ex_l1: "Ask for an estimate before doing the building work.",
+         note: "Both a government budget and a builder's quote."}
+      - {id: es-b2-02-ingresos, type: vocab, l2: "los ingresos", l1: "the income / the earnings",
+         ex: "Mis ingresos no son fijos.", ex_l1: "My income isn't fixed.",
+         note: "Usually plural. ingresar dinero = to pay money into an account."}
+      - {id: es-b2-02-gasto, type: vocab, l2: "el gasto", l1: "the expense / the spending",
+         ex: "Este mes hemos tenido muchos gastos.", ex_l1: "This month we've had a lot of expenses.",
+         note: "From gastar. los gastos fijos = fixed costs."}
+      - {id: es-b2-02-invertir, type: vocab, l2: "invertir", l1: "to invest",
+         ex: "Ha invertido sus ahorros en una empresa.", ex_l1: "He has invested his savings in a company.",
+         note: "e → ie and e → i: invierto, invirtió, invirtiera. la inversión = the investment."}
+      - {id: es-b2-02-beneficio, type: vocab, l2: "el beneficio", l1: "the profit / the benefit", alt: ["la ganancia"],
+         ex: "La empresa ha tenido beneficios este año.", ex_l1: "The company has made a profit this year.",
+         note: "Profits are usually plural: los beneficios. Latin America often says las ganancias."}
+      - {id: es-b2-02-perdida, type: vocab, l2: "la pérdida", l1: "the loss",
+         ex: "El negocio tuvo pérdidas el primer año.", ex_l1: "The business made a loss in its first year.",
+         note: "From perder. Also a loss in the sense of a death: lamento tu pérdida."}
+      - {id: es-b2-02-aumentar, type: vocab, l2: "aumentar", l1: "to increase / to rise",
+         ex: "El precio de la luz ha aumentado un veinte por ciento.", ex_l1: "The price of electricity has risen by twenty per cent.",
+         note: "More formal than subir. el aumento = the increase (also a pay rise)."}
+      - {id: es-b2-02-disminuir, type: vocab, l2: "disminuir", l1: "to decrease / to fall (formal)", alt: ["reducirse"],
+         ex: "El paro ha disminuido este trimestre.", ex_l1: "Unemployment has fallen this quarter.",
+         note: "Adds y: disminuye, disminuyó, disminuyera."}
+      - {id: es-b2-02-consumo, type: vocab, l2: "el consumo", l1: "consumption / consumer spending",
+         ex: "El consumo de energía baja en primavera.", ex_l1: "Energy consumption falls in spring.",
+         note: "el consumidor = the consumer."}
+      - {id: es-b2-02-bolsa, type: vocab, l2: "la bolsa", l1: "the stock market / the stock exchange", alt: ["la bolsa de valores"],
+         ex: "Ayer la bolsa cayó un tres por ciento.", ex_l1: "Yesterday the stock market fell three per cent.",
+         note: "Also a bag (la bolsa de plástico). invertir en bolsa = to invest in the stock market."}
+      - {id: es-b2-02-cobrar, type: vocab, l2: "cobrar", l1: "to charge (a price) / to get paid",
+         ex: "¿Cuánto te cobran por la reparación?", ex_l1: "How much are they charging you for the repair?",
+         note: "cobro a fin de mes = I get paid at the end of the month."}
+      - {id: es-b2-02-coste-vida, type: vocab, l2: "el coste de la vida", l1: "the cost of living", alt: ["el costo de la vida"],
+         ex: "El coste de la vida en Madrid es muy alto.", ex_l1: "The cost of living in Madrid is very high.",
+         note: "Spain says el coste; Latin America el costo."}
+      - {id: es-b2-02-ojo-cara, type: vocab, l2: "costar un ojo de la cara", l1: "to cost an arm and a leg (idiom)",
+         alt: ["costar un riñón"],
+         ex: "Ese coche me costó un ojo de la cara.", ex_l1: "That car cost me an arm and a leg.",
+         note: "Literally 'to cost an eye of the face'. Spain also says costar un riñón (a kidney)."}
+      - {id: es-b2-02-cinturon, type: vocab, l2: "apretarse el cinturón", l1: "to tighten your belt (to spend less)",
+         ex: "Con la subida de precios, toca apretarse el cinturón.", ex_l1: "With prices going up, it's time to tighten our belts.",
+         note: "toca + infinitive = it's time to / we have to."}
+      - {id: es-b2-02-fin-mes, type: vocab, l2: "no llegar a fin de mes", l1: "to struggle to make ends meet (not to last until payday)",
+         alt: ["no llegar a final de mes"],
+         ex: "Con este sueldo no llego a fin de mes.", ex_l1: "On this salary I can't make ends meet."}
+      - {id: es-b2-02-agosto, type: vocab, l2: "hacer su agosto", l1: "to make a killing / to cash in (idiom)",
+         ex: "Con el calor, las heladerías están haciendo su agosto.", ex_l1: "With the heat, the ice-cream shops are making a killing.",
+         note: "From the August harvest. The possessive changes: hago mi agosto, hacen su agosto."}
+      - {id: es-b2-02-prevenir, type: phrase, l2: "Más vale prevenir que curar.", l1: "Better safe than sorry. (proverb: prevent rather than cure)",
+         alt: ["Más vale prevenir que lamentar"], note: "Latin America often says ...que lamentar."}
+      - {id: es-b2-02-ni-que-oro, type: phrase, l2: "¡Ni que fuera de oro!", l1: "Anyone would think it was made of gold! (sarcastic, about a price)",
+         alt: ["¡Ni que fuese de oro!"], note: "ni que + imperfect subjunctive = a sarcastic 'as if…'."}
+      - {id: es-b2-02-como-si-dueno, type: phrase, l2: "Habla como si fuera el dueño.", l1: "He talks as if he were the owner.",
+         alt: ["Habla como si fuese el dueño"]}
+      - {id: es-b2-02-ojala-ahorros, type: phrase, l2: "Ojalá tuviera más ahorros.", l1: "I wish I had more savings.",
+         alt: ["Ojalá tuviese más ahorros", "Ojalá que tuviera más ahorros"],
+         note: "ojalá + imperfect subjunctive: a wish about something that is not true now. los ahorros = savings."}
+      - {id: es-b2-02-gustaria-bajaran, type: phrase, l2: "Me gustaría que bajaran los impuestos.", l1: "I'd like taxes to come down.",
+         alt: ["Me gustaría que bajasen los impuestos"]}
+      - {id: es-b2-02-c1, type: cloze, text: "Gasta dinero como si ___ millonario.", answer: "fuera", alt: ["fuese"],
+         l1: "He spends money as if he were a millionaire.", note: "como si + imperfect subjunctive, never the present"}
+      - {id: es-b2-02-c2, type: cloze, text: "Ojalá ___ comprar una casa, pero con estos precios es imposible.", answer: "pudiera", alt: ["pudiese"],
+         l1: "I wish I could buy a house, but with these prices it's impossible.", note: "ojalá + imperfect subjunctive: an unlikely wish"}
+      - {id: es-b2-02-c3, type: cloze, text: "Ojalá ___ suerte mañana en la entrevista.", answer: "tengas",
+         l1: "I hope you're lucky in the interview tomorrow. (informal)", note: "ojalá + present subjunctive: a real hope about the future"}
+      - {id: es-b2-02-c4, type: cloze, text: "Me miró como si no me ___.", answer: "conociera", alt: ["conociese"],
+         l1: "She looked at me as if she didn't know me.", note: "conocer: conocieron → conociera"}
+      - {id: es-b2-02-c5, type: cloze, text: "Me gustaría que el gobierno ___ más en educación.", answer: "invirtiera", alt: ["invirtiese"],
+         l1: "I'd like the government to invest more in education.", note: "invertir: invirtieron → invirtiera (e → i)"}
+      - {id: es-b2-02-c6, type: cloze, text: "Nos pareció increíble que el piso ___ tanto.", answer: "costara", alt: ["costase"],
+         l1: "We found it incredible that the flat cost so much.", note: "a reaction in the past → imperfect subjunctive"}
+      - {id: es-b2-02-c7, type: cloze, text: "Me gustaría que mis hijos ___ a ahorrar.", answer: "aprendieran", alt: ["aprendiesen"],
+         l1: "I'd like my children to learn to save.", note: "me gustaría que + imperfect subjunctive"}
+      - {id: es-b2-02-c8, type: cloze, text: "No había nadie que ___ pagar ese alquiler.", answer: "quisiera", alt: ["quisiese"],
+         l1: "There was nobody who was willing to pay that rent.", note: "no había nadie que → subjunctive: quisieron → quisiera"}
+      - {id: es-b2-02-c9, type: cloze, text: "Hizo como si no ___ nada.", answer: "pasara", alt: ["pasase", "ocurriera", "ocurriese"],
+         l1: "He acted as if nothing was going on.", note: "hacer como si = to pretend / act as if"}
+      - {id: es-b2-02-c10, type: cloze, text: "Te lo expliqué para que ___ cuánto costaba.", answer: "supieras", alt: ["supieses"],
+         l1: "I explained it to you so that you'd know how much it cost.", note: "para que after a past verb → imperfect subjunctive"}
+      - {id: es-b2-02-c11, type: cloze, text: "Era necesario que el país ___ su deuda.", answer: "redujera", alt: ["redujese"],
+         l1: "It was necessary for the country to reduce its debt.", note: "reducir: redujeron → redujera (like conducir)"}
+      - {id: es-b2-02-c12, type: cloze, text: "Dudaban que la inflación ___ tan rápido.", answer: "bajara", alt: ["bajase", "disminuyera", "disminuyese"],
+         l1: "They doubted that inflation would come down so quickly.", note: "dudar que in the past → imperfect subjunctive"}
+      - {id: es-b2-02-c13, type: cloze, text: "¿Y si le ___ un préstamo al banco?", answer: "pidiéramos", alt: ["pidiésemos"],
+         l1: "What if we asked the bank for a loan?", note: "¿Y si + imperfect subjunctive? = a tentative suggestion"}
+      - {id: es-b2-02-c14, type: cloze, text: "Quería que me ___ en efectivo.", answer: "pagaran", alt: ["pagasen"],
+         l1: "I wanted them to pay me in cash.", note: "en efectivo = in cash"}
+      - {id: es-b2-02-c15, type: cloze, text: "Nos aconsejó que no ___ más dinero del que teníamos.", answer: "gastáramos", alt: ["gastásemos"],
+         l1: "He advised us not to spend more money than we had.", note: "aconsejar que + subjunctive. más … del que = more … than"}
+      - {id: es-b2-02-c16, type: cloze, text: "Actúa como si lo ___ todo.", answer: "supiera", alt: ["supiese"],
+         l1: "He acts as if he knew everything.", note: "como si + imperfect subjunctive even after a present verb"}
+      - {id: es-b2-02-c17, type: cloze, text: "Ojalá ___ aquí ahora.", answer: "estuvieras", alt: ["estuvieses"],
+         l1: "I wish you were here now. (informal)", note: "estar: estuvieron → estuvieras"}
+
+  # ---------------------------------------------------------------- 3
+  - id: es-b2-03
+    title: "If only I had gone: the pluperfect subjunctive — health and the health system"
+    goal: "I can talk about treatment, waiting lists and the health service, and express regret about what did or didn't happen."
+    notes: |
+      The **pluscuamperfecto de subjuntivo** is the imperfect subjunctive of *haber* plus a participle. It looks back from the past to something even earlier.
+
+      | Person | haber | + participle |
+      | yo / él / usted | hubiera (hubiese) | ido |
+      | tú | hubieras | hecho |
+      | nosotros | hubiéramos | visto |
+      | vosotros | hubierais | dicho |
+      | ellos / ustedes | hubieran | vuelto |
+
+      - **Regret**: *Ojalá hubiera ido antes al médico* = I wish I had gone.
+      - **A past reaction to an earlier event**: *Me alegré de que la operación hubiera salido bien*.
+      - **como si** + pluperfect: *como si hubiera visto un fantasma*.
+      - **hubiera** can replace *habría* in the result: *yo no lo hubiera hecho así* = I wouldn't have done it like that.
+      - With a present main verb, use the perfect subjunctive instead: *Me alegro de que te **hayas** recuperado*.
+      - If the main verb states a fact, stay in the indicative: *Cuando llegué, el médico ya **había** salido*.
+    items:
+      - {id: es-b2-03-sanidad, type: vocab, l2: "la sanidad pública", l1: "the public health service / public healthcare",
+         alt: ["el sistema de salud", "la salud pública"],
+         ex: "En España la sanidad pública es gratuita.", ex_l1: "In Spain public healthcare is free.",
+         note: "Spain says la sanidad; Latin America usually el sistema de salud. la salud pública is also the field of public health."}
+      - {id: es-b2-03-centro-salud, type: vocab, l2: "el centro de salud", l1: "the health centre / the GP surgery",
+         ex: "Tengo cita en el centro de salud a las diez.", ex_l1: "I have an appointment at the health centre at ten."}
+      - {id: es-b2-03-lista-espera, type: vocab, l2: "la lista de espera", l1: "the waiting list",
+         ex: "Llevo seis meses en lista de espera para operarme.", ex_l1: "I've been on the waiting list for an operation for six months."}
+      - {id: es-b2-03-urgencias, type: vocab, l2: "las urgencias", l1: "A&E / the emergency room", alt: ["la sala de urgencias", "emergencias"],
+         ex: "Tuvimos que ir a urgencias a las tres de la mañana.", ex_l1: "We had to go to A&E at three in the morning.",
+         note: "Plural, and usually without the article after a: ir a urgencias. Some countries say emergencias."}
+      - {id: es-b2-03-ingresar, type: vocab, l2: "ingresar", l1: "to be admitted (to hospital) / to pay in (money)",
+         ex: "Mi abuelo está ingresado en el hospital.", ex_l1: "My grandfather has been admitted to hospital.",
+         note: "estar ingresado = to be in hospital (as a patient)."}
+      - {id: es-b2-03-quirofano, type: vocab, l2: "el quirófano", l1: "the operating theatre / the operating room",
+         ex: "El paciente ya está en el quirófano.", ex_l1: "The patient is already in the operating theatre."}
+      - {id: es-b2-03-operar, type: vocab, l2: "operar", l1: "to operate on (someone)",
+         ex: "Me operan de la rodilla la semana que viene.", ex_l1: "I'm having a knee operation next week.",
+         note: "operarse de algo = to have an operation on something. Note the de."}
+      - {id: es-b2-03-tratamiento, type: vocab, l2: "el tratamiento", l1: "the treatment",
+         ex: "El tratamiento dura tres semanas.", ex_l1: "The treatment lasts three weeks."}
+      - {id: es-b2-03-sintoma, type: vocab, l2: "el síntoma", l1: "the symptom",
+         ex: "¿Qué síntomas tiene?", ex_l1: "What symptoms do you have? (formal)",
+         note: "Masculine although it ends in -a (Greek origin, like el problema)."}
+      - {id: es-b2-03-diagnostico, type: vocab, l2: "el diagnóstico", l1: "the diagnosis",
+         ex: "Todavía no tenemos un diagnóstico.", ex_l1: "We don't have a diagnosis yet."}
+      - {id: es-b2-03-vacuna, type: vocab, l2: "la vacuna", l1: "the vaccine / the jab",
+         ex: "Me he puesto la vacuna de la gripe.", ex_l1: "I've had the flu jab.",
+         note: "ponerse la vacuna or vacunarse = to get vaccinated."}
+      - {id: es-b2-03-efecto-secundario, type: vocab, l2: "el efecto secundario", l1: "the side effect",
+         ex: "Este medicamento no tiene efectos secundarios.", ex_l1: "This medicine has no side effects."}
+      - {id: es-b2-03-baja, type: vocab, l2: "estar de baja", l1: "to be off sick / to be on sick leave", alt: ["estar de baja médica", "estar de licencia médica", "estar con licencia médica"],
+         ex: "Lleva un mes de baja por la espalda.", ex_l1: "She's been off sick for a month with her back.",
+         note: "Spain: la baja (médica). Much of Latin America: la licencia médica. la baja de maternidad = maternity leave."}
+      - {id: es-b2-03-especialista, type: vocab, l2: "el especialista", l1: "the specialist (doctor, male)",
+         ex: "Mi médico me ha mandado al especialista.", ex_l1: "My doctor has referred me to the specialist.",
+         note: "The -ista ending never changes: la especialista."}
+      - {id: es-b2-03-recetar, type: vocab, l2: "recetar", l1: "to prescribe (a medicine)",
+         ex: "La doctora me ha recetado unos antibióticos.", ex_l1: "The doctor has prescribed me some antibiotics.",
+         note: "From la receta (the prescription; also a recipe)."}
+      - {id: es-b2-03-analisis, type: vocab, l2: "el análisis de sangre", l1: "the blood test", alt: ["la analítica"],
+         ex: "Tengo que hacerme un análisis de sangre.", ex_l1: "I have to have a blood test.",
+         note: "Same form in the plural: los análisis. Spain also says la analítica."}
+      - {id: es-b2-03-recuperarse, type: vocab, l2: "recuperarse", l1: "to recover / to get better (after an illness or operation)",
+         ex: "Se está recuperando muy bien de la operación.", ex_l1: "He is recovering very well from the operation.",
+         note: "recuperarse de algo. la recuperación = the recovery."}
+      - {id: es-b2-03-grave, type: vocab, l2: "grave", l1: "serious (illness, situation)",
+         ex: "No te preocupes, no es nada grave.", ex_l1: "Don't worry, it's nothing serious.",
+         note: "A serious person is serio; a serious illness is grave."}
+      - {id: es-b2-03-paciente, type: vocab, l2: "el paciente", l1: "the patient (male)",
+         ex: "La doctora atiende a treinta pacientes al día.", ex_l1: "The doctor sees thirty patients a day.",
+         note: "Same form for women: la paciente. As an adjective it means patient: ser paciente."}
+      - {id: es-b2-03-hecho-polvo, type: vocab, l2: "estar hecho polvo", l1: "to be exhausted / to be worn out (colloquial)",
+         alt: ["estar molido", "estar agotado"],
+         ex: "Después de la guardia estoy hecho polvo.", ex_l1: "After the night shift I'm exhausted.",
+         note: "Literally 'made dust'. The participle agrees: estoy hecha polvo (a woman)."}
+      - {id: es-b2-03-plena-forma, type: vocab, l2: "estar en plena forma", l1: "to be in top shape / to be fighting fit",
+         alt: ["estar en forma"],
+         ex: "Mi abuela tiene ochenta años y está en plena forma.", ex_l1: "My grandmother is eighty and in top shape."}
+      - {id: es-b2-03-pegar-ojo, type: vocab, l2: "no pegar ojo", l1: "not to sleep a wink (idiom)",
+         ex: "Con el dolor de muelas no pegué ojo.", ex_l1: "With the toothache I didn't sleep a wink."}
+      - {id: es-b2-03-tarde-nunca, type: phrase, l2: "Más vale tarde que nunca.", l1: "Better late than never."}
+      - {id: es-b2-03-ojala-ido-medico, type: phrase, l2: "Ojalá hubiera ido antes al médico.", l1: "I wish I had gone to the doctor sooner.",
+         alt: ["Ojalá hubiese ido antes al médico", "Ojalá hubiera ido al médico antes", "Ojalá hubiese ido al médico antes"],
+         note: "ojalá + pluperfect subjunctive = a regret about the past."}
+      - {id: es-b2-03-alegro-recuperado, type: phrase, l2: "Me alegro de que te hayas recuperado.", l1: "I'm glad you've recovered. (informal)",
+         alt: ["Me alegro de que ya te hayas recuperado", "Me alegra que te hayas recuperado"],
+         note: "Present main verb → perfect subjunctive (haya, hayas…)."}
+      - {id: es-b2-03-yo-que-tu, type: phrase, l2: "Yo que tú, me vacunaría.", l1: "If I were you, I'd get vaccinated. (with yo que tú)",
+         alt: ["Yo que tú me vacunaría", "Yo que tú, me pondría la vacuna"],
+         note: "yo que tú + conditional = a common spoken alternative to si yo fuera tú."}
+      - {id: es-b2-03-c1, type: cloze, text: "Ojalá me ___ avisado antes.", answer: "hubieras", alt: ["hubieses"],
+         l1: "I wish you had told me sooner. (informal)", note: "ojalá + pluperfect subjunctive: a regret"}
+      - {id: es-b2-03-c2, type: cloze, text: "Me alegré de que la operación hubiera ___ bien.", answer: "salido",
+         l1: "I was glad that the operation had gone well.", note: "salir bien = to go well; the participle never changes after haber"}
+      - {id: es-b2-03-c3, type: cloze, text: "Sentí mucho que no ___ podido venir a la boda.", answer: "hubierais",
+         alt: ["hubieseis", "hubieran", "hubiesen"],
+         l1: "I was very sorry that you (plural) hadn't been able to come to the wedding.", note: "vosotros → hubierais; Latin America: ustedes hubieran"}
+      - {id: es-b2-03-c4, type: cloze, text: "Me sorprendió que el médico no te ___ recetado nada.", answer: "hubiera", alt: ["hubiese"],
+         l1: "It surprised me that the doctor hadn't prescribed you anything.", note: "a past reaction to an earlier event → pluperfect subjunctive"}
+      - {id: es-b2-03-c5, type: cloze, text: "Nos dolió que nadie nos hubiera ___ la verdad.", answer: "dicho",
+         l1: "It hurt us that nobody had told us the truth.", note: "decir → dicho (irregular participle)"}
+      - {id: es-b2-03-c6, type: cloze, text: "Estaba pálido, como si hubiera ___ un fantasma.", answer: "visto",
+         l1: "He was pale, as if he had seen a ghost.", note: "como si + pluperfect subjunctive; ver → visto"}
+      - {id: es-b2-03-c7, type: cloze, text: "Ojalá nos ___ vacunado antes del viaje.", answer: "hubiéramos", alt: ["hubiésemos"],
+         l1: "I wish we had got vaccinated before the trip.", note: "nosotros: hubiéramos, with an accent"}
+      - {id: es-b2-03-c8, type: cloze, text: "Fue una pena que los resultados no ___ llegado a tiempo.", answer: "hubieran", alt: ["hubiesen"],
+         l1: "It was a shame that the results hadn't arrived in time.", note: "ellos → hubieran"}
+      - {id: es-b2-03-c9, type: cloze, text: "Yo no lo ___ hecho así.", answer: "habría", alt: ["hubiera", "hubiese"],
+         l1: "I wouldn't have done it like that.", note: "conditional perfect; hubiera can replace habría here"}
+      - {id: es-b2-03-c10, type: cloze, text: "No me podía creer que se hubiera ___ la pierna esquiando.", answer: "roto",
+         l1: "I couldn't believe he had broken his leg skiing.", note: "romper → roto (irregular participle)"}
+      - {id: es-b2-03-c11, type: cloze, text: "Espero que ya te ___ recuperado.", answer: "hayas",
+         l1: "I hope you've recovered by now. (informal)", note: "present main verb (espero) → perfect subjunctive"}
+      - {id: es-b2-03-c12, type: cloze, text: "Me extrañó que todavía no hubieran ___ la farmacia.", answer: "abierto",
+         l1: "I was surprised they hadn't opened the pharmacy yet.", note: "abrir → abierto (irregular participle)"}
+      - {id: es-b2-03-c13, type: cloze, text: "Dudo que el médico se ___ equivocado.", answer: "haya",
+         l1: "I doubt the doctor has made a mistake.", note: "dudo (present) → perfect subjunctive: haya + participle"}
+      - {id: es-b2-03-c14, type: cloze, text: "Me habría gustado que hubieras ___ a mi abuela.", answer: "conocido",
+         l1: "I would have liked you to have met my grandmother.", note: "conocer a alguien = to meet someone (for the first time)"}
+      - {id: es-b2-03-c15, type: cloze, text: "Cuando llegué, el médico ya se ___ ido.", answer: "había",
+         l1: "When I arrived, the doctor had already left.", note: "a plain fact in the past → indicative pluperfect, not subjunctive"}
+      - {id: es-b2-03-c16, type: cloze, text: "Me molestó que no me hubieras ___.", answer: "escrito",
+         l1: "It annoyed me that you hadn't written to me. (informal)", note: "escribir → escrito (irregular participle)"}
