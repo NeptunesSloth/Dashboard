@@ -64,7 +64,7 @@ units:
       These are **strong to very strong**: they are said between close friends, especially young men, but never to elders or at work.
     items:
       - {id: ko-sw-02-ssibal, type: vocab, l2: "씨발", rom: "ssibal", l1: "Fuck! (the core Korean swearword)", alt: ["시발", "sibal"],
-         note: "Literal: worn down from 씹할, roughly 'fucking' (씹 is a crude word for the vulva and for sex). Real meaning: fuck!, or before a noun, 'fucking'. Strength: very strong. Heard: everywhere among young people, bleeped on TV; online ㅅㅂ."}
+         note: "Literal: usually traced to 씹할, roughly 'fucking' (씹 is a crude word for the vulva and for sex). Real meaning: fuck!, or before a noun, 'fucking'. Strength: very strong. Heard: everywhere among young people, bleeped on TV; online ㅅㅂ."}
       - {id: ko-sw-02-gaesaekki, type: vocab, l2: "개새끼", rom: "gaesaekki", l1: "son of a bitch / bastard (literally 'dog's pup')",
          note: "Literal: 'puppy, dog's offspring'. Real meaning: bastard, son of a bitch. Strength: very strong. Heard: everywhere in anger, films, dramas (muted); 개새끼야! is the shout."}
       - {id: ko-sw-02-jotgata, type: vocab, l2: "좆같아", rom: "jotgata", l1: "It's fucking shitty. / This is fucked.", alt: ["좆같다", "jotgatda", "좆 같아", "jot gata"],
@@ -96,11 +96,11 @@ units:
       - {id: ko-sw-03-meongcheongi, type: vocab, l2: "멍청이", rom: "meongcheongi", l1: "idiot / dummy", alt: ["멍청아", "meongcheonga"],
          note: "Literal: from 멍청하다, 'to be dim, absent-minded'. Real meaning: idiot. Strength: mild to strong. Heard: everyone, informal."}
       - {id: ko-sw-03-michinnom, type: vocab, l2: "미친놈", rom: "michinnom", l1: "crazy bastard / lunatic (literally 'crazy guy')", alt: ["미친 놈", "michin nom"],
-         note: "Literal: 'mad fellow'. Real meaning: lunatic, crazy bastard; 미친 alone before a noun is 'fucking' (미친 날씨 = insane weather). Strength: strong. Heard: everywhere, films and dramas."}
+         note: "Literal: 'mad fellow'. Real meaning: an everyday 'nutter', 'crazy bastard', not about real illness; 미친 alone before a noun is 'fucking' (미친 날씨 = insane weather). Strength: strong. Heard: everywhere, films and dramas."}
       - {id: ko-sw-03-saekki, type: vocab, l2: "새끼", rom: "saekki", l1: "bastard (to a man); also 'little one' (of young animals, children)", alt: ["이 새끼", "i saekki"],
          note: "Literal: 'the young of an animal'. Real meaning: an insult to a man (bastard), or between close male friends a rough 'mate'; 우리 새끼 = my little one, said lovingly by parents. Strength: strong as an insult. Heard: everywhere."}
       - {id: ko-sw-03-ttorai, type: vocab, l2: "또라이", rom: "ttorai", l1: "nutjob / psycho / weirdo", alt: ["돌아이", "dorai"],
-         note: "Literal: from 돌다, 'to turn (in the head)', i.e. a person whose head has turned. Real meaning: an eccentric, a nutter. Strength: strong; can be teasing between friends. Heard: everywhere, informal."}
+         note: "Literal: from 돌다, 'to turn (in the head)', i.e. a person whose head has turned. Real meaning: an eccentric, a nutter (an everyday insult, not about real illness). Strength: strong; can be teasing between friends. Heard: everywhere, informal."}
       - {id: ko-sw-03-jjijiri, type: vocab, l2: "찌질이", rom: "jjijiri", l1: "loser / pathetic creep",
          note: "Literal: from 찌질하다, 'to be pathetic, petty'. Real meaning: a loser, someone pitiful or petty. Strength: strong. Heard: young people, online, dramas."}
       - {id: ko-sw-03-kkondae, type: vocab, l2: "꼰대", rom: "kkondae", l1: "condescending old fogey / bossy know-it-all (older person)",
@@ -131,7 +131,7 @@ units:
     items:
       - {id: ko-sw-04-jonna, type: vocab, l2: "존나", rom: "jonna", l1: "fucking / really (intensifier)",
          ex: "존나 추워.", ex_rom: "jonna chuwo.", ex_l1: "It's fucking cold.",
-         note: "Literal: worn down from 좆나 ('dick comes out'). Real meaning: very, fucking. Strength: strong; many young people say it without thinking, but elders hear it as filthy. Heard: young people, online (ㅈㄴ)."}
+         note: "Literal: usually traced to 좆나 ('dick comes out'). Real meaning: very, fucking. Strength: strong; many young people say it without thinking, but elders hear it as filthy. Heard: young people, online (ㅈㄴ)."}
       - {id: ko-sw-04-gaejoa, type: vocab, l2: "개좋아", rom: "gaejoa", l1: "awesome / so damn good (개- as intensifier)", alt: ["개 좋아", "gae joa"],
          note: "Literal: 'dog-good'. Real meaning: really good; 개- before adjectives means 'very' (개웃겨 = hilarious). Strength: mild to strong; youth slang. Heard: young people, online."}
       - {id: ko-sw-04-ppakchyeo, type: vocab, l2: "빡쳐", rom: "ppakchyeo", l1: "I'm pissed off. (slang)", alt: ["빡치다", "ppakchida", "빡치네", "ppakchine"],
@@ -139,7 +139,7 @@ units:
       - {id: ko-sw-04-jjeoreo, type: vocab, l2: "쩔어", rom: "jjeoreo", l1: "That's insane! / Amazing! (slang)", alt: ["쩐다", "jjeonda", "쩔다", "jjeolda"],
          note: "Literal: origin unclear (often linked to 절다, 'to be soaked, pickled'). Real meaning: awesome, incredible (sometimes 'awful'). Strength: mild, casual slang. Heard: young people."}
       - {id: ko-sw-04-gaepan, type: vocab, l2: "개판", rom: "gaepan", l1: "a total mess / a shambles (literally 'dog place')", alt: ["개판이야", "gaepaniya"],
-         note: "Literal: often explained as 'a place where dogs run riot'. Real meaning: chaos, a disgrace: 방이 개판이야 = the room is a pigsty. Strength: mild to strong. Heard: everyone, informal."}
+         note: "Literal: origin disputed: usually 개 'dog' + 판 'scene' (dogs running riot); a popular story links it instead to 開版, the call that food was about to be served in Korean War refugee camps. Real meaning: chaos, a disgrace: 방이 개판이야 = the room is a pigsty. Strength: mild to strong. Heard: everyone, informal."}
       - {id: ko-sw-04-yeot-gata, type: phrase, l2: "엿 같아", rom: "yeot gata", l1: "It sucks. / It's crappy. (the milder 'fucked up')", alt: ["엿 같다", "yeot gatda", "엿같아"],
          note: "Literal: 'it's like 엿 (taffy)'. Real meaning: it's lousy, the softer cousin of 좆같아. Strength: strong-ish; milder than 좆같아. Heard: everywhere, informal."}
       - {id: ko-sw-04-jonmat, type: vocab, l2: "존맛", rom: "jonmat", l1: "fucking delicious (slang)", alt: ["존맛탱", "jonmattaeng", "JMT"],
@@ -161,7 +161,7 @@ units:
       **The ladder for "be quiet":** *조용히 해* (be quiet, mild) → *닥쳐* (shut up, strong) → *입 닥쳐* (shut your mouth, stronger).
     items:
       - {id: ko-sw-05-jolla, type: vocab, l2: "졸라", rom: "jolla", l1: "really / bloody (the softened 존나)",
-         note: "Literal: a softened spelling of 존나. Real meaning: very. Strength: strong-ish; it still carries the crude origin, but sounds lighter. Heard: young people, online; was common in the 2000s."}
+         note: "Literal: a softened spelling of 존나. Real meaning: very. Strength: strong-ish; it still carries the crude origin, but sounds lighter. Heard: young people, online; most popular in the late 1990s and 2000s."}
       - {id: ko-sw-05-sippal, type: vocab, l2: "십팔", rom: "sippal", l1: "eighteen (the number; also a pun on the worst swearword)", alt: ["18"],
          note: "Literal: 'eighteen'. Real meaning: said or written 18 as a pun on 씨발. Strength: jokey, but people notice. Heard: everywhere; this is why some Koreans smirk at the number 18."}
       - {id: ko-sw-05-a-ssi, type: phrase, l2: "아 씨", rom: "a ssi", l1: "Ah, shit… (clipped mutter)", alt: ["아씨", "아 씨발", "a ssibal"],

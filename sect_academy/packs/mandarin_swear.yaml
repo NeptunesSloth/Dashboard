@@ -41,7 +41,7 @@ units:
       - {id: zh-sw-01-wanle, type: phrase, l2: "完了", rom: "wán le", l1: "I'm done for! / We're screwed! (literally 'finished')",
          note: "Literal: 'it's finished'. Real meaning: it's all over, I'm in trouble. Strength: mild. Heard: everywhere; 我完了 = I'm dead (in trouble)."}
       - {id: zh-sw-01-daomei, type: vocab, l2: "倒霉", rom: "dǎoméi", l1: "What rotten luck! / Just my luck!", alt: ["倒楣", "真倒霉", "zhēn dǎoméi"],
-         note: "Literal: 'luck has fallen over'. Real meaning: bad luck, damn it. Strength: mild. Heard: everywhere; Taiwan often writes 倒楣."}
+         note: "Literal: roughly 'to strike bad luck' (霉 = mould, bad luck). Real meaning: bad luck, damn it. Strength: mild. Heard: everywhere; Taiwan often writes 倒楣."}
       - {id: zh-sw-01-gaisi, type: vocab, l2: "该死", rom: "gāisǐ", l1: "Damn (it)! / damned (literally 'deserves to die')",
          note: "Literal: 'ought to die'. Real meaning: damn, the usual translation of English 'damn' in dubbing and subtitles; 该死的电脑 = damned computer. Strength: mild to strong; a bit bookish in speech. Heard: everywhere."}
       - {id: zh-sw-01-jiangui, type: vocab, l2: "见鬼", rom: "jiàn guǐ", l1: "What the hell! / Damn it! (literally 'see a ghost')", alt: ["见鬼了", "jiàn guǐ le"],
@@ -74,9 +74,9 @@ units:
       - {id: zh-sw-02-kao, type: vocab, l2: "靠", rom: "kào", l1: "Damn! / Crap! (literally 'to lean on')", alt: ["我靠", "wǒ kào"],
          note: "Literal: 'to lean on', used for its sound as a softer 操. Real meaning: damn, shit, what the hell. Strength: strong but milder than 操; very common among young people. Heard: mainland and Taiwan."}
       - {id: zh-sw-02-kaobei, type: vocab, l2: "靠北", rom: "kàoběi", l1: "Damn! / Stop whining! (Taiwan, from Hokkien)", alt: ["靠杯", "kàobēi"],
-         note: "Literal: from Taiwanese Hokkien 'to wail for one's (dead) father'. Real meaning: damn it, or 'stop complaining' (你在靠北什么 = what are you bitching about). Strength: strong. Heard: Taiwan; little known in the mainland."}
+         note: "Literal: written for Taiwanese Hokkien khàu-pē (哭爸), 'to wail for one's (dead) father' as at a funeral; 靠杯 ('lean cup') is a further softened spelling. Real meaning: damn it, or 'stop complaining' (你在靠北什么 = what are you bitching about). Strength: strong. Heard: Taiwan; little known in the mainland."}
       - {id: zh-sw-02-gan, type: vocab, l2: "幹", rom: "gàn", l1: "Fuck! (Taiwan's main swearword)", alt: ["干"],
-         note: "Literal: 'to do' (as the Hokkien word for 'to fuck'). Real meaning: fuck!, the commonest strong exclamation in Taiwan. Strength: very strong. Heard: Taiwan. In the mainland 干 gàn just means 'to do'."}
+         note: "Literal: 'to do'; the character is written for Taiwanese Hokkien kàn, 'to fuck'. Real meaning: fuck!, the commonest strong exclamation in Taiwan. Strength: very strong. Heard: Taiwan. In the mainland 干 gàn just means 'to do'."}
       - {id: zh-sw-02-fangpi, type: vocab, l2: "放屁", rom: "fàngpì", l1: "Bullshit! / Nonsense! (literally 'to fart')",
          note: "Literal: 'to let off a fart'. Real meaning: what you said is rubbish. Strength: strong (crude), though common. Heard: everywhere."}
       - {id: zh-sw-02-qusi, type: phrase, l2: "去死吧", rom: "qù sǐ ba", l1: "Drop dead! / Go to hell! (literally 'go and die')", alt: ["去死", "qù sǐ"],
@@ -106,9 +106,9 @@ units:
       - {id: zh-sw-03-erbaiwu, type: vocab, l2: "二百五", rom: "èrbǎiwǔ", l1: "idiot (literally 'two hundred and fifty')",
          note: "Literal: 'two hundred and fifty'. Real meaning: a fool, someone not quite all there (there are several folk stories for why). Strength: mild to strong. Heard: mainland especially; people tend to avoid the number 250 in prices for this reason."}
       - {id: zh-sw-03-erhuo, type: vocab, l2: "二货", rom: "èrhuò", l1: "dimwit / goofball (northern slang)",
-         note: "Literal: 'two goods' (二 in northern slang = silly). Real meaning: a silly person; 你真二 = you're so daft. Strength: mild, often teasing. Heard: mainland, especially the north and online."}
+         note: "Literal: 二 'two' (northern slang for 'silly') + 货 'goods', used of a person as 'thing, sort'. Real meaning: a silly person; 你真二 = you're so daft. Strength: mild, often teasing. Heard: mainland, especially the north and online."}
       - {id: zh-sw-03-shenjingbing, type: vocab, l2: "神经病", rom: "shénjīngbìng", l1: "nutcase / are you crazy? (literally 'nerve disease')", alt: ["有病", "yǒubìng"],
-         note: "Literal: 'nervous disease'. Real meaning: you're crazy, what's wrong with you; 你有病吧 is similar. Strength: strong as an insult, though very common in dramas. Heard: everywhere."}
+         note: "Literal: 'nervous disease'. Real meaning: an everyday 'you're nuts!', 'what's wrong with you?', not a comment on anyone's health; 你有病吧 is similar. Strength: strong as an insult, though very common in dramas. Heard: everywhere."}
       - {id: zh-sw-03-hundan, type: vocab, l2: "混蛋", rom: "húndàn", l1: "bastard / jerk (literally 'muddled egg')",
          note: "Literal: 'muddled egg'. Real meaning: bastard, scoundrel. Strength: strong. Heard: everywhere; very common in films and dubbing."}
       - {id: zh-sw-03-wangbadan, type: vocab, l2: "王八蛋", rom: "wángbādàn", l1: "son of a bitch / bastard (literally 'turtle egg')", alt: ["wángbadàn", "王八", "wángba"],

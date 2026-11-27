@@ -24,7 +24,7 @@ units:
 
       - Spain: **¡Jolín!** (from *joder*), **¡Ostras!** (from *hostias*), **¡Mecachis!** (from *me cago*).
       - Everywhere: **¡Caramba!** (from *carajo*), **¡Miércoles!** (from *mierda*).
-      - Mexico: **¡Híjole!** and **¡Chale!**. Chile, Peru, Argentina: **¡Pucha!** (from *puta*).
+      - Mexico: **¡Híjole!** and **¡Chale!**. South America (Chile, Peru, Argentina and more): **¡Pucha!** (from *puta*).
 
       All of these are safe in front of children and grandparents. The strength scale used in this course is **mild** (fine almost anywhere), **strong** (crude: friends yes, work and elders no) and **very strong** (insulting or fighting words).
     items:
@@ -44,8 +44,8 @@ units:
          note: "Literal: no clear literal sense today. Real meaning: surprise, dismay or 'that's tricky'. Strength: mild, fine with anyone. Heard: Mexico and Central America."}
       - {id: es-sw-01-chale, type: vocab, l2: "¡Chale!", l1: "Bummer! / No way! (Mexico, slang)",
          note: "Literal: no literal sense. Real meaning: disappointment or disbelief. Strength: mild, casual slang. Heard: Mexico, mostly younger people."}
-      - {id: es-sw-01-pucha, type: vocab, l2: "¡Pucha!", l1: "Darn! (Chile, Peru, Argentina; the softened 'puta')",
-         note: "Literal: nothing, a disguised puta ('whore'). Real meaning: annoyance or regret. Strength: mild. Heard: Chile, Peru, Argentina, Bolivia; not in Spain or Mexico."}
+      - {id: es-sw-01-pucha, type: vocab, l2: "¡Pucha!", l1: "Darn! (South America; the softened 'puta')",
+         note: "Literal: nothing, a disguised puta ('whore'). Real meaning: annoyance or regret. Strength: mild. Heard: South America: Chile, Peru, Argentina, Uruguay, Bolivia and more; rare in Spain and Mexico."}
       - {id: es-sw-01-diablos, type: vocab, l2: "¡Diablos!", l1: "Damn! / Heck! (literally 'devils')",
          note: "Literal: 'devils'. Real meaning: annoyance or surprise. Strength: mild. Heard: Latin America, and very often in Latin American dubs of films and cartoons, where it stands for English 'damn'."}
 
@@ -73,7 +73,7 @@ units:
       - {id: es-sw-02-hostia, type: vocab, l2: "¡Hostia!", l1: "Holy shit! / Bloody hell! (Spain; literally 'the communion wafer')", alt: ["¡Hostias!"],
          note: "Literal: 'the host' (the communion wafer). Real meaning: big surprise or anger. Strength: strong, and blasphemous to believers. Heard: Spain. Also una hostia = a hard smack, and a toda hostia = flat out."}
       - {id: es-sw-02-carajo, type: vocab, l2: "¡Carajo!", l1: "Damn it! / Hell! (Latin America; an old word for penis)",
-         note: "Literal: an old word for the penis. Real meaning: anger or emphasis; ¡Vete al carajo! = go to hell. Strength: strong. Heard: across Latin America (Venezuela, Colombia, Cuba, Argentina and more); in Spain it exists but sounds a bit dated."}
+         note: "Literal: an old word for the penis. Real meaning: anger or emphasis; ¡Vete al carajo! = go to hell. Strength: strong. Heard: across Latin America (Venezuela, Colombia, Cuba, Argentina and more); in Spain it is used too, less often than joder, mostly in set phrases (¡vete al carajo!, me importa un carajo)."}
       - {id: es-sw-02-me-cago-leche, type: phrase, l2: "¡Me cago en la leche!", l1: "Bloody hell! (Spain; literally 'I shit in the milk')",
          note: "Literal: 'I shit in the milk'. Real meaning: frustration. Strength: strong but common and not aimed at anyone. Heard: Spain. Me cago en… + something is a Spanish pattern; aimed at a person's family or God it becomes very strong (unit 5)."}
       - {id: es-sw-02-puta-madre, type: phrase, l2: "¡Puta madre!", l1: "Fuck! (frustration, Latin America; literally 'whore mother')",
@@ -157,7 +157,7 @@ units:
          ex: "¿Qué onda, güey?", ex_l1: "What's up, dude?",
          note: "Literal: from buey, 'ox', once 'dimwit'. Real meaning: the Mexican word for 'dude', said constantly between friends; it can still mean 'idiot' when said angrily. Strength: mild among friends. Heard: Mexico."}
       - {id: es-sw-04-culo, type: vocab, l2: "el culo", l1: "arse / ass (everywhere)",
-         note: "Literal: 'arse, backside'. Real meaning: the same, plus many idioms: en el quinto culo (Spain) = in the middle of nowhere. Strength: strong-ish; milder than in English but not polite. Heard: everywhere."}
+         note: "Literal: 'arse, backside'. Real meaning: the same, plus many idioms: en el culo del mundo = at the back of beyond. Strength: strong-ish; milder than in English but not polite. Heard: everywhere."}
       - {id: es-sw-04-conazo, type: vocab, l2: "un coñazo", l1: "a pain / a total drag (Spain)",
          ex: "Esta reunión es un coñazo.", ex_l1: "This meeting is a total drag.",
          note: "Literal: from coño (a crude word for the vulva). Real meaning: something boring or annoying. Strength: strong. Heard: Spain."}
@@ -173,7 +173,7 @@ units:
 
       **Traps** (innocent in one country, rude in another):
       - **coger**: 'to take' in Spain, 'to have sex' in Mexico, Argentina and much of Latin America.
-      - **concha**: 'shell' in most places, vulgar in Argentina, Uruguay and Chile.
+      - **concha**: 'shell' in most places, vulgar in Argentina, Uruguay, Chile and Peru.
       - **pinche**: 'kitchen hand' in Spain, 'lousy, damn' in Mexico.
     items:
       - {id: es-sw-05-no-manches, type: phrase, l2: "¡No manches!", l1: "No way! / You're kidding! (Mexico, the polite version)",
@@ -183,17 +183,17 @@ units:
       - {id: es-sw-05-vete-mierda, type: phrase, l2: "¡Vete a la mierda!", l1: "Go to hell! / Piss off! (literally 'go to the shit')",
          note: "Literal: 'go to the shit'. Real meaning: get lost, I'm done with you. Strength: strong, aimed at a person. Heard: everywhere."}
       - {id: es-sw-05-vete-carajo, type: phrase, l2: "¡Vete al carajo!", l1: "Go to hell! (Latin America; literally 'go to the [old word for penis]')",
-         note: "Literal: 'go to the carajo' (old word for penis, or the masthead lookout, by folk story). Real meaning: get lost. Strength: strong. Heard: across Latin America, and in Spain."}
+         note: "Literal: 'go to the carajo' (an old word for the penis; the popular story that a carajo was a ship's masthead lookout is unproven folk etymology). Real meaning: get lost. Strength: strong. Heard: across Latin America, and in Spain."}
       - {id: es-sw-05-que-te-den, type: phrase, l2: "¡Que te den!", l1: "Screw you! / Get stuffed! (Spain)",
          note: "Literal: 'may they give it to you' (short for que te den por culo, 'may you get it up the arse'). Real meaning: screw you. Strength: strong; the full version is very strong. Heard: Spain."}
       - {id: es-sw-05-chinga-tu-madre, type: phrase, l2: "¡Chinga tu madre!", l1: "Fuck you! (Mexico, fighting words; 'your mother')",
          note: "Literal: 'fuck your mother'. Real meaning: the heaviest everyday Mexican insult. Strength: very strong; can start a fight. Heard: Mexico. Often clipped to ¡Chinga tu…! or just ¡Tu madre!, which are still very strong."}
       - {id: es-sw-05-me-cago-tu-madre, type: phrase, l2: "¡Me cago en tu madre!", l1: "Fuck you! (Spain, fighting words; 'I shit on your mother')",
-         note: "Literal: 'I shit on your mother'. Real meaning: an insult to the listener and their family. Strength: very strong when said to someone; men in Spain also mutter it at a situation. Heard: Spain."}
+         note: "Literal: 'I shit on your mother'. Real meaning: an insult to the listener and their family. Strength: very strong; fighting words when said to someone. Heard: Spain."}
       - {id: es-sw-05-pinche, type: vocab, l2: "pinche", l1: "damn / lousy (Mexico, before a noun); a kitchen hand (Spain)",
          ex: "Este pinche tráfico…", ex_l1: "This damn traffic…",
          note: "Literal: in Spain, a kitchen assistant. Real meaning in Mexico: an adjective for anything annoying or worthless: pinche coche = lousy car. Strength: strong (crude) in Mexico. Heard: Mexico; in Spain only the kitchen sense."}
       - {id: es-sw-05-coger, type: vocab, l2: "coger", l1: "to take (Spain); to have sex, crude (Mexico, Argentina)",
          note: "Literal: 'to take, to catch'. Real meaning: in Spain, harmless (coger el autobús); in much of Latin America, the crude 'to fuck'. Strength: strong in that sense. Heard: the crude sense in Mexico, Argentina, Uruguay, Venezuela and much of Latin America, where people say tomar or agarrar el autobús."}
-      - {id: es-sw-05-concha, type: vocab, l2: "la concha", l1: "a shell; a crude word for the vulva (Argentina, Uruguay, Chile)",
-         note: "Literal: 'shell'. Real meaning: a crude word for the vulva; ¡la concha de tu madre! is a very strong insult. Strength: strong, and very strong in that insult. Heard: the crude sense in Argentina, Uruguay and Chile; elsewhere it is a shell, and in Mexico also a sweet bread."}
+      - {id: es-sw-05-concha, type: vocab, l2: "la concha", l1: "a shell; a crude word for the vulva (Argentina, Uruguay, Chile, Peru)",
+         note: "Literal: 'shell'. Real meaning: a crude word for the vulva; ¡la concha de tu madre! is a very strong insult. Strength: strong, and very strong in that insult. Heard: the crude sense in Argentina, Uruguay, Chile and Peru; elsewhere it is a shell, and in Mexico also a sweet bread."}

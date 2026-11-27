@@ -12,7 +12,7 @@ blurb: "Opt-in, for understanding: the swearing, insults and rude slang you hear
 # not to encourage anyone to use it. Every note gives: literal meaning, real meaning,
 # strength (mild / strong / very strong) and who says it where.
 # Excluded on purpose: slurs aimed at race, ethnicity, religion, disability, sexuality or
-# gender identity (e.g. no pédé, no gogol).
+# gender identity (e.g. no pédé, no gogol, no enculé).
 
 units:
   # ---------------------------------------------------------------- 1
@@ -37,7 +37,7 @@ units:
       - {id: fr-sw-01-punaise, type: vocab, l2: "Punaise !", l1: "Blimey! / Darn! (literally 'drawing pin'; the softened 'putain')",
          note: "Literal: 'drawing pin' or 'bedbug'. Real meaning: surprise or annoyance, a polite putain. Strength: mild. Heard: France."}
       - {id: fr-sw-01-puree, type: vocab, l2: "Purée !", l1: "Blast! (literally 'mash'; another softened 'putain')",
-         note: "Literal: 'mash, purée'. Real meaning: annoyance or surprise. Strength: mild and jokey. Heard: France, especially the south."}
+         note: "Literal: 'mash, purée'. Real meaning: annoyance or surprise. Strength: mild and jokey. Heard: France."}
       - {id: fr-sw-01-flute, type: vocab, l2: "Flûte !", l1: "Drat! (literally 'flute'; old-fashioned)",
          note: "Literal: 'flute'. Real meaning: mild annoyance. Strength: mild, rather old-fashioned or childish. Heard: France."}
       - {id: fr-sw-01-mercredi, type: vocab, l2: "Mercredi !", l1: "Sugar! (jokey, literally 'Wednesday')",
@@ -75,13 +75,13 @@ units:
       - {id: fr-sw-02-nom-de-dieu, type: phrase, l2: "Nom de Dieu !", l1: "Goddammit! (literally 'name of God')",
          note: "Literal: 'name of God'. Real meaning: anger or shock. Strength: strong, and blasphemous to believers; sounds a little old-fashioned. Heard: France."}
       - {id: fr-sw-02-tabarnak, type: vocab, l2: "Tabarnak !", l1: "Fuck! (Quebec; literally 'tabernacle')", alt: ["Tabarnac !"],
-         note: "Literal: 'tabernacle' (the box for the host in church). Real meaning: anger, shock, or as an intensifier. Strength: very strong in Quebec, one of the heaviest words there. Heard: Quebec; in France it is known mostly as a Quebec joke."}
+         note: "Literal: 'tabernacle' (the box for the host in church). Real meaning: anger, shock, or as an intensifier. Strength: very strong in Quebec, usually counted among the heaviest words there. Heard: Quebec; in France it is known mostly as a Quebec joke."}
       - {id: fr-sw-02-calisse, type: vocab, l2: "Câlisse !", l1: "Damn it! / Fuck! (Quebec; literally 'chalice')", alt: ["Câlice !", "Calice !", "Calisse !"],
          note: "Literal: 'chalice' (the communion cup). Real meaning: anger; câlisse-moi la paix = fuck off and leave me alone. Strength: very strong. Heard: Quebec."}
       - {id: fr-sw-02-ostie, type: vocab, l2: "Ostie !", l1: "Damn! / Fucking…! (Quebec; literally 'the host')", alt: ["Hostie !", "Estie !"],
-         note: "Literal: 'host' (the communion wafer). Real meaning: anger, or before a noun as 'fucking': un ostie de menteur = a fucking liar. Strength: strong to very strong. Heard: Quebec; often shortened to estie or 'stie."}
+         note: "Literal: 'host' (the communion wafer). Real meaning: anger, or before a noun as 'fucking': un ostie de menteur = a fucking liar. Strength: very strong as a sacre; the worn-down estie is a little lighter. Heard: Quebec; often shortened to estie or 'stie."}
       - {id: fr-sw-02-crisse, type: vocab, l2: "Crisse !", l1: "Christ! / Damn! (Quebec)", alt: ["Christ !"],
-         note: "Literal: 'Christ'. Real meaning: anger; crisser = to throw or to do roughly, crisse ton camp ! = get lost! Strength: strong, a bit lighter than tabarnak. Heard: Quebec."}
+         note: "Literal: 'Christ'. Real meaning: anger; crisser = to throw or to do roughly, crisse ton camp ! = get lost! Strength: very strong; speakers rank the four big sacres (tabarnak, câlisse, crisse, ostie) differently, but all are heavy. Heard: Quebec."}
 
   # ---------------------------------------------------------------- 3
   - id: fr-sw-03
@@ -90,7 +90,7 @@ units:
     notes: |
       The workhorse is **con**: *c'est con* only means "that's stupid" (or "that's a shame"), but **connard** is a real insult.
 
-      From weakest to strongest, roughly: *crétin*, *imbécile*, *abruti* → *con*, *salaud*, *enfoiré* → *connard*, *trou du cul* → *enculé*, *fils de pute* (very strong).
+      From weakest to strongest, roughly: *crétin*, *imbécile*, *abruti* → *con*, *salaud*, *enfoiré* → *connard*, *trou du cul* → *fils de pute* (very strong).
 
       Tone matters: friends say *salut, mon con* or *vieil enfoiré* with a grin. From a stranger, the same words are an attack.
     items:
@@ -102,9 +102,7 @@ units:
       - {id: fr-sw-03-salaud, type: vocab, l2: "salaud", l1: "bastard (a nasty man; literally 'dirty one')",
          note: "Literal: from sale, 'dirty'. Real meaning: a man who behaves badly, a bastard. Strength: strong; among friends petit salaud ! can be teasing. Heard: France."}
       - {id: fr-sw-03-enfoire, type: vocab, l2: "enfoiré", l1: "bastard / scumbag (from 'foire', the runs)",
-         note: "Literal: from foire, 'diarrhoea', roughly 'one smeared with it'. Real meaning: bastard, jerk. Strength: strong, but often affectionate between friends (vieil enfoiré !). Heard: France."}
-      - {id: fr-sw-03-encule, type: vocab, l2: "enculé", l1: "motherfucker / fucker (literally 'buggered')",
-         note: "Literal: 'one who has been sodomised'. Real meaning: the heaviest everyday French insult, for anyone who has wronged you; heard in films and at football grounds. Strength: very strong. Heard: France. Some people object to it because of its origin."}
+         note: "Literal: from enfoirer, 'to smear with excrement' (foire = diarrhoea). Real meaning: bastard, jerk. Strength: strong, but often affectionate between friends (vieil enfoiré !). Heard: France."}
       - {id: fr-sw-03-fils-de-pute, type: vocab, l2: "fils de pute", l1: "son of a bitch (literally 'son of a whore')",
          note: "Literal: 'son of a whore'. Real meaning: bastard. Strength: very strong. Heard: France and elsewhere; often shortened to fdp in writing online."}
       - {id: fr-sw-03-trou-du-cul, type: vocab, l2: "trou du cul", l1: "arsehole (literally 'hole of the arse')", alt: ["trouduc"],
@@ -112,7 +110,7 @@ units:
       - {id: fr-sw-03-abruti, type: vocab, l2: "abruti", l1: "moron / dimwit (literally 'made like a brute')",
          note: "Literal: 'stupefied, made like a beast'. Real meaning: idiot. Strength: mild to strong; not vulgar. Heard: France."}
       - {id: fr-sw-03-cretin, type: vocab, l2: "crétin", l1: "cretin / twit", alt: ["imbécile"],
-         note: "Literal: an old medical word. Real meaning: idiot. Strength: mild; not vulgar, can be said on TV. Heard: France. Imbécile is the same strength."}
+         note: "Literal: once a medical term, now only an everyday word for 'idiot'. Real meaning: idiot. Strength: mild; not vulgar, can be said on TV. Heard: France. Imbécile is the same strength."}
       - {id: fr-sw-03-niaiseux, type: vocab, l2: "niaiseux", l1: "dumb / silly (Quebec)", alt: ["niaiseuse"],
          note: "Literal: from niais, 'simple, naive'. Real meaning: silly, dumb; arrête de niaiser = stop fooling around. Strength: mild. Heard: Quebec; France says niais or idiot."}
 
@@ -146,7 +144,7 @@ units:
       - {id: fr-sw-04-couilles, type: vocab, l2: "les couilles", l1: "balls (testicles, crude)",
          note: "Literal: 'balls'. Real meaning: also courage (avoir des couilles), and il y a une couille = there's a snag. Strength: strong. Heard: France."}
       - {id: fr-sw-04-bourre, type: vocab, l2: "bourré", l1: "drunk / hammered (literally 'stuffed')", alt: ["bourrée"],
-         note: "Literal: 'stuffed, crammed'. Real meaning: drunk. Strength: mild, just informal. Heard: France; Quebec says paqueté or chaud."}
+         note: "Literal: 'stuffed, crammed'. Real meaning: drunk. Strength: mild, just informal. Heard: France; Quebec says paqueté (drunk) or chaud (tipsy)."}
       - {id: fr-sw-04-degueulasse, type: vocab, l2: "dégueulasse", l1: "disgusting / gross (also of behaviour)", alt: ["dégueu"],
          note: "Literal: from dégueuler, 'to puke'. Real meaning: disgusting; c'est dégueulasse = that's a dirty trick. Strength: mild to strong, informal. Heard: France; the short dégueu is everywhere."}
       - {id: fr-sw-04-en-tabarnak, type: phrase, l2: "en tabarnak", l1: "fucking (Quebec, after an adjective: 'fucking cold')", alt: ["en câlisse", "en ostie"],
