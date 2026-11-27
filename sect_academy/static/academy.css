@@ -505,16 +505,9 @@ a { color: var(--gold); }
 .pips b { width: 5px; height: 5px; border-radius: 50%; background: #5a4a36; box-shadow: inset 0 0 0 1px #7d6a4a; }
 .pips b.on { background: #e9b44c; box-shadow: 0 0 4px #e9b44c99; } .pips b.q { background: #5fa8e0; }
 .room .pl-note { display: block; font: italic 600 .62rem/1.2 var(--serif); color: #b7a488; }
-/* look A: pips under the name; a room you can raise lights the plate's edge like a lantern */
-.room.lookA .plaque { padding: 2px 10px 1px; border-radius: 8px; }
-.room.lookA .plaque { border-color: #4a3a28; }
-.room.lookA.can .plaque { border-color: #f0c15e; color: #fff3d6; box-shadow: 0 0 0 1px #e9b44c88, 0 0 16px 2px #e9b44c88; }
-/* look B: the level as a quiet numeral; a room you can raise brightens and gains a thin gold underline */
-.room.lookB .plaque { display: inline-flex; align-items: baseline; gap: 7px; padding: 2px 10px; border-radius: 4px; }
-.room.lookB .pl-lv { font: 600 .9em var(--serif); color: #c9a560; padding-left: 7px; border-left: 1px solid #7d6a4a; }
-.room.lookB.can .plaque { color: #fff3d6; background: #241a0fef; }
-.room.lookB.can .pl-name { background: linear-gradient(#e9b44c, #e9b44c) bottom / 100% 1px no-repeat; padding-bottom: 1px; }
-.room.lookB.can .pl-lv { color: #f0c15e; }
+/* pips under the name; a room you can raise lights the plate's edge like a lantern */
+.room:not(.vault) .plaque { padding: 2px 10px 1px; border-radius: 8px; border-color: #4a3a28; }
+.room.can .plaque { border-color: #f0c15e; color: #fff3d6; box-shadow: 0 0 0 1px #e9b44c88, 0 0 16px 2px #e9b44c88; }
 /* a room whose crew made something since dawn: its lanterns brighten, and a small note says what */
 .room.tray::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: screen;
   background: radial-gradient(70% 60% at 50% 30%, #ffb64a2e 0%, #ffb64a12 45%, transparent 75%); }
@@ -975,35 +968,11 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .slot.empty { border-style: dashed; display: grid; place-content: center; text-align: center; min-height: 84px; color: var(--dim); }
 .slot.empty b { color: #f8e6bf; font-family: var(--serif); }
 
-/* ---------------- the Build tab: two looks for the owner to choose between ---------------- */
+/* ---------------- the Build tab ---------------- */
 .serif { font-family: var(--serif); }
 .cchip { display: inline-block; font-size: .8rem; padding: 0 8px; border-radius: 9px; border: 1px solid #4a3a28; background: #0000003d; color: #e8d8b8; margin: 2px 4px 0 0; }
 .cchip.short { color: #ff9f8a; border-color: #6d2c20; }
-/* look A: workbenches and painted tiles */
-.benches { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-.bench { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 10px; border-radius: 14px; border: 1px solid #5a4426; background: #0000003d; }
-.bthumb { border-radius: 10px; aspect-ratio: 1.25; border: 1px solid #7d6a4a; background-color: #0b0706; }
-.bthumb.idle { background: repeating-linear-gradient(135deg, #1a130e 0 10px, #241a12 10px 20px); opacity: .6; }
-.bbody { display: grid; gap: 4px; align-content: start; min-width: 0; }
-.bcount { display: grid; } .bcount b { font: 700 1.5rem/1.1 var(--serif); color: #f8e6bf; }
-.bfoot { align-items: flex-start; gap: 6px; } .bfoot .btn { min-height: 30px; padding: 2px 12px; font-size: .82rem; }
-.bench details.fold summary { font-size: .82rem; }
-.bench.empty { border-style: dashed; align-items: center; } .bench.empty .bbody { gap: 2px; }
-.rtiles { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); }
-.rtile { border-radius: 14px; border: 1px solid #4a3a28; background: #1a130e; overflow: hidden; display: grid; align-content: start; transition: box-shadow .2s, border-color .2s; }
-.rt-pic { all: unset; cursor: pointer; display: block; aspect-ratio: 1.6; position: relative; background-color: #0b0706; }
-.rt-pic:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
-.rt-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(#0000 45%, #120d0ae6); }
-.rt-name { position: absolute; left: 10px; bottom: 6px; z-index: 1; font: 700 1rem var(--serif); color: #f8e6bf; text-shadow: 0 1px 3px #000; }
-.rt-body { padding: 8px 10px 10px; display: grid; gap: 4px; }
-.rt-body .pips b { width: 7px; height: 7px; }
-.rt-body .pips { display: flex; gap: 3px; }
-.rt-note { margin: 2px 0 0; color: #b7a488; }
-.rt-go { margin-top: 2px; flex-wrap: nowrap; } .rt-go .btn { min-height: 34px; padding: 2px 16px; font-size: .88rem; }
-.rtile.can { border-color: #e9b44c; box-shadow: 0 0 18px #e9b44c40; }
-.rtile.locked .rt-pic, .rtile.max .rt-pic { filter: grayscale(.85) brightness(.55); }
-.rtile.short .rt-pic { filter: saturate(.7) brightness(.8); }
-/* look B: lantern timers and a sorted ledger */
+/* builders as lantern timers, rooms in a sorted ledger */
 .lamps { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; }
 .lamp { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px 10px 10px; border-radius: 40px 14px 14px 40px; border: 1px solid #5a4426; background: #0000003d; min-width: 280px; flex: 1 1 280px; }
 .lamp .ring { flex: none; width: 76px; height: 76px; border-radius: 50%; padding: 4px; background: conic-gradient(#e9b44c calc(var(--p, 0) * 1%), #3b2d22 0); }
@@ -1060,98 +1029,87 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .rushbox h3 { margin: 0 0 4px; font-size: 1.05rem; }
 .rushodds { display: flex; gap: 18px; margin: 8px 0; } .rushodds div { display: grid; } .rushodds b { font: 700 1.5rem/1.1 var(--serif); color: #f8e6bf; }
 .rushodds small { color: var(--dim); font-size: .78rem; max-width: 22ch; }
-/* ---- World map (sect.js worldMap): markers sit on the painted landmarks. A: docked panel; B (?map=B): list + card on the map ---- */
-.wm { display: grid; gap: 14px; margin-bottom: 10px; }
-.wm-a { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
-.wm-b { grid-template-columns: 236px minmax(0, 1fr); align-items: start; }
+/* ---- World map (sect.js worldMap): a list of places beside the painting, banners on the landmarks, the chosen
+   place's card opened under its row in the list, so it never hides a seal or a label ---- */
+.wm { display: grid; gap: 14px; margin-bottom: 10px; grid-template-columns: 258px minmax(0, 1fr); align-items: start; }
 .wm .worldmap.wm-paint { aspect-ratio: 3 / 2; background-size: 100% 100%; margin: 0; border-color: #6b5230; box-shadow: 0 14px 34px #0008; }
 .wm .worldmap.wm-paint::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: 0 0 80px 20px #0b0806aa inset; border-radius: inherit; }
-/* the seal: one shape per kind of place, outlined in lacquer black (::before) and filled (::after) */
-.wsig { --sz: 22px; --clip: inset(0 round 3px); --fill: #d8c49a; position: relative; display: inline-block; width: var(--sz); height: var(--sz); flex: none; }
-.wsig::before, .wsig::after { content: ''; position: absolute; clip-path: var(--clip); }
-.wsig::before { inset: -3px; background: #120d0a; }
-.wsig::after { inset: 0; background: var(--fill); }
-.t-home .wsig, .wsig.t-home { --sz: 30px; --clip: circle(50%); --fill: radial-gradient(circle, var(--sect-colour, var(--gold)) 38%, #120d0a 40% 47%, var(--sect-colour, var(--gold)) 49%); }
-.t-sect .wsig, .wsig.t-sect { --clip: inset(0 round 3px); --fill: #d8c49a; }
-.t-ally .wsig, .wsig.t-ally { --clip: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); --fill: var(--jade); }
-.t-foe .wsig, .wsig.t-foe { --sz: 26px; --clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); --fill: radial-gradient(circle, #120d0a 0 14%, var(--verm) 16%); }
-.t-village .wsig, .wsig.t-village { --clip: polygon(50% 0, 100% 42%, 100% 100%, 0 100%, 0 42%); --fill: #f0a850; }
-.t-wilds .wsig, .wsig.t-wilds { --sz: 24px; --clip: polygon(50% 0, 100% 100%, 0 100%); --fill: #8fbf6a; }
-.t-ruin .wsig, .wsig.t-ruin { --clip: polygon(0 22%, 34% 0, 100% 0, 100% 64%, 74% 100%, 0 100%); --fill: #a99c88; }
-.t-realm .wsig, .wsig.t-realm { --sz: 24px; --clip: circle(50%); --fill: radial-gradient(circle, transparent 0 30%, #a58af0 33%); }
-.t-realm .wsig::before, .wsig.t-realm::before { background: radial-gradient(circle, transparent 0 22%, #120d0a 25%); }
-.t-kingdom .wsig, .wsig.t-kingdom { --clip: polygon(0 0, 100% 0, 100% 66%, 50% 100%, 0 66%); --fill: #c9b27c; }
-.t-branch .wsig, .wsig.t-branch { --sz: 16px; --clip: inset(0 round 2px); --fill: var(--sect-colour, var(--gold)); }
-.unknown .wsig, .wsig.unknown { --fill: repeating-linear-gradient(45deg, #6f6658 0 3px, #3a332b 3px 6px); }
-/* a marker on the map: the seal on its spot, its name on a lacquer plaque under it */
-.wm-mk { all: unset; position: absolute; z-index: 2; width: 34px; height: 34px; transform: translate(-50%, -50%); cursor: pointer; }
-.wm-mk .wsig { position: absolute; left: calc(50% - var(--sz) / 2); top: calc(50% - var(--sz) / 2); filter: drop-shadow(0 0 6px #f0a85066) drop-shadow(0 3px 3px #000c); transition: transform .15s; }
-.wm-mk.sel .wsig, .wm-mk.hl .wsig, .wm-mk:hover .wsig { transform: scale(1.2); }
-.wm-mk.sel::before { content: ''; position: absolute; left: calc(50% - 24px); top: calc(50% - 24px); width: 48px; height: 48px; border-radius: 50%; border: 2px solid #f6d58e; box-shadow: 0 0 18px #f0a850aa; animation: wm-glow 2.4s ease-in-out infinite; }
+/* the seal (印章): one hand-set character per kind of place, in the system's CJK fonts (no web font: offline rule).
+   --c is the seal's colour: cinnabar for a rival, jade for an ally, gold for other sects, ink for the country. */
+.seal { --sz: 26px; --c: #5a4630; --c2: #e9d6ac; --paper: #f4e6c4;
+  display: inline-grid; place-items: center; flex: none; width: var(--sz); height: var(--sz); box-sizing: border-box; padding: 0; margin: 0; font-style: normal; user-select: none;
+  -webkit-text-stroke: .35px currentColor;   /* the thin system brush faces, cut a little deeper */
+  font: 700 calc(var(--sz) * .64)/1 "KaiTi", "STKaiti", "Kaiti SC", "BiauKai", "Noto Serif CJK SC", "Noto Serif CJK TC", "Source Han Serif SC",
+    "Songti SC", "SimSun", "Yu Mincho", "Microsoft YaHei", "Microsoft JhengHei", "Yu Gothic", "Malgun Gothic", "Noto Sans CJK SC", "WenQuanYi Zen Hei", serif; }
+.seal.t-home, .seal.t-branch { --c: var(--sect-colour, #c9962e); --c2: var(--sect-colour, #e9b44c); }
+.seal.t-sect { --c: #a77a2c; --c2: #e2b45a; }
+.seal.t-ally { --c: #2f7d5c; --c2: #5fc79a; }
+.seal.t-foe { --c: #b3301c; --c2: #f0644c; }
+/* A: a square stamp, the character cut out of the colour (白文), a thin paper line inside a slightly uneven edge */
+.seals-A .seal { background: var(--c); color: var(--paper); border-radius: 3px 5px 2px 4px / 4px 2px 5px 3px; transform: rotate(-2deg);
+  box-shadow: inset 0 0 0 2px var(--c), inset 0 0 0 3px #f4e6c4b3, .6px -.8px 0 var(--c), -.8px .6px 0 var(--c), 0 2px 4px #000b; }
+.seals-A .seal.t-home, .seals-A .seal.t-branch { color: #2a180c;   /* the sect's own colours are all light: an ink character (朱文) */
+  box-shadow: inset 0 0 0 2px var(--c), inset 0 0 0 3px #2a180c80, .6px -.8px 0 var(--c), -.8px .6px 0 var(--c), 0 2px 4px #000b; }
+/* B: a round lacquer medallion, a gold rim, the character inlaid in the colour */
+.seals-B .seal { background: #1a110c; color: var(--c2); border: 2px solid #c9a050; border-radius: 50%;
+  box-shadow: inset 0 0 0 2px #1a110c, inset 0 0 0 3.5px var(--ring, #c9a05055), 0 0 0 1px #0b0705, 0 2px 4px #000b; }
+.seals-B .seal:not(.t-home, .t-branch, .t-sect, .t-ally, .t-foe) { --c2: #e9d6ac; }
+.seals-B .wm-mk .seal.t-ally, .seals-B .wm-mk .seal.t-foe { --ring: var(--c2); }   /* on the map, an ally or a rival: a second ring in its colour */
+.seals-B .seal.t-home { --sz: 34px; border-color: var(--sect-colour, #c9a050); border-width: 3px; }
+/* a place not yet known: the seal is faded paper, hatched, its character barely there */
+.seals-A .seal.unknown, .seals-B .seal.unknown { background: repeating-linear-gradient(45deg, #8a7f6c 0 2px, #5d5547 2px 5px); color: #e6dcc6;
+  border-color: #8a7f6c; border-style: dashed; text-shadow: 0 0 2px #3a332b; opacity: .85; }
+/* a marker on the map: the seal on its spot, its name on a hanging banner under it */
+.wm-mk { all: unset; position: absolute; z-index: 2; width: 38px; height: 38px; transform: translate(-50%, -50%); cursor: pointer; display: grid; place-items: center; }
+.wm-mk .seal { --sz: 28px; transition: scale .15s; }
+.wm-mk.t-home .seal { --sz: 36px; } .wm-mk.t-branch .seal { --sz: 22px; }
+.wm-mk.sel .seal, .wm-mk.hl .seal, .wm-mk:hover .seal { scale: 1.18; }
+.wm-mk.sel::before { content: ''; position: absolute; left: calc(50% - 26px); top: calc(50% - 26px); width: 52px; height: 52px; border-radius: 50%; border: 2px solid #f6d58e; box-shadow: 0 0 18px #f0a850aa; animation: wm-glow 2.4s ease-in-out infinite; }
 @keyframes wm-glow { 50% { opacity: .45; transform: scale(1.12); } }
-.wm-lab { position: absolute; left: 50%; top: calc(50% + 16px); transform: translateX(-50%); display: grid; justify-items: center; gap: 0; padding: 3px 10px 4px; white-space: nowrap;
-  background: linear-gradient(#1d1410f2, #120d0af2); border: 1px solid #6b5230; border-top: 2px solid var(--lab, #c9a86a); border-radius: 4px; box-shadow: 0 4px 10px #000a; }
-.wm-lab b { font: 700 .86rem/1.25 var(--serif); color: #f8e6bf; }
-.wm-lab small { font-size: .72rem; line-height: 1.2; color: #d9c7a0; }
-.t-home .wm-lab { top: calc(50% + 21px); --lab: var(--sect-colour, var(--gold)); } .t-home .wm-lab b { font-size: .95rem; }
-.t-foe .wm-lab { --lab: var(--verm); } .t-foe .wm-lab small { color: #ff9a86; font-weight: 700; }
-.t-ally .wm-lab { --lab: var(--jade); } .t-wilds .wm-lab { --lab: #8fbf6a; } .t-village .wm-lab { --lab: #f0a850; } .t-realm .wm-lab { --lab: #a58af0; }
-.t-branch .wm-lab { top: calc(50% + 12px); padding: 1px 8px 2px; } .t-branch .wm-lab b { font-size: .76rem; }
+.wm-lab { position: absolute; left: 50%; top: calc(50% + 19px); transform: translateX(-50%); display: grid; justify-items: center; gap: 0; white-space: nowrap;
+  padding: 4px 10px 12px; border-radius: 2px 2px 0 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
+  background: #4a1b13f0; border-top: 3px solid #d9a441; }
+.wm-lab b { font: 700 .8rem/1.25 var(--serif); color: #f8e6bf; }
+.wm-lab small { font-size: .72rem; line-height: 1.2; color: #ffd2c4; }
+.t-home .wm-lab { top: calc(50% + 23px); background: #5a3f12f0; } .t-home .wm-lab b { font-size: .9rem; }
+.t-wilds .wm-lab, .t-village .wm-lab, .t-realm .wm-lab, .t-kingdom .wm-lab, .t-ruin .wm-lab { background: #22301ff0; }
+.t-sect .wm-lab, .t-ally .wm-lab, .t-branch .wm-lab { background: #1c2a40f0; }
+.t-foe .wm-lab small { font-weight: 700; }
+.t-branch .wm-lab { top: calc(50% + 14px); padding: 2px 8px 10px; } .t-branch .wm-lab b { font-size: .74rem; }
 .unknown .wm-lab b { color: #bfb3a0; font-style: italic; }
-.wm-mk.lab-r .wm-lab { left: calc(50% + 18px); top: 50%; transform: translateY(-50%); justify-items: start; }
-.wm-mk.lab-l .wm-lab { left: auto; right: calc(50% + 18px); top: 50%; transform: translateY(-50%); justify-items: end; }
-.wm-mk.lab-ul .wm-lab { left: auto; right: calc(50% - 22px); top: auto; bottom: calc(50% + 16px); transform: none; justify-items: end; }
+.wm-mk.lab-r .wm-lab { left: calc(50% + 20px); top: 50%; transform: translateY(-50%); justify-items: start; }
+.wm-mk.lab-l .wm-lab { left: auto; right: calc(50% + 20px); top: 50%; transform: translateY(-50%); justify-items: end; }
+.wm-mk.lab-ul .wm-lab { left: auto; right: calc(50% - 22px); top: auto; bottom: calc(50% + 18px); transform: none; justify-items: end; }
 .wm-mk.sel, .wm-mk:hover, .wm-mk.hl, .wm-mk:focus-visible { z-index: 4; }
-.wm-mk.sel .wm-lab, .wm-mk.hl .wm-lab, .wm-mk:hover .wm-lab { background: #f8e6bf; border-color: #f8e6bf; } .wm-mk.sel .wm-lab b, .wm-mk.hl .wm-lab b, .wm-mk:hover .wm-lab b { color: #120d0a; }
-.wm-mk.sel .wm-lab small, .wm-mk.hl .wm-lab small, .wm-mk:hover .wm-lab small { color: #4a3a26; }
+.wm-mk.sel .wm-lab, .wm-mk.hl .wm-lab, .wm-mk:hover .wm-lab { background: #f8e6bf; } .wm-mk.sel .wm-lab b, .wm-mk.hl .wm-lab b, .wm-mk:hover .wm-lab b { color: #120d0a; }
+.wm-mk.sel .wm-lab small, .wm-mk.hl .wm-lab small, .wm-mk:hover .wm-lab small { color: #8a2a1a; }
 .wm-mk:focus-visible .wm-lab { outline: 3px solid var(--azure); outline-offset: 2px; }
-/* the road from home */
-.wm-road { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-.wm-road path { fill: none; stroke: #f6d58e; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1 12; }
-.wm-road path.under { stroke: #120d0acc; stroke-width: 9; stroke-dasharray: none; opacity: .55; }
-.wm-road.foe path:not(.under) { stroke: #ff9a86; }
-/* A: the docked panel */
-.wm-panel { position: sticky; top: 12px; padding: 16px 18px; border-radius: 14px; border: 1px solid #5a4426; background: linear-gradient(#241a14, #1a130e); box-shadow: 0 10px 30px #0006; min-height: 200px; }
-.wm-panel h4, .wm-card h4 { margin: 2px 0 8px; font: 700 1.3rem/1.2 var(--serif); color: #f8e6bf; }
-.wm-kind { display: flex; align-items: center; gap: 10px; margin: 0; font-size: .84rem; color: #d9c7a0; }
-.wm-kind .wsig { --sz: 18px; } .wm-kind .wsig.t-home { --sz: 22px; }
+/* the list of places beside the map */
+.wm-list { padding: 6px; border-radius: 14px; border: 1px solid #5a4426; background: #1a130e; }
+.wm-group { margin: 8px 8px 4px; font: 700 .86rem var(--serif); color: #c9a86a; }
+.wm-list ul { list-style: none; margin: 0; padding: 0; }
+.wm-row { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.wm-row span { display: grid; min-width: 0; } .wm-row b { font: 700 .9rem var(--serif); color: #f8e6bf; } .wm-row small { font-size: .74rem; color: #bfae8e; }
+.wm-row .seal { --sz: 24px; margin: 0 2px; } .wm-row .seal.t-home { --sz: 28px; margin: 0; } .wm-row .seal.t-branch { --sz: 20px; margin: 0 4px; }
+.wm-row:hover, .wm-row.hl { background: #2c2017; } .wm-row.sel { background: #3a2a18; box-shadow: inset 3px 0 0 #f6d58e; }
+.wm-row:focus-visible { outline: 3px solid var(--azure); outline-offset: -3px; }
+/* the chosen place's card, under its row in the list (the row names it) */
+.wm-card { position: relative; margin: 4px 0 8px; padding: 10px 12px 12px; border-radius: 12px; border: 1px solid #6b5230; background: #211812; box-shadow: 0 6px 18px #0008; }
+.wm-kind { display: flex; align-items: center; gap: 10px; margin: 0; padding-right: 26px; font-size: .84rem; color: #d9c7a0; }
+.wm-kind .seal { --sz: 22px; } .wm-kind .seal.t-home { --sz: 26px; }
 .wm-text, .wm-stand { margin: 0 0 10px; font-size: .92rem; line-height: 1.5; color: #e9dcc0; }
 .wm-stand .small { font-size: .82rem; }
 .wm-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .wm-acts .btn { min-height: 40px; padding: 6px 14px; font-size: .9rem; }
 .wm-acts .btn.quiet { color: #f6d58e; border: 1px solid #6b5230; }
-.wm-legend { list-style: none; margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid #3a2a18; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: .78rem; color: #bfae8e; }
-.wm-legend li { display: flex; align-items: center; gap: 8px; } .wm-legend .wsig { --sz: 14px; margin: 0 2px; } .wm-legend .wsig.t-home { --sz: 16px; margin: 0 1px; }
-/* B: the list of places, and banners that hang under the seals */
-.wm-list { max-height: 680px; overflow: auto; padding: 6px; border-radius: 14px; border: 1px solid #5a4426; background: #1a130e; }
-.wm-group { margin: 8px 8px 4px; font: 700 .86rem var(--serif); color: #c9a86a; }
-.wm-list ul { list-style: none; margin: 0; padding: 0; }
-.wm-row { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
-.wm-row span { display: grid; min-width: 0; } .wm-row b { font: 700 .9rem var(--serif); color: #f8e6bf; } .wm-row small { font-size: .74rem; color: #bfae8e; }
-.wm-row .wsig { --sz: 18px; margin: 0 3px; } .wm-row .wsig.t-home { --sz: 22px; margin: 0 1px; } .wm-row .wsig.t-branch { --sz: 14px; margin: 0 5px; }
-.wm-row:hover, .wm-row.hl { background: #2c2017; } .wm-row.sel { background: #3a2a18; box-shadow: inset 3px 0 0 #f6d58e; }
-.wm-row:focus-visible { outline: 3px solid var(--azure); outline-offset: -3px; }
-.wm-mk.banner .wm-lab { top: calc(50% + 18px); padding: 4px 10px 12px; border: 0; border-radius: 2px 2px 0 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
-  background: linear-gradient(#5a1f16f0, #3a140ef0); box-shadow: none; border-top: 3px solid #d9a441; }
-.wm-mk.banner .wm-lab b { font-size: .8rem; } .wm-mk.banner .wm-lab small { color: #ffd2c4; }
-.wm-mk.banner.t-home .wm-lab { background: linear-gradient(#6a4a14f0, #2a1d10f0); }
-.wm-mk.banner.t-wilds .wm-lab, .wm-mk.banner.t-village .wm-lab, .wm-mk.banner.t-realm .wm-lab, .wm-mk.banner.t-kingdom .wm-lab, .wm-mk.banner.t-ruin .wm-lab { background: linear-gradient(#2b3a2af0, #1a2418f0); }
-.wm-mk.banner.t-sect .wm-lab, .wm-mk.banner.t-ally .wm-lab { background: linear-gradient(#22324af0, #151f30f0); }
-.wm-mk.banner.lab-r .wm-lab, .wm-mk.banner.lab-l .wm-lab { top: 50%; } .wm-mk.banner.lab-ul .wm-lab { top: auto; }
-.wm-mk.banner.sel .wm-lab, .wm-mk.banner.hl .wm-lab, .wm-mk.banner:hover .wm-lab { background: #f8e6bf; }
-.wm-mk.banner.sel .wm-lab small, .wm-mk.banner.hl .wm-lab small, .wm-mk.banner:hover .wm-lab small { color: #8a2a1a; }
-/* B: the chosen place's card, on the map beside its marker */
-.wm-card { position: absolute; z-index: 6; width: 290px; max-height: calc(100% - 16px); overflow: auto; padding: 14px 16px; border-radius: 12px;
-  border: 1px solid #8a6a3a; background: linear-gradient(#241a14f7, #1a130ef7); box-shadow: 0 16px 40px #000c; }
 .wm-x { all: unset; position: absolute; right: 8px; top: 6px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; color: #d9c7a0; font-size: 1.3rem; }
 .wm-x:hover, .wm-x:focus-visible { background: #3a2a18; color: #f8e6bf; }
+.wm-x:focus-visible { outline: 2px solid var(--azure); }
 @media (max-width: 1100px) {
-  .wm-a, .wm-b { grid-template-columns: 1fr; }
-  .wm-panel { position: static; }
-  .wm-list { max-height: none; order: 2; } .wm-list ul { display: flex; flex-wrap: wrap; gap: 4px; } .wm-row { width: auto; }
+  .wm { grid-template-columns: 1fr; }
+  .wm-list { max-height: none; order: 2; } .wm-list ul { display: flex; flex-wrap: wrap; gap: 4px; } .wm-row { width: auto; } .wm-list li:has(.wm-card) { flex-basis: 100%; }
 }
 @media (max-width: 640px) {
-  .wm-lab { padding: 1px 6px 2px; } .wm-lab b { font-size: .7rem; } .wm-lab small { display: none; }
-  .wm-card { left: 8px !important; right: 8px !important; top: auto !important; bottom: 8px; width: auto; max-height: 70%; }
+  .wm-lab { padding: 1px 6px 8px; } .wm-lab b { font-size: .7rem; } .wm-lab small { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .wm-mk.sel::before { animation: none; } .wm-mk .wsig { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .wm-mk.sel::before { animation: none; } .wm-mk .seal { transition: none; } }

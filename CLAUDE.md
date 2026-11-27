@@ -131,8 +131,9 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   keep the lantern-night palette that matches `static/art/`. New images go in
   `static/art/` as WebP and are served from the fixed list in `app.py`.
 - **Sect overhaul** (`docs/SECT_OVERHAUL_PLAN.md`, approved; built stage by stage):
-  the home map has no upgrade badges (an affordable room's name plate glows; two
-  looks, `localStorage sect.look.label`/`sect.look.build` = A|B, for the owner to pick);
+  the home map has no upgrade badges (an affordable room's name plate glows, level
+  pips under the name; the Build tab is a ledger: lantern timers, rooms sorted by
+  ready / short of materials / waiting on the Hall — the owner's picks, one path only);
   `colony.trays` lights a room with what its crew made since dawn (view
   only until stage 4); `colony.hall_next` feeds the "Main Hall n" card under the map.
   **Builders** (stage 2): building is builder slots (`builders`, ledger `builder_rows`:
@@ -162,6 +163,12 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   `contain_rows` show; an uncontained incident idles the room 6 h (`room_idle`,
   checked in `_job_open`) or sets the build back, wounds but never kills, and queues
   an `incident` scene.
+- **World map** (`sect.js` `worldMap`): a list of places beside the painting, a
+  hanging banner per landmark, the chosen place's card opened under its row in the
+  list (never on the painting, so it hides no label). Places are seals (印章), one
+  CJK character each (`SEAL_CHAR`/`SEAL_PLACE`, system CJK fonts only), the kind in
+  words beside them or in the tooltip; rival sects say "Hostile" in words.
+  `SEAL_LOOK` (A square stamps / B round medallions) is temporary until the owner picks.
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the

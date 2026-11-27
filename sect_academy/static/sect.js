@@ -5,8 +5,6 @@
 import { ICON, VAULT, backdrop, portrait, scene, sectScene, setFaces, siteCrop, siteRect } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
-// Two looks each for the map label and the Build tab, for the owner to choose between (A is the default).
-const LOOK = (k) => { try { return localStorage.getItem(`sect.look.${k}`) === 'B' ? 'B' : 'A'; } catch (_) { return 'A'; } };
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
 const RES_ICON = { rice: '🌾', wood: '🪵', stone: '🪨', herbs: '🌿', pills: '💊', stones: '💎' };
 const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse', 'forage herbs': 'fields', 'brew pills': 'alchemy',
@@ -243,18 +241,15 @@ export function mountSect(h) {
       Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.treasures.length, selPawn, dragging, S.pawns.map((p) => p.id + p.post)]);
     if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
-    const lookL = LOOK('label');
     const pips = (r) => `<i class="pips" aria-hidden="true">${Array.from({ length: r.max }, (_, i) => `<b class="${i < r.level ? 'on' : ''}"></b>`).join('')}</i>`;
     const rooms = S.rooms.map((r) => {
       const [x, y, w, hh] = siteRect(r.id);
       const crew = (staff[r.id] || []).slice(0, 5).map((p) => face(p, 30)).join('');
       // A room you can afford to raise glows softly on its name plate (no badge, no arrow).
-      const name = lookL === 'B'
-        ? `<span class="pl-name">${esc(r.name)}</span>${r.open ? `<span class="pl-lv">${r.level}</span>` : building.includes(r.id) ? '<span class="pl-lv">building</span>' : ''}`
-        : `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : building.includes(r.id) ? '<i class="pl-note">building</i>' : ''}`;
+      const name = `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : building.includes(r.id) ? '<i class="pl-note">building</i>' : ''}`;
       const fit = held ? (r.slots ? (r.posted.length >= r.slots && held.post !== r.id ? 'full' : held.fit[r.id] || 'poor') : 'none') : '';
       const fitWord = { good: 'suits them well', fair: 'suits them', poor: 'suits them poorly', full: 'is full', none: 'takes no post' }[fit] || '';
-      return `<button class="room look${lookL} ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
+      return `<button class="room ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
         aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${fitWord}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}"${r.affordable && !held ? ' title="Ready to raise"' : ''}>
         <span class="crew" aria-hidden="true">${crew}</span>
         ${held && r.slots ? `<span class="slotn" aria-hidden="true">${r.posted.length}/${r.slots}</span>` : ''}
@@ -449,36 +444,9 @@ export function mountSect(h) {
     return `<button class="btn" data-rushbuild="${i}" title="Finish it now, at a risk">Rush</button>${S.builders.blueprints ? `<button class="btn" data-blueprint="${i}" title="Takes ${S.builders.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}<button class="btn" data-cancel="${i}">Cancel</button>`;
   }
 
-  // Look A, the workshop: builders as workbenches with a painted crop of the room and a big countdown; rooms as
-  // painted tiles with level pips and cost chips, glowing when you can raise them, greyed while the Hall holds them.
-  function buildA() {
-    const B = S.builders;
-    const running = S.builds.filter((b) => b.running);
-    const bench = (b, i) => (b ? `<li class="bench">
-        <span class="bthumb" style="${siteCrop(b.room, 1.25)}" aria-hidden="true"></span>
-        <div class="bbody"><span class="bname"><b>${esc(b.name)}</b> <span class="dim small">to level ${b.level}</span></span>
-          <span class="bcount"><b class="num">${esc(awayT(b.left))}</b><small class="dim">left with the app closed, ${esc(watchT(b.left))} if you watch</small></span>
-          ${bar(b.pct, 'azure')}
-          <div class="row bfoot">${benchButtons(i)}</div>${benchSpeed(b, i)}</div></li>`
-      : '<li class="bench empty"><span class="bthumb idle" aria-hidden="true"></span><div class="bbody"><b class="serif">A builder is free</b><span class="dim small">Choose a room below.</span></div></li>');
-    const waiting = S.builds.filter((b) => !b.running);
-    const tile = (r) => {
-      const st = roomState(r);
-      return `<li class="rtile ${st} ${r.open ? '' : 'new'}">
-        <button class="rt-pic" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1.6)}" aria-label="${esc(r.name)}: details"><span class="rt-name">${esc(r.name)}</span></button>
-        <div class="rt-body"><div class="row">${r.open ? lvPips(r) : `<span class="small dim">${r.queued ? 'Being built' : 'Not built'}</span>`}<span class="grow"></span>${r.queued ? '<span class="tag blue">building</span>' : ''}</div>
-          ${st === 'max' ? '<p class="small rt-note">Highest level</p>' : st === 'locked' ? `<p class="small rt-note" title="${esc(r.locked)}">${esc(r.lock_short || r.locked)}</p>`
-    : `<div class="rt-cost">${costChips(r.cost)}</div><div class="row rt-go"><small class="dim">ready in about ${esc(awayT(r.hours))}</small><span class="grow"></span>
-            <button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}</button></div>`}</div></li>`;
-    };
-    return `<div class="lookA">${builderHead()}<ul class="benches">${Array.from({ length: B.n }, (_, i) => bench(running[i], i)).join('')}</ul>
-      ${waiting.length ? `<p class="small dim" style="margin:8px 0 0">Waiting for a builder: ${waiting.map((b) => esc(b.name)).join(', ')}</p>` : ''}
-      <ul class="rtiles">${S.rooms.map(tile).join('')}</ul></div>`;
-  }
-
-  // Look B, the ledger: builders as a strip of lantern timers; rooms sorted into what you can raise now, what waits
+  // The Build tab, a ledger: builders as a strip of lantern timers; rooms sorted into what you can raise now, what waits
   // on materials (saying what is missing), and what waits on the Main Hall.
-  function buildB() {
+  function build() {
     const B = S.builders;
     const running = S.builds.filter((b) => b.running);
     const lamp = (b, i) => (b ? `<li class="lamp" style="--p:${b.pct}">
@@ -495,11 +463,9 @@ export function mountSect(h) {
         ${st === 'can' ? `<span class="lgo"><button class="btn primary" data-build="${esc(r.id)}">${r.open ? 'Raise' : 'Build'}</button><small class="dim">ready in about ${esc(awayT(r.hours))}</small></span>`
     : st === 'short' ? `<small class="lneed">Needs ${esc(shortOf(r) || 'a free builder')}</small>` : ''}</li>`;
     const sect = (title, list, st) => (list.length ? `<h4 class="lhead">${esc(title)} <span class="dim small">${list.length}</span></h4><ul class="lrows">${list.map((r) => row(r, st)).join('')}</ul>` : '');
-    return `<div class="lookB">${builderHead()}<ul class="lamps">${Array.from({ length: B.n }, (_, i) => lamp(running[i], i)).join('')}</ul>
+    return `<div class="ledger">${builderHead()}<ul class="lamps">${Array.from({ length: B.n }, (_, i) => lamp(running[i], i)).join('')}</ul>
       ${sect('Ready to raise', groups.can, 'can')}${sect('Gathering materials', groups.short, 'short')}${sect('Waiting on the Main Hall', groups.locked, 'locked')}${sect('Complete', groups.max, 'max')}</div>`;
   }
-
-  function build() { return LOOK('build') === 'B' ? buildB() : buildA(); }
 
   function research() {
     const R = S.research;
@@ -540,27 +506,36 @@ export function mountSect(h) {
   }
 
   // ---- the World map ----------------------------------------------------------------------------------------------
-  // Two layouts while the owner chooses: A (markers on the painted landmarks, a route from home, a docked panel) and
-  // B (a list of places beside the map, hanging banners, the chosen place's card on the map). ?map=B shows B.
-  const MAP_VARIANT = new URLSearchParams(location.search).get('map') === 'B' ? 'B' : 'A';
+  // A list of places beside the map (hovering one lights the other), hanging banners for labels, and the chosen
+  // place's card opened under its row in the list, so it never hides a seal or a label on the painting (the map is
+  // too full for a card on it to find a clear spot).
+  // Each place is a seal (印章) cut with one character, its kind always in words beside it or in its tooltip.
+  // Two seal looks while the owner chooses: A, square carved stamps; B, round lacquer medallions with a gold rim.
+  const SEAL_LOOK = 'A';
   let mapSel = sessionStorage.getItem('sect.mapsel') || '';
   const MAP_KIND = { home: 'Your sect', sect: 'Sect', ally: 'Sworn ally', foe: 'Rival sect', village: 'Village', wilds: 'Wilds',
     ruin: 'Ruins', realm: 'Secret realm', kingdom: 'Mortal kingdom', branch: 'Branch sect' };
+  // the character on each seal: by kind, or by the place itself where the country has its own (forest, valley)
+  const SEAL_CHAR = { home: '宗', branch: '分', ally: '盟', foe: '敵', sect: '派', village: '村', wilds: '野', ruin: '墟', realm: '秘', kingdom: '府' };
+  const SEAL_PLACE = { forest: '林', valley: '谷' };
   const mapSect = (m) => (m.type === 'sect' ? S.sects.find((x) => x.id === m.id) : null);
-  // what a marker is, in words as well as shape and colour: the second line never relies on colour alone
+  // what a marker is, in words as well as seal and colour: the second line never relies on colour alone
   function mapMark(m) {
     const s = mapSect(m);
     if (s) {
       const cls = s.ally ? 'ally' : s.rel <= -15 ? 'foe' : 'sect';
-      return { cls, known: true, sub: s.ally ? 'Sworn ally' : `${s.stance} ${s.rel > 0 ? '+' : ''}${s.rel}`, kind: `${MAP_KIND[cls]}, ${s.kind}` };
+      const ch = s.ally ? SEAL_CHAR.ally : s.kind === 'demonic' ? '魔' : SEAL_CHAR[cls];
+      return { cls, ch, known: true, sub: s.ally ? 'Sworn ally' : `${s.stance} ${s.rel > 0 ? '+' : ''}${s.rel}`, kind: `${MAP_KIND[cls]}, ${s.kind}` };
     }
-    if (m.type === 'kingdom' && worldGates().kingdom) return { cls: 'kingdom', known: false, sub: 'Not yet known', kind: MAP_KIND.kingdom };
-    if (m.type === 'home') return { cls: 'home', known: true, sub: 'Home', kind: MAP_KIND.home };
+    if (m.type === 'kingdom' && worldGates().kingdom) return { cls: 'kingdom', ch: SEAL_CHAR.kingdom, known: false, sub: 'Not yet known', kind: MAP_KIND.kingdom };
+    if (m.type === 'home') return { cls: 'home', ch: SEAL_CHAR.home, known: true, sub: 'Home', kind: MAP_KIND.home };
     const b = m.type === 'branch' ? S.branches[Number(m.id.slice(6))] : null;
-    if (b) return { cls: 'branch', known: true, sub: `Led by ${b.leader}`, kind: MAP_KIND.branch };
-    return { cls: MAP_KIND[m.type] ? m.type : 'wilds', known: true, sub: m.far || '', kind: MAP_KIND[m.type] || 'Place' };
+    if (b) return { cls: 'branch', ch: SEAL_CHAR.branch, known: true, sub: `Led by ${b.leader}`, kind: MAP_KIND.branch };
+    const cls = MAP_KIND[m.type] ? m.type : 'wilds';
+    return { cls, ch: SEAL_PLACE[m.id] || SEAL_CHAR[cls], known: true, sub: m.far || '', kind: MAP_KIND[m.type] || 'Place' };
   }
-  const mapHome = () => S.map.find((m) => m.type === 'home') || S.map[0];
+  const seal = (k) => `<i class="seal t-${k.cls}${k.known ? '' : ' unknown'}" aria-hidden="true">${k.ch}</i>`;
+  const mapTip = (m, k) => `${m.name}: ${k.kind}${k.sub && k.sub !== k.kind ? ` (${k.sub})` : ''}`;
   const mapAt = (m) => `left:${Number(m.x)}%;top:${Number(m.y)}%`;
   // where a label sits so it stays on the painting: beside the marker at the edges, below it elsewhere
   const mapSide = (m) => (m.y > 88 || m.x < 7 ? 'lab-r' : m.x > 86 ? 'lab-ul' : m.x > 93 ? 'lab-l' : '');
@@ -599,71 +574,47 @@ export function mountSect(h) {
       const b = S.branches[Number(m.id.slice(6))];
       if (b) stand = b.sulking ? 'Sends nothing for now: you left them to stand alone.' : 'Sends 15 rice and 5 spirit stones every twelve days.';
     }
-    return `<p class="wm-kind"><i class="wsig t-${k.cls}${k.known ? '' : ' unknown'}" aria-hidden="true"></i>${esc(k.kind)}${m.far ? ` · ${esc(m.far)}` : ''}</p>
-      <h4>${esc(m.name)}</h4>
+    return `<p class="wm-kind">${seal(k)}${esc(k.kind)}${m.far ? ` · ${esc(m.far)}` : ''}</p>
       ${m.type === 'home' || m.trip || s ? '' : `<p class="wm-text">${esc(m.text)}</p>`}
       ${stand ? `<p class="wm-stand">${stand}</p>` : ''}
       ${acts ? `<div class="wm-acts">${acts}</div>` : ''}`;
   }
 
-  function mapMarker(m, sel, banner) {
+  function mapMarker(m, sel) {
     const k = mapMark(m);
-    return `<button class="wm-mk t-${k.cls} ${mapSide(m)}${sel ? ' sel' : ''}${k.known ? '' : ' unknown'}${banner ? ' banner' : ''}" style="${mapAt(m)}" data-mk="${esc(m.id)}"
-      aria-pressed="${sel}" aria-label="${esc(m.name)}: ${esc(k.kind)}${k.sub ? `, ${esc(k.sub)}` : ''}"><i class="wsig" aria-hidden="true"></i>
-      <span class="wm-lab" aria-hidden="true"><b>${esc(m.name)}</b>${k.sub && (!banner || k.cls === 'foe' || !k.known) ? `<small>${esc(k.sub)}</small>` : ''}</span></button>`;
-  }
-
-  // a dotted road from home, bowed upward like a mountain path, with how far it is written at its middle
-  function mapRoute(m) {
-    const h = mapHome(); if (!h || m.id === h.id) return '';
-    const [x1, y1, x2, y2] = [h.x * 11.52, h.y * 7.68, m.x * 11.52, m.y * 7.68];
-    const [dx, dy] = [x2 - x1, y2 - y1];
-    let [cx, cy] = [(x1 + x2) / 2 - dy * 0.22, (y1 + y2) / 2 + dx * 0.22];
-    if (cy > (y1 + y2) / 2) [cx, cy] = [(x1 + x2) / 2 + dy * 0.22, (y1 + y2) / 2 - dx * 0.22];
-    const d = `M${x1.toFixed(0)} ${y1.toFixed(0)} Q${cx.toFixed(0)} ${cy.toFixed(0)} ${x2.toFixed(0)} ${y2.toFixed(0)}`;
-    return `<svg class="wm-road${mapMark(m).cls === 'foe' ? ' foe' : ''}" viewBox="0 0 1152 768" aria-hidden="true"><path class="under" d="${d}"/><path d="${d}"/></svg>`;
-  }
-
-  // what each seal means, for the kinds on this map
-  function mapLegend() {
-    const seen = [...new Set(S.map.map((m) => mapMark(m).cls))];
-    const unknown = S.map.some((m) => !mapMark(m).known);
-    return `<ul class="wm-legend">${seen.map((c) => `<li><i class="wsig t-${c}" aria-hidden="true"></i>${esc(MAP_KIND[c])}</li>`).join('')}
-      ${unknown ? '<li><i class="wsig t-sect unknown" aria-hidden="true"></i>Not yet known</li>' : ''}</ul>`;
+    return `<button class="wm-mk t-${k.cls} ${mapSide(m)}${sel ? ' sel' : ''}${k.known ? '' : ' unknown'}" style="${mapAt(m)}" data-mk="${esc(m.id)}"
+      aria-pressed="${sel}" aria-label="${esc(m.name)}: ${esc(k.kind)}${k.sub ? `, ${esc(k.sub)}` : ''}" title="${esc(mapTip(m, k))}">${seal(k)}
+      <span class="wm-lab" aria-hidden="true"><b>${esc(m.name)}</b>${k.sub && (k.cls === 'foe' || !k.known) ? `<small>${esc(k.sub)}</small>` : ''}</span></button>`;
   }
 
   const mapBg = `background-image:radial-gradient(ellipse at 55% 40%,#f0a85022,transparent 60%),linear-gradient(#0c122855,#120d0a77),url(${backdrop('map')})`;
 
   function worldMap() {
-    if (MAP_VARIANT === 'B') return worldMapB();
-    const sel = S.map.find((m) => m.id === mapSel) || mapHome();
-    return `<div class="wm wm-a">
-      <div class="worldmap wm-paint" style="${mapBg}">${mapRoute(sel)}${S.map.map((m) => mapMarker(m, m.id === sel.id, false)).join('')}</div>
-      <aside class="wm-panel"><div aria-live="polite">${mapBody(sel)}</div>${mapLegend()}</aside></div>`;
-  }
-
-  function worldMapB() {
     const sel = S.map.find((m) => m.id === mapSel);
     const groups = [['Your sect', (m) => m.type === 'home' || m.type === 'branch'], ['Sects of the region', (m) => m.type === 'sect'], ['The country', (m) => !['home', 'branch', 'sect'].includes(m.type)]];
-    const row = (m) => { const k = mapMark(m); return `<li><button class="wm-row${sel && sel.id === m.id ? ' sel' : ''}" data-mk="${esc(m.id)}" aria-pressed="${!!sel && sel.id === m.id}">
-      <i class="wsig t-${k.cls}${k.known ? '' : ' unknown'}" aria-hidden="true"></i><span><b>${esc(m.name)}</b><small>${esc(k.sub || k.kind)}</small></span></button></li>`; };
-    const card = sel ? `<div class="wm-card" style="${sel.x > 52 ? `right:calc(${100 - sel.x}% + 74px)` : `left:calc(${Number(sel.x)}% + 74px)`};top:clamp(8px,calc(${Number(sel.y)}% - 90px),calc(100% - 300px))" aria-live="polite">
-      <button class="wm-x" data-mk="" aria-label="Close">×</button>${mapBody(sel)}</div>` : '';
-    return `<div class="wm wm-b">
+    const card = (m) => `<div class="wm-card" role="region" aria-label="${esc(m.name)}" aria-live="polite">
+      <button class="wm-x" data-mk="" aria-label="Close ${esc(m.name)}">×</button>${mapBody(m)}</div>`;
+    const row = (m) => { const k = mapMark(m); const on = !!sel && sel.id === m.id; return `<li><button class="wm-row${on ? ' sel' : ''}" data-mk="${esc(m.id)}" aria-pressed="${on}" aria-expanded="${on}" title="${esc(mapTip(m, k))}">
+      ${seal(k)}<span><b>${esc(m.name)}</b><small>${esc(k.sub || k.kind)}</small></span></button>${on ? card(m) : ''}</li>`; };
+    return `<div class="wm seals-${SEAL_LOOK}">
       <nav class="wm-list" aria-label="Places on the map">${groups.map(([t, f]) => { const ms = S.map.filter(f); return ms.length ? `<p class="wm-group">${esc(t)}</p><ul>${ms.map(row).join('')}</ul>` : ''; }).join('')}</nav>
-      <div class="worldmap wm-paint" style="${mapBg}">${S.map.map((m) => mapMarker(m, !!sel && m.id === sel.id, true)).join('')}${card}</div></div>`;
+      <div class="worldmap wm-paint" style="${mapBg}">${S.map.map((m) => mapMarker(m, !!sel && m.id === sel.id)).join('')}</div></div>`;
   }
 
   function bindMap(z) {
-    const pick = (id) => {
+    // focus stays where the choice was made (the seal or the row); closing the card returns it to that place's row
+    const pick = (id, from) => {
+      const was = mapSel;
       mapSel = id; sessionStorage.setItem('sect.mapsel', id); tabSig = ''; paintTabs();
-      const el = id && $(`.worldmap [data-mk="${CSS.escape(id)}"]`, z); if (el) el.focus({ preventScroll: true });
+      const el = $(`${from === 'map' ? '.worldmap' : '.wm-list'} [data-mk="${CSS.escape(id || was)}"]`, z); if (el) el.focus({ preventScroll: true });
     };
     z.querySelectorAll('[data-mk]').forEach((b) => {
-      b.onclick = () => pick(b.dataset.mk === mapSel && MAP_VARIANT === 'B' ? '' : b.dataset.mk);
+      b.onclick = () => pick(b.dataset.mk === mapSel ? '' : b.dataset.mk, b.closest('.worldmap') ? 'map' : 'list');
       const lit = (on) => { if (b.dataset.mk) z.querySelectorAll(`[data-mk="${CSS.escape(b.dataset.mk)}"]`).forEach((x) => x.classList.toggle('hl', on)); };
       b.onmouseenter = b.onfocus = () => lit(true); b.onmouseleave = b.onblur = () => lit(false);
     });
+    const card = $('.wm-card', z);
+    if (card) card.onkeydown = (e) => { if (e.key === 'Escape') { e.stopPropagation(); pick('', 'list'); } };
     z.querySelectorAll('[data-mopen]').forEach((b) => { b.onclick = () => {
       const key = b.dataset.mopen; openFolds.add(key); sessionStorage.setItem('sect.folds', JSON.stringify([...openFolds])); tabSig = ''; paintTabs();
       const d = $(`details[data-fold="${CSS.escape(key)}"]`, z); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
