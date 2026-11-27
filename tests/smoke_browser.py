@@ -88,9 +88,12 @@ def main() -> int:
 
         # 1) found a sect, take a placement test, land on the sect
         pg.goto(BASE + "/", wait_until="load", timeout=25000)
-        pg.wait_for_selector("#f-go, #sect-root", timeout=10000)
+        pg.wait_for_selector("#f-go, #sect-root", state="attached", timeout=10000)
         if pg.query_selector("#f-go"):
             pg.fill("#f-name", "Smoke Sect")
+            pg.click(".rite-step[data-step='1'] [data-next]")
+            pg.click(".tongue >> nth=0")          # opens the first language; its A1 is chosen
+            pg.click(".rite-step[data-step='2'] [data-next]")
             pg.click("#f-go")
             pg.wait_for_selector("[data-place]", timeout=10000)
             pg.click("[data-place]")

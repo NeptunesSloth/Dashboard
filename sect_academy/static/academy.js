@@ -168,33 +168,110 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#she
 /* ================= founding ================= */
 function renderFounding() {
   const courses = OV.courses;
-  const firstPick = (courses.find((c) => c.id.endsWith('-a1')) || courses[0] || {}).id;   // one art ticked to start; the learner adds the rest
-  view.innerHTML = `<div class="found">
-    <div class="hero"><img src="${backdrop('map')}" alt="A sect of pavilions on mountain peaks above the clouds"></div>
-    <h1>Found your sect</h1>
-    <p class="dim">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect. Choose what you will cultivate — you can change this later in the library.</p>
-    <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
-    <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
-    <h3 style="margin-top:20px">Arts to cultivate</h3>
-    ${courses.length ? courses.map((c) => `<label class="pick"><input type="checkbox" value="${esc(c.id)}" ${c.id === firstPick ? 'checked' : ''}>
-      <span><b>${esc(c.title)}</b><br><span class="dim small">${esc(c.blurb)} ${c.total} items in ${c.units.length} units.</span></span></label>`).join('')
-    : '<p class="dim">No courses are installed. Add a pack under <code>sect_academy/packs</code> and reload.</p>'}
-    <p class="dim small" style="margin-top:14px">Each art adds about 8 new items a day. One is ticked to start; two or three is a comfortable daily load, and more arts can be added later in the library.</p>
-    <h3 style="margin-top:20px">How harsh should the world be?</h3>
-    ${OV.sect.storytellers.map((t) => `<label class="pick"><input type="radio" name="f-tell" value="${esc(t.id)}" ${t.id === 'balanced' ? 'checked' : ''}>
-      <span><b>${esc(t.name)}</b><br><span class="dim small">${esc(t.blurb)}</span></span></label>`).join('')}
-    <p class="dim small" style="margin-top:10px">The sect lives on its own clock: disciples farm, build and cultivate whether or not you study. Studying makes them better at it.</p>
-    <p id="f-err" class="small" style="color:var(--verm-d);font-weight:800" role="alert"></p>
-    <button class="btn primary big" id="f-go" style="width:100%">Found the sect</button>
+  const LANGS = [
+    ['Spanish', 'Español'], ['French', 'Français'], ['Mandarin', '中文'], ['Japanese', '日本語'], ['Korean', '한국어'],
+  ];
+  const LEVEL_NOTE = { A1: 'Complete beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper intermediate', Talk: 'Spoken exchanges', Pictures: 'Words on pictures' };
+  const level = (c) => { const t = String(c.title).split(' — ')[1] || c.title; if (/^Conversations/.test(t)) return 'Talk'; if (/^Picture/.test(t)) return 'Pictures'; return t.split(' ')[0]; };
+  const certName = (c) => String(c.title).split(' — ')[0].replace(/\s*\(.*\)$/, '');
+  const known = new Set(LANGS.map((l) => l[0]));
+  const langs = [...LANGS.filter(([l]) => courses.some((c) => c.language === l)),
+    ...[...new Set(courses.filter((c) => c.kind === 'language' && !known.has(c.language)).map((c) => c.language || 'Other'))].map((l) => [l, l])];
+  const certs = courses.filter((c) => c.kind !== 'language');
+  const picked = new Set();
+  let step = 1; let openLang = null;
+  const tells = OV.sect.storytellers;
+  let tell = 'balanced';
+
+  view.innerHTML = `<div class="rite" style="--rite-bg:url(${backdrop('map')})">
+    <div class="rite-panel">
+      <ol class="rite-steps" aria-label="Founding steps">
+        <li data-s="1">Name</li><li data-s="2">Arts</li><li data-s="3">World</li>
+      </ol>
+      <section class="rite-step" data-step="1">
+        <h1>Found your sect</h1>
+        <p class="rite-lede">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect.</p>
+        <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
+        <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
+        <div class="rite-foot"><span></span><button class="btn primary big" data-next>Choose your arts</button></div>
+      </section>
+      <section class="rite-step" data-step="2" hidden>
+        <h2>What will you cultivate?</h2>
+        <p class="rite-lede">Pick one or two to start. Each adds about eight new items a day, and you can change them later in the library.</p>
+        <div class="tongues" role="list">${langs.map(([l, native]) => `<button type="button" class="tongue" role="listitem" data-lang="${esc(l)}" aria-expanded="false">
+            <span class="native" lang="${esc((courses.find((c) => c.language === l) || {}).lang || '')}">${esc(native)}</span><span class="en">${esc(l)}</span><span class="count" hidden></span></button>`).join('')}</div>
+        <div class="levels" id="f-levels" hidden></div>
+        ${certs.length ? `<h3 class="rite-sub">Or a technical art</h3>
+        <div class="seals">${certs.map((c) => `<button type="button" class="seal" data-id="${esc(c.id)}" aria-pressed="false" title="${esc(`${c.blurb} ${c.total} items.`)}">${esc(certName(c))}</button>`).join('')}</div>` : ''}
+        <p class="rite-chosen" id="f-picked" aria-live="polite"></p>
+        <div class="rite-foot"><button class="btn quiet" data-back>Back</button><button class="btn primary big" data-next>Next</button></div>
+      </section>
+      <section class="rite-step" data-step="3" hidden>
+        <h2>How harsh is the world?</h2>
+        <p class="rite-lede">The sect lives on its own clock. Disciples farm, build and cultivate whether or not you study; studying makes them better at it.</p>
+        <div class="fates">${tells.map((t) => `<button type="button" class="fate" data-tell="${esc(t.id)}" aria-pressed="${t.id === tell}"><b>${esc(t.name)}</b><span>${esc(t.blurb)}</span></button>`).join('')}</div>
+        <p id="f-err" class="rite-err" role="alert"></p>
+        <div class="rite-foot"><button class="btn quiet" data-back>Back</button><button class="btn primary big" id="f-go">Found the sect</button></div>
+      </section>
+    </div>
   </div>`;
+
+  const root = view.querySelector('.rite');
+  const show = (n) => {
+    step = n;
+    root.querySelectorAll('.rite-step').forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
+    root.querySelectorAll('.rite-steps li').forEach((li) => { const s = Number(li.dataset.s); li.className = s === n ? 'now' : s < n ? 'done' : ''; li.setAttribute('aria-current', s === n ? 'step' : 'false'); });
+    const f = root.querySelector(`.rite-step[data-step="${n}"] h1, .rite-step[data-step="${n}"] h2`); if (f) { f.tabIndex = -1; f.focus({ preventScroll: true }); }
+    window.scrollTo({ top: 0 });
+  };
+  const label = (c) => c.kind === 'language' ? `${c.language} ${level(c)}` : certName(c);
+  const sync = () => {
+    const list = courses.filter((c) => picked.has(c.id));
+    root.querySelector('#f-picked').textContent = list.length ? `Chosen: ${list.map(label).join(', ')}` : '';
+    root.querySelectorAll('.tongue').forEach((b) => {
+      const n = courses.filter((c) => c.language === b.dataset.lang && picked.has(c.id)).length;
+      const ct = b.querySelector('.count'); ct.hidden = !n; ct.textContent = n ? String(n) : '';
+      b.classList.toggle('has', n > 0); b.classList.toggle('open', b.dataset.lang === openLang); b.setAttribute('aria-expanded', String(b.dataset.lang === openLang));
+    });
+    root.querySelectorAll('.seal').forEach((b) => { const on = picked.has(b.dataset.id); b.setAttribute('aria-pressed', String(on)); });
+    root.querySelectorAll('.level').forEach((b) => b.setAttribute('aria-pressed', String(picked.has(b.dataset.id))));
+  };
+  const paintLevels = () => {
+    const box = root.querySelector('#f-levels');
+    if (!openLang) { box.hidden = true; box.innerHTML = ''; return; }
+    const mine = courses.filter((c) => c.language === openLang);
+    box.hidden = false;
+    box.innerHTML = mine.map((c) => `<button type="button" class="level" data-id="${esc(c.id)}" aria-pressed="false"><b>${esc(level(c))}</b><span>${esc(LEVEL_NOTE[level(c)] || '')} · ${num(c.total)} items</span></button>`).join('');
+    sync();
+  };
+  root.addEventListener('click', (e) => {
+    const t = e.target.closest('button'); if (!t || !root.contains(t)) return;
+    if (t.matches('[data-next]')) {
+      if (step === 2 && !picked.size) { root.querySelector('#f-picked').textContent = 'Choose at least one art to cultivate.'; return; }
+      show(step + 1); return;
+    }
+    if (t.matches('[data-back]')) { show(step - 1); return; }
+    if (t.classList.contains('tongue')) {
+      openLang = openLang === t.dataset.lang ? null : t.dataset.lang;
+      if (openLang && !courses.some((c) => c.language === openLang && picked.has(c.id))) {
+        const first = courses.find((c) => c.language === openLang && /-a1$/.test(c.id)); if (first) picked.add(first.id);
+      }
+      paintLevels(); sync(); return;
+    }
+    if (t.classList.contains('level') || t.classList.contains('seal')) { const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id); sync(); return; }
+    if (t.classList.contains('fate')) { tell = t.dataset.tell; root.querySelectorAll('.fate').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); }
+  });
+  root.querySelector('#f-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); root.querySelector('#f-master').focus(); } });
+  root.querySelector('#f-master').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); show(2); } });
+  show(1); sync();
+  root.querySelector('#f-name').focus();
   $('#f-go').onclick = async () => {
-    const picked = [...view.querySelectorAll('.pick input:checked')].map((i) => i.value);
-    if (!picked.length) { $('#f-err').textContent = 'Choose at least one art to cultivate.'; return; }
-    const tell = (view.querySelector('input[name="f-tell"]:checked') || {}).value || 'balanced';
-    const res = await api('/api/setup', { name: $('#f-name').value, master: $('#f-master').value, courses: picked, storyteller: tell });
+    const list = [...picked];
+    if (!list.length) { show(2); root.querySelector('#f-picked').textContent = 'Choose at least one art to cultivate.'; return; }
+    const res = await api('/api/setup', { name: $('#f-name').value, master: $('#f-master').value, courses: list, storyteller: tell });
     if (res.ok === false) { $('#f-err').textContent = res.error; return; }
     await refresh();
-    offerPlacement(picked);
+    offerPlacement(list);
   };
 }
 
