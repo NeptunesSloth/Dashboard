@@ -90,6 +90,11 @@ def test_the_next_main_hall_level_says_what_it_opens(st):
 DAY = 86400.0
 
 
+def _ready_for_hall(c, level):
+    """Three other rooms at `level`, so the Hall may rise to level+1."""
+    c["rooms"].update(main_hall=level, dormitory=max(level, 1), fields=max(level, 1), storehouse=max(level, 1))
+
+
 def _idle_all(c):
     for p in c["pawns"]:
         p["prio"] = {j: 0 for j in colony.JOBS}
@@ -106,11 +111,11 @@ def test_a_builder_finishes_with_nobody_helping(st):
     _idle_all(c)
     c["res"].update(wood=999.0, stone=999.0, stones=99.0)
     c["rooms"]["fields"] = 1
-    assert colony.queue_build(st, "fields", T0)["ok"]              # to level 2: 2 sim hours
+    assert colony.queue_build(st, "fields", T0)["ok"]              # to level 2
     colony.advance(st, 1, T0)
     assert c["builds"] and c["builds"][0]["done"] == pytest.approx(1.0)
     assert colony.view(st, T0)["builds"][0]["rows"] == [{"label": "The builder", "x": 1}]
-    colony.advance(st, 1, T0)
+    colony.advance(st, colony.ROOM_HOURS[2] - 1, T0)
     assert not c["builds"] and c["rooms"]["fields"] == 2
     assert c["log"][-1]["title"] == "Rice Terraces raised to level 2"
 
@@ -124,8 +129,8 @@ def test_helpers_speed_a_job_by_what_the_ledger_says(st):
     helper = c["pawns"][1]
     helper["prio"]["build"] = 1
     c["res"].update(wood=999.0, stone=999.0, stones=99.0)
-    c["rooms"]["main_hall"] = 3
-    assert colony.queue_build(st, "main_hall", T0)["ok"]           # level 4: 12 sim hours
+    _ready_for_hall(c, 3)
+    assert colony.queue_build(st, "main_hall", T0)["ok"]           # level 4
     colony.advance(st, 1, T0)
     b = c["builds"][0]
     rows = colony.build_rate_rows(c, b)
@@ -154,28 +159,28 @@ def test_builder_slots_grow_with_the_hall_and_a_full_crew_refuses_more(st):
 def test_away_the_builders_finish_and_the_letter_says_so(st):
     c = st["colony"]
     c["res"].update(wood=999.0, stone=999.0, stones=99.0)
-    assert colony.queue_build(st, "library", T0)["ok"]
+    assert colony.queue_build(st, "ward", T0)["ok"]
     c["last_real"] = T0
     hours = colony.catch_up(st, T0 + 7 * colony.SECS_PER_HOUR_OFFLINE)
-    assert hours == 7 and c["rooms"].get("library") == 1
+    assert hours == 7 and c["rooms"].get("ward") == 1
     assert not any(e["kind"] == "bad" for e in c["log"])
     away = [e for e in c["log"] if e["title"] == "While you were away"][-1]
-    assert "Scripture Pavilion built" in away["text"] and "No one came to harm" in away["text"]
+    assert "Ward Formation built" in away["text"] and "No one came to harm" in away["text"]
     assert "built_away" not in c
 
 
 def test_builders_work_on_while_an_event_waits_and_nothing_else_moves(st):
     c = st["colony"]
     c["res"].update(wood=999.0, stone=999.0, stones=99.0)
-    c["rooms"]["main_hall"] = 2
-    assert colony.queue_build(st, "main_hall", T0)["ok"]           # 8 sim hours
+    _ready_for_hall(c, 2)
+    assert colony.queue_build(st, "main_hall", T0)["ok"]           # to level 3
     colony._ask(c, "festival", "Feast", "x", [("hold", "h"), ("skip", "s")], name="Feast", flavour="f", cost=12)
     hour, rice = c["hour"], c["res"]["rice"]
     c["last_real"] = T0
     colony.advance(st, 5, T0 + 3 * colony.SECS_PER_HOUR_OFFLINE + 10)   # watching, with the event open
     assert c["hour"] == hour and c["res"]["rice"] == rice
     assert c["builds"][0]["done"] == pytest.approx(3.0)            # three builder hours at the away rate
-    colony.catch_up(st, c["last_real"] + 6 * colony.SECS_PER_HOUR_OFFLINE)   # away, event still open
+    colony.catch_up(st, c["last_real"] + (colony.HALL_HOURS[3] - 3) * colony.SECS_PER_HOUR_OFFLINE)   # away, event still open
     assert c["hour"] == hour and c["rooms"]["main_hall"] == 3 and not c["builds"]
     assert any(e["title"] == "The builders worked on" for e in c["log"])
     c["seclusion"] = True                                          # sealed gates: everything waits, builders too
@@ -188,8 +193,8 @@ def test_builders_work_on_while_an_event_waits_and_nothing_else_moves(st):
 def test_study_draws_blueprints_and_lends_the_master_but_never_gates(st):
     c = st["colony"]
     c["res"].update(wood=999.0, stone=999.0, stones=99.0)
-    c["rooms"]["main_hall"] = 3
-    assert colony.queue_build(st, "main_hall", T0)["ok"]           # 12 sim hours
+    _ready_for_hall(c, 3)
+    assert colony.queue_build(st, "main_hall", T0)["ok"]           # to level 4
     ev = colony.on_session(st, answers=10, correct=9, counted=True, due_left=0, now=T0)
     assert c["blueprints"]["n"] == 1 and any("blueprint" in e["text"] for e in ev["events"])
     colony.on_session(st, answers=10, correct=9, counted=True, due_left=0, now=T0 + 60)
@@ -199,8 +204,8 @@ def test_study_draws_blueprints_and_lends_the_master_but_never_gates(st):
     assert c["blueprints"]["n"] == colony.BLUEPRINT_BANK            # banked up to the cap
     b = c["builds"][0]
     assert colony.use_blueprint(st, 0, T0)["ok"]
-    assert b["done"] == pytest.approx(12 * colony.BLUEPRINT_CUT) and b["blue"] == pytest.approx(3.0)
-    assert colony.view(st, T0)["builds"][0]["blue"] == 3                # shown in the job's ledger
+    assert b["done"] == pytest.approx(colony.HALL_HOURS[4] * colony.BLUEPRINT_CUT) and b["blue"] == pytest.approx(colony.HALL_HOURS[4] * colony.BLUEPRINT_CUT)
+    assert colony.view(st, T0)["builds"][0]["blue"] == colony.HALL_HOURS[4] * colony.BLUEPRINT_CUT               # shown in the job's ledger
     assert not colony.use_blueprint(st, 5, T0)["ok"]                   # only a job a builder is on
     # with the sect off, study pays the builders nothing
     st["settings"]["sect_enabled"] = False
@@ -243,7 +248,7 @@ def test_the_ladder_reaches_ten_and_every_unlock_is_a_real_room():
     assert sorted(opened) == sorted(k for k in colony.ROOMS if k != "main_hall")          # each room opens exactly once
     caps = [colony.HALL_LADDER[h]["cap"] for h in range(1, 11)]
     assert caps == sorted(caps) and all(cap <= h + 1 for h, cap in enumerate(caps, 1))    # never more than one above the Hall
-    assert caps[-1] == max(r["max"] for k, r in colony.ROOMS.items() if k != "market") == 8
+    assert caps[-1] == max(r["max"] for k, r in colony.ROOMS.items() if k not in ("market", "main_hall")) == 8
     for room in colony.ROOMS:
         assert colony.room_opens_at(room) <= colony.ROOMS["main_hall"]["max"]
     assert colony.room_cost({"research": {"done": []}}, "fields", 3)["wood"] == int(round(colony.ROOMS["fields"]["wood"] * 1.6 ** 3 / 5)) * 5
