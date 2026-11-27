@@ -46,8 +46,8 @@ def path() -> str:
 
 def blank_settings() -> dict:
     return {
-        "courses": [],            # enrolled pack ids
-        "new_per_day": 8,         # new items per course per day
+        "courses": [],            # enrolled pack ids (a track's stages are enrolled together: engine.migrate_tracks)
+        "new_per_day": 8,         # new items per course (a whole track counts as one) per day
         "session_size": 20,       # target exercises per session
         "retention": 0.9,         # FSRS desired retention
         "tz_offset_min": 0,       # learner's UTC offset (minutes east), set by the UI
@@ -196,7 +196,8 @@ def sanitize(data: dict) -> dict:
     st["words"] = reader.clean_words(data.get("words"))
     st["book_pos"] = reader.clean_positions(data.get("book_pos"))
     pl = data.get("placements")
-    st["placements"] = {_str(k, "", 64): {x: _int(v.get(x), 0, 0) for x in ("passed_units", "units", "placed", "asked", "right")}
+    st["placements"] = {_str(k, "", 64): {**{x: _int(v.get(x), 0, 0) for x in ("passed_units", "units", "placed", "asked", "right")},
+                                          **{x: _str(v.get(x), "", 64) for x in ("level", "stage")}}
                         for k, v in (pl.items() if isinstance(pl, dict) else []) if isinstance(k, str) and isinstance(v, dict)}
     return st
 
