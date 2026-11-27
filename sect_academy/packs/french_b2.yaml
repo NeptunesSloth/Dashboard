@@ -227,3 +227,417 @@ units:
       - {id: fr-b2-03-c13, type: cloze, text: "Pourvu qu'il ___ demain ! Les jardins sont si secs.", answer: "pleuve", l1: "Let's hope it rains tomorrow! The gardens are so dry.", note: "pourvu que on its own = let's hope. pleuvoir → qu'il pleuve."}
       - {id: fr-b2-03-c14, type: cloze, text: "Je parle lentement ___ que tout le monde comprenne.", answer: "pour", alt: ["afin"], l1: "I speak slowly so that everyone understands.", note: "pour que / afin que + subjunctive."}
       - {id: fr-b2-03-c15, type: cloze, text: "Le maire a fermé la route avant que l'inondation ___ le village.", answer: "atteigne", l1: "The mayor closed the road before the flood reached the village.", note: "atteindre (to reach) → qu'elle atteigne. The present subjunctive is used even in a past story."}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: fr4-04
+    title: "Science and technology: subjunctive in relative clauses, past subjunctive"
+    goal: "I can talk about research and new technology, describe what I am looking for, and react to past events using the past subjunctive."
+    notes: |
+      ## The subjunctive in a relative clause
+      After *qui / que*, the mood tells the listener whether the thing is known to exist.
+
+      - Known, real → **indicative**: *J'ai trouvé un logiciel qui **est** gratuit.*
+      - Wanted, possibly non-existent → **subjunctive**: *Je cherche un logiciel qui **soit** gratuit.*
+      - After a negative (*personne, rien, aucun*): *Il n'y a personne qui **puisse** m'aider.*
+      - After a superlative or *le seul, le premier, le dernier, l'unique*: *C'est le meilleur film que j'**aie** vu.* (The indicative is possible when you state a plain fact.)
+
+      ## The past subjunctive
+      Subjunctive of **avoir** or **être** + past participle, for an action completed before the main verb:
+
+      | | finir | partir |
+      |---|---|---|
+      | que je / j' | aie fini | sois parti(e) |
+      | que tu | aies fini | sois parti(e) |
+      | qu'il / elle | ait fini | soit parti(e) |
+      | que nous | ayons fini | soyons parti(e)s |
+      | que vous | ayez fini | soyez parti(e)(s) |
+      | qu'ils / elles | aient fini | soient parti(e)s |
+
+      *Je suis content que tu **sois venu**.* (you came, now I'm glad) — compare *Je suis content que tu **viennes*** (you're coming).
+
+      Note the spelling: que j'**aie**, qu'il **ait**.
+    items:
+      - {id: fr-b2-04-recherche, type: vocab, l2: "la recherche", l1: "research", ex: "Elle fait de la recherche en biologie.", ex_l1: "She does research in biology.", note: "Uncountable in this sense: faire de la recherche. une recherche is also a search, online."}
+      - {id: fr-b2-04-chercheur, type: vocab, l2: "le chercheur", l1: "the researcher (a man)", ex: "Les chercheurs ont publié leurs résultats.", ex_l1: "The researchers have published their results.", note: "Feminine: la chercheuse."}
+      - {id: fr-b2-04-decouverte, type: vocab, l2: "la découverte", l1: "the discovery", ex: "C'est une découverte majeure.", ex_l1: "It's a major discovery.", note: "From découvrir (to discover); past participle découvert."}
+      - {id: fr-b2-04-experience, type: vocab, l2: "l'expérience", l1: "the experiment / the experience", ex: "Les élèves ont fait une expérience de chimie.", ex_l1: "The pupils did a chemistry experiment.", note: "Feminine. One word for both: faire une expérience = to do an experiment; avoir de l'expérience = to have experience."}
+      - {id: fr-b2-04-laboratoire, type: vocab, l2: "le laboratoire", l1: "the laboratory", alt: ["le labo"], ex: "Il travaille dans un laboratoire à Grenoble.", ex_l1: "He works in a laboratory in Grenoble.", note: "Casual: le labo."}
+      - {id: fr-b2-04-ia, type: vocab, l2: "l'intelligence artificielle", l1: "artificial intelligence (AI)", alt: ["l'IA"], ex: "L'intelligence artificielle transforme de nombreux métiers.", ex_l1: "Artificial intelligence is transforming many jobs.", note: "Feminine. Abbreviation: l'IA (say 'i-a')."}
+      - {id: fr-b2-04-donnees, type: vocab, l2: "les données", l1: "data", ex: "Cette appli collecte beaucoup de données personnelles.", ex_l1: "This app collects a lot of personal data.", note: "Feminine plural: une donnée, from donner (a 'given')."}
+      - {id: fr-b2-04-outil, type: vocab, l2: "l'outil", l1: "the tool", ex: "Internet est un outil formidable.", ex_l1: "The internet is a wonderful tool.", note: "Masculine; the final l is barely heard."}
+      - {id: fr-b2-04-progres, type: vocab, l2: "le progrès", l1: "progress / an advance", ex: "Tu as fait beaucoup de progrès en français !", ex_l1: "You've made a lot of progress in French!", note: "Countable in French: faire des progrès. The s is silent."}
+      - {id: fr-b2-04-numerique, type: vocab, l2: "numérique", l1: "digital", ex: "Notre école passe au numérique.", ex_l1: "Our school is going digital.", note: "As a noun, le numérique = digital technology."}
+      - {id: fr-b2-04-pirater, type: vocab, l2: "pirater", l1: "to hack (a computer) / to pirate (a film)", ex: "Mon compte a été piraté.", ex_l1: "My account has been hacked.", note: "le piratage = hacking; un pirate informatique = a hacker."}
+      - {id: fr-b2-04-vie-privee, type: vocab, l2: "la vie privée", l1: "privacy / private life", ex: "Il faut protéger la vie privée des utilisateurs.", ex_l1: "Users' privacy must be protected.", note: "For data, la confidentialité is also used."}
+      - {id: fr-b2-04-appareil, type: vocab, l2: "l'appareil", l1: "the device / the appliance", ex: "Éteignez vos appareils électroniques.", ex_l1: "Switch off your electronic devices.", note: "Masculine. un appareil photo = a camera."}
+      - {id: fr-b2-04-mise-a-jour, type: vocab, l2: "la mise à jour", l1: "the update (software)", ex: "Une mise à jour est disponible.", ex_l1: "An update is available.", note: "Plural: des mises à jour. mettre à jour = to update."}
+      - {id: fr-b2-04-utilisateur, type: vocab, l2: "l'utilisateur", l1: "the user (a man)", ex: "L'appli a dix millions d'utilisateurs.", ex_l1: "The app has ten million users.", note: "Feminine: l'utilisatrice."}
+      - {id: fr-b2-04-objets-connectes, type: vocab, l2: "les objets connectés", l1: "smart devices / connected devices", ex: "Les objets connectés envahissent nos maisons.", ex_l1: "Smart devices are invading our homes.", note: "Literally 'connected objects'. une montre connectée = a smartwatch."}
+      - {id: fr-b2-04-brevet, type: vocab, l2: "le brevet", l1: "the patent", ex: "L'entreprise a déposé un brevet.", ex_l1: "The company filed a patent.", note: "déposer un brevet = to file a patent. le brevet is also the exam at the end of collège."}
+      - {id: fr-b2-04-mettre-au-point, type: vocab, l2: "mettre au point", l1: "to develop / to perfect (a technique, a product)", ex: "Ils ont mis au point une nouvelle batterie.", ex_l1: "They have developed a new battery.", note: "Like mettre: ils ont mis au point."}
+      - {id: fr-b2-04-prouver, type: vocab, l2: "prouver", l1: "to prove", ex: "Il est difficile de prouver cette théorie.", ex_l1: "It's difficult to prove this theory.", note: "la preuve = the proof, the evidence."}
+      - {id: fr-b2-04-scientifique, type: vocab, l2: "le scientifique", l1: "the scientist", ex: "Les scientifiques nous alertent depuis des années.", ex_l1: "Scientists have been warning us for years.", note: "Same form for a woman: une scientifique. Also the adjective 'scientific'."}
+      - {id: fr-b2-04-puce, type: vocab, l2: "la puce", l1: "the chip (electronic) / the flea", ex: "Cette carte contient une puce.", ex_l1: "This card contains a chip.", note: "le marché aux puces = the flea market."}
+      - {id: fr-b2-04-je-cherche-quelqu-un, type: phrase, l2: "Je cherche quelqu'un qui puisse m'aider.", l1: "I'm looking for someone who can help me.", note: "The person may not exist → subjunctive in the relative clause."}
+      - {id: fr-b2-04-meilleure-appli, type: phrase, l2: "C'est la meilleure appli que je connaisse.", l1: "It's the best app I know.", alt: ["C'est la meilleure application que je connaisse."], note: "After a superlative, the subjunctive is usual in the relative clause."}
+      - {id: fr-b2-04-content-que-tu-sois-venu, type: phrase, l2: "Je suis content que tu sois venu.", l1: "I'm glad you came. (informal; a man speaking, to a man)", alt: ["Je suis heureux que tu sois venu.", "Je suis ravi que tu sois venu."], note: "Past subjunctive: the coming happened before the being glad. A woman says contente; to a woman, venue."}
+      - {id: fr-b2-04-pas-qu-il-ait-compris, type: phrase, l2: "Je ne pense pas qu'il ait compris.", l1: "I don't think he understood.", alt: ["Je ne crois pas qu'il ait compris.", "Je pense pas qu'il ait compris."], note: "Past subjunctive after a negative opinion."}
+      - {id: fr-b2-04-puce-a-l-oreille, type: phrase, l2: "Ça m'a mis la puce à l'oreille.", l1: "That made me suspicious. (idiom with la puce)", note: "mettre la puce à l'oreille à quelqu'un = to make someone suspect something."}
+      - {id: fr-b2-04-tient-pas-debout, type: phrase, l2: "Ça ne tient pas debout.", l1: "That makes no sense. / That doesn't hold water. (idiom)", alt: ["Ça tient pas debout."], note: "Literally 'it doesn't stand up', of an argument or a story."}
+      - {id: fr-b2-04-c1, type: cloze, text: "Je cherche un logiciel qui ___ gratuit et facile à utiliser.", answer: "soit", l1: "I'm looking for software that is free and easy to use (if there is one).", note: "Wanted, not known to exist → subjunctive."}
+      - {id: fr-b2-04-c2, type: cloze, text: "J'ai trouvé un logiciel qui ___ gratuit.", answer: "est", l1: "I've found some software that is free.", note: "It exists and you have found it → indicative."}
+      - {id: fr-b2-04-c3, type: cloze, text: "Il n'y a aucun chercheur qui ___ expliquer ce phénomène.", answer: "puisse", alt: ["sache"], l1: "There is no researcher who can explain this phenomenon.", note: "After a negative (aucun, personne, rien) → subjunctive."}
+      - {id: fr-b2-04-c4, type: cloze, text: "C'est la découverte la plus importante qu'on ait ___ depuis vingt ans.", answer: "faite", l1: "It's the most important discovery anyone has made in twenty years.", note: "Past subjunctive after a superlative. faite agrees with que (= la découverte), a direct object placed before."}
+      - {id: fr-b2-04-c5, type: cloze, text: "Connais-tu quelqu'un qui ___ réparer un ordinateur ?", answer: "sache", alt: ["puisse"], l1: "Do you know anyone who can repair a computer? (informal)", note: "savoir + infinitive = to know how to. Such a person may not exist → subjunctive."}
+      - {id: fr-b2-04-c6, type: cloze, text: "C'est le seul appareil qui ___ à mes besoins.", answer: "réponde", alt: ["corresponde"], l1: "It's the only device that meets my needs.", note: "After le seul, le premier, le dernier → subjunctive is usual."}
+      - {id: fr-b2-04-c7, type: cloze, text: "Je suis ravi que vous ___ venus à la conférence.", answer: "soyez", l1: "I'm delighted that you came to the conference. (a man speaking, to a group)", note: "Past subjunctive with être: que vous soyez venus."}
+      - {id: fr-b2-04-c8, type: cloze, text: "Je doute qu'ils ___ vraiment compris le problème.", answer: "aient", l1: "I doubt they really understood the problem.", note: "Past subjunctive: qu'ils aient compris."}
+      - {id: fr-b2-04-c9, type: cloze, text: "Je regrette que tu ne ___ pas venu hier.", answer: "sois", l1: "I'm sorry you didn't come yesterday. (informal, to a man)", note: "Past subjunctive with être: que tu sois venu."}
+      - {id: fr-b2-04-c10, type: cloze, text: "Il est possible que le serveur ait été ___.", answer: "piraté", l1: "It's possible that the server has been hacked.", note: "Past subjunctive of a passive: ait été + participle."}
+      - {id: fr-b2-04-c11, type: cloze, text: "Je suis surprise qu'elle ne m'ait pas encore ___.", answer: "répondu", l1: "I'm surprised she hasn't answered me yet. (a woman speaking)", note: "répondre à quelqu'un: m' is an indirect object, so répondu does not agree."}
+      - {id: fr-b2-04-c12, type: cloze, text: "Il faut que vous ___ fini l'expérience avant midi.", answer: "ayez", l1: "You must have finished the experiment by noon.", note: "Past subjunctive: the action must be complete before a point in time."}
+      - {id: fr-b2-04-c13, type: cloze, text: "C'est le meilleur cours de physique que j'___ jamais suivi.", answer: "aie", l1: "It's the best physics course I've ever taken.", note: "que j'aie (with e) for je; qu'il ait for il."}
+      - {id: fr-b2-04-c14, type: cloze, text: "Nous cherchons un ingénieur qui ___ de l'expérience en IA.", answer: "ait", l1: "We're looking for an engineer who has experience in AI.", note: "Any engineer who fits, not a known person → subjunctive."}
+      - {id: fr-b2-04-c15, type: cloze, text: "Il est dommage que les chercheurs ___ partis à l'étranger.", answer: "soient", l1: "It's a pity the researchers have gone abroad.", note: "Past subjunctive with être: qu'ils soient partis."}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: fr4-05
+    title: "Media and the news: the conditionnel passé and si clauses"
+    goal: "I can talk about the media, report unconfirmed news, express regret and reproach, and use all three kinds of si clause."
+    notes: |
+      The **conditionnel passé** ("would have") is the conditional of **avoir** or **être** + past participle: *j'**aurais aimé**, tu **aurais dû**, elle **serait venue***.
+
+      ## Three jobs
+      - **Unreal past**: *Si j'avais su, je **serais venu**.*
+      - **Regret and reproach**: *J'**aurais dû** t'écouter.* (I should have) *Tu **aurais pu** me prévenir !* (You could have)
+      - **Unconfirmed news**: journalists use the conditional for what is reported but not verified. *Selon la police, l'incendie **aurait fait** deux victimes* = reportedly. The present conditional works the same way: *Le ministre **serait** prêt à démissionner.*
+
+      ## The three si clauses
+      | si + | main clause | meaning |
+      |---|---|---|
+      | présent | présent, futur, impératif | real possibility |
+      | imparfait | conditionnel présent | unreal now |
+      | plus-que-parfait | conditionnel passé | unreal past |
+
+      They can be mixed when the past affects the present: *Si tu **avais pris** le train, tu **serais** déjà là.*
+
+      Never put a future or a conditional straight after *si* meaning "if". (After *si* meaning "whether", you can: *je me demande s'il viendra*.)
+    items:
+      - {id: fr-b2-05-presse, type: vocab, l2: "la presse", l1: "the press (newspapers and magazines)", ex: "La presse a beaucoup parlé de cette affaire.", ex_l1: "The press talked a lot about this affair.", note: "la presse écrite = print media. une affaire = a case, a scandal."}
+      - {id: fr-b2-05-journaliste, type: vocab, l2: "le journaliste", l1: "the journalist", ex: "Le journaliste a interviewé le ministre.", ex_l1: "The journalist interviewed the minister.", note: "Same form for a woman: une journaliste."}
+      - {id: fr-b2-05-faire-la-une, type: vocab, l2: "faire la une", l1: "to be front-page news / to hit the headlines", ex: "Le scandale fait la une de tous les journaux.", ex_l1: "The scandal is on the front page of every newspaper.", note: "la une = the front page. à la une = in the headlines."}
+      - {id: fr-b2-05-titre, type: vocab, l2: "le titre", l1: "the headline / the title", ex: "Le titre de l'article est trompeur.", ex_l1: "The article's headline is misleading.", note: "trompeur = misleading."}
+      - {id: fr-b2-05-article, type: vocab, l2: "l'article", l1: "the (newspaper) article", ex: "J'ai lu un article intéressant sur le climat.", ex_l1: "I read an interesting article about the climate.", note: "Masculine. Also a grammatical article and an item for sale."}
+      - {id: fr-b2-05-rubrique, type: vocab, l2: "la rubrique", l1: "the section / the column (in a newspaper)", ex: "Je lis toujours la rubrique sport en premier.", ex_l1: "I always read the sports section first.", note: "la rubrique culture, la rubrique économie…"}
+      - {id: fr-b2-05-abonnement, type: vocab, l2: "l'abonnement", l1: "the subscription", ex: "J'ai résilié mon abonnement au journal.", ex_l1: "I cancelled my newspaper subscription.", note: "Masculine. s'abonner à = to subscribe to; résilier = to cancel (a contract)."}
+      - {id: fr-b2-05-telespectateur, type: vocab, l2: "le téléspectateur", l1: "the (TV) viewer", ex: "Le match a attiré huit millions de téléspectateurs.", ex_l1: "The match attracted eight million viewers.", note: "Feminine: la téléspectatrice."}
+      - {id: fr-b2-05-auditeur, type: vocab, l2: "l'auditeur", l1: "the (radio) listener", ex: "Chers auditeurs, bonsoir.", ex_l1: "Good evening, dear listeners.", note: "Feminine: l'auditrice."}
+      - {id: fr-b2-05-infox, type: vocab, l2: "les infox", l1: "fake news (the official French word)", alt: ["les fake news", "les fausses informations", "les fausses nouvelles"], ex: "Les infox circulent vite sur les réseaux sociaux.", ex_l1: "Fake news spreads fast on social media.", note: "infox = information + intox (propaganda). Most people in France say les fake news; in Québec, les fausses nouvelles."}
+      - {id: fr-b2-05-publicite, type: vocab, l2: "la publicité", l1: "advertising / an advert", alt: ["la pub"], ex: "Il y a trop de publicité à la télé.", ex_l1: "There's too much advertising on TV.", note: "Casual: la pub. une publicité / une pub = an advert."}
+      - {id: fr-b2-05-reportage, type: vocab, l2: "le reportage", l1: "the (news) report / the feature (on TV or radio)", ex: "J'ai vu un reportage sur les migrants.", ex_l1: "I saw a report on migrants.", note: "Not le rapport, which is a written report."}
+      - {id: fr-b2-05-enquete, type: vocab, l2: "l'enquête", l1: "the investigation / the inquiry", ex: "La police a ouvert une enquête.", ex_l1: "The police have opened an investigation.", note: "Feminine. Also a survey: une enquête d'opinion. enquêter = to investigate."}
+      - {id: fr-b2-05-diffuser, type: vocab, l2: "diffuser", l1: "to broadcast / to spread (information)", ex: "Le film sera diffusé ce soir à vingt et une heures.", ex_l1: "The film will be broadcast tonight at 9 pm.", note: "la diffusion = the broadcast."}
+      - {id: fr-b2-05-relayer, type: vocab, l2: "relayer", l1: "to pass on / to share (news, a message)", ex: "Elle a relayé l'information sur les réseaux sociaux.", ex_l1: "She shared the information on social media.", note: "Also to take over from someone at work."}
+      - {id: fr-b2-05-dementir, type: vocab, l2: "démentir", l1: "to deny (officially) / to refute", ex: "Le ministre a démenti la rumeur.", ex_l1: "The minister denied the rumour.", note: "Like mentir: il dément, il a démenti. un démenti = an official denial."}
+      - {id: fr-b2-05-selon, type: vocab, l2: "selon", l1: "according to", alt: ["d'après"], ex: "Selon la météo, il va neiger.", ex_l1: "According to the forecast, it's going to snow.", note: "selon moi = in my opinion. In the news, often followed by the conditional."}
+      - {id: fr-b2-05-victime, type: vocab, l2: "la victime", l1: "the victim / the casualty", ex: "L'accident n'a fait aucune victime.", ex_l1: "The accident caused no casualties.", note: "Always feminine, even for a man: il est la victime."}
+      - {id: fr-b2-05-bilan, type: vocab, l2: "le bilan", l1: "the toll / the assessment (of results)", ex: "Le bilan s'élève à dix morts.", ex_l1: "The death toll stands at ten.", note: "faire le bilan = to take stock. s'élever à = to amount to."}
+      - {id: fr-b2-05-influenceur, type: vocab, l2: "l'influenceur", l1: "the influencer (a man)", ex: "Cet influenceur a deux millions d'abonnés.", ex_l1: "This influencer has two million followers.", note: "Feminine: l'influenceuse. un abonné = a subscriber, a follower."}
+      - {id: fr-b2-05-si-j-avais-su, type: phrase, l2: "Si j'avais su, je ne serais pas venu.", l1: "If I'd known, I wouldn't have come. (a man speaking)", alt: ["Si j'avais su, je serais pas venu."], note: "si + plus-que-parfait → conditionnel passé. A woman says venue."}
+      - {id: fr-b2-05-j-aurais-du, type: phrase, l2: "J'aurais dû t'écouter.", l1: "I should have listened to you. (informal)", note: "devoir in the conditionnel passé = should have."}
+      - {id: fr-b2-05-tu-aurais-pu, type: phrase, l2: "Tu aurais pu me prévenir !", l1: "You could have warned me! (informal)", note: "pouvoir in the conditionnel passé = could have: a reproach."}
+      - {id: fr-b2-05-j-aurais-aime, type: phrase, l2: "J'aurais bien aimé y être.", l1: "I would have loved to be there.", alt: ["J'aurais aimé y être.", "J'aurais bien voulu y être."], note: "j'aurais aimé = I would have liked: a regret."}
+      - {id: fr-b2-05-pied-de-la-lettre, type: phrase, l2: "Il ne faut pas tout prendre au pied de la lettre.", l1: "You mustn't take everything literally. (idiom)", note: "au pied de la lettre = literally, word for word."}
+      - {id: fr-b2-05-une-fois, type: phrase, l2: "Une fois n'est pas coutume.", l1: "Just this once won't hurt. (idiom)", note: "Literally 'once is not a custom': said when making an exception."}
+      - {id: fr-b2-05-faire-le-buzz, type: phrase, l2: "Cette vidéo a fait le buzz.", l1: "This video went viral.", alt: ["Cette vidéo est devenue virale."], note: "faire le buzz = to create a buzz. Very common in the media."}
+      - {id: fr-b2-05-c1, type: cloze, text: "Si j'avais lu l'article, j'___ compris.", answer: "aurais", l1: "If I had read the article, I would have understood.", note: "si + plus-que-parfait → conditionnel passé."}
+      - {id: fr-b2-05-c2, type: cloze, text: "S'il ___ su la vérité, il l'aurait dite.", answer: "avait", l1: "If he had known the truth, he would have told it.", note: "After si: plus-que-parfait, never the conditional. dite agrees with l' (la vérité)."}
+      - {id: fr-b2-05-c3, type: cloze, text: "Si nous étions partis plus tôt, nous ___ arrivés à l'heure.", answer: "serions", l1: "If we had left earlier, we would have arrived on time.", note: "arriver takes être: nous serions arrivés."}
+      - {id: fr-b2-05-c4, type: cloze, text: "Si tu avais pris le train, tu ___ déjà là maintenant.", answer: "serais", l1: "If you had taken the train, you would already be here now. (informal)", note: "Mixed: a past condition with a present result → conditionnel présent."}
+      - {id: fr-b2-05-c5, type: cloze, text: "Si tu regardes ce reportage, tu ___ mieux la situation.", answer: "comprendras", l1: "If you watch this report, you'll understand the situation better.", note: "Real possibility: si + présent → futur."}
+      - {id: fr-b2-05-c6, type: cloze, text: "Si les journaux ___ plus de temps, ils vérifieraient mieux leurs sources.", answer: "avaient", l1: "If newspapers had more time, they would check their sources better.", note: "Unreal now: si + imparfait → conditionnel présent."}
+      - {id: fr-b2-05-c7, type: cloze, text: "Vous ___ dû vérifier l'information avant de la publier.", answer: "auriez", l1: "You should have checked the information before publishing it. (formal)", note: "Reproach: conditionnel passé of devoir."}
+      - {id: fr-b2-05-c8, type: cloze, text: "Elle aurait ___ réussir si elle avait travaillé plus.", answer: "pu", l1: "She could have succeeded if she had worked more.", note: "could have = aurait pu + infinitive."}
+      - {id: fr-b2-05-c9, type: cloze, text: "Selon nos sources, le ministre ___ démissionné hier soir.", answer: "aurait", l1: "According to our sources, the minister reportedly resigned last night.", note: "News not yet confirmed → conditionnel passé."}
+      - {id: fr-b2-05-c10, type: cloze, text: "D'après la police, l'incendie aurait ___ deux victimes.", answer: "fait", l1: "According to the police, the fire reportedly claimed two victims.", note: "faire des victimes = to claim victims. No agreement: the object comes after."}
+      - {id: fr-b2-05-c11, type: cloze, text: "Le président ___ prêt à négocier, selon un proche.", answer: "serait", l1: "The president is said to be ready to negotiate, according to someone close to him.", note: "Unconfirmed present → conditionnel présent."}
+      - {id: fr-b2-05-c12, type: cloze, text: "Si j'avais ___ à ta place, j'aurais refusé.", answer: "été", l1: "If I had been in your place, I would have refused.", note: "Plus-que-parfait of être: j'avais été."}
+      - {id: fr-b2-05-c13, type: cloze, text: "Ils ___ venus si on les avait invités.", answer: "seraient", l1: "They would have come if they had been invited.", note: "venir takes être: ils seraient venus."}
+      - {id: fr-b2-05-c14, type: cloze, text: "Si tu ___ venu, tu aurais vu le concert.", answer: "étais", l1: "If you had come, you would have seen the concert. (informal, to a man)", note: "Plus-que-parfait of venir: tu étais venu."}
+      - {id: fr-b2-05-c15, type: cloze, text: "Si tu vois Paul, ___-lui de m'appeler.", answer: "dis", l1: "If you see Paul, tell him to call me.", note: "si + présent can be followed by an imperative."}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: fr4-06
+    title: "Health care: compound tenses and past participle agreement"
+    goal: "I can talk about health care, illness and treatment, sequence events with compound tenses, and make past participles agree correctly."
+    notes: |
+      ## Agreement with avoir
+      With **avoir**, the past participle agrees with the **direct object only when it comes before the verb**: a pronoun (*la, les, l', me, nous…*), the relative **que**, or **quel / combien de** + noun.
+
+      - *J'ai pris **les pilules**.* → *Je **les** ai pris**es**.*
+      - *les pilules **que** le médecin m'a prescrit**es***
+      - ***Quelle** décision as-tu pri**se** ?*
+
+      **No agreement** with *en*, with indirect objects (*lui, leur*), or when the object comes after: *Des comprimés ? J'**en** ai pris. Je **leur** ai parlé.*
+
+      ## Reflexive verbs
+      They agree with the subject only if the reflexive pronoun is the direct object: *elle s'est lavé**e*** (she washed herself), but *elle s'est lavé **les mains*** (the hands are the object). Once the hands come first: *elle se **les** est lavé**es***.
+
+      You often **hear** the agreement: *prise, mise, faite, écrite, ouverte*.
+
+      ## Two more uses of compound tenses
+      - **Futur antérieur** as a guess about the past: *Il n'est pas venu ? Il **aura oublié**.* (He must have forgotten.)
+      - After *une fois que, dès que, quand* about the future: *Une fois que tu **seras guéri**, tu pourras courir.*
+    items:
+      - {id: fr-b2-06-assurance-maladie, type: vocab, l2: "l'Assurance maladie", l1: "French national health insurance", alt: ["la Sécurité sociale", "la Sécu"], ex: "L'Assurance maladie rembourse une partie des soins.", ex_l1: "National health insurance pays back part of the cost of treatment.", note: "Feminine. People still say la Sécu. les soins = care, treatment."}
+      - {id: fr-b2-06-mutuelle, type: vocab, l2: "la mutuelle", l1: "top-up health insurance (private)", ex: "Ma mutuelle rembourse le reste.", ex_l1: "My top-up insurance pays the rest.", note: "Covers what the state doesn't; often paid partly by the employer."}
+      - {id: fr-b2-06-generaliste, type: vocab, l2: "le généraliste", l1: "the GP / the family doctor", alt: ["le médecin généraliste", "le médecin traitant"], ex: "Il faut d'abord consulter son généraliste.", ex_l1: "You must first see your GP.", note: "le médecin traitant = the GP you are registered with. consulter = to see (a doctor)."}
+      - {id: fr-b2-06-urgences, type: vocab, l2: "les urgences", l1: "A&E / the emergency room", ex: "On l'a emmené aux urgences.", ex_l1: "He was taken to A&E.", note: "Feminine plural. In an emergency, call 15 or 112."}
+      - {id: fr-b2-06-infirmier, type: vocab, l2: "l'infirmier", l1: "the nurse (a man)", ex: "L'infirmier m'a fait une piqûre.", ex_l1: "The nurse gave me an injection.", note: "Feminine: l'infirmière. une piqûre = an injection, an insect bite."}
+      - {id: fr-b2-06-traitement, type: vocab, l2: "le traitement", l1: "the treatment (medical)", ex: "Le traitement dure trois semaines.", ex_l1: "The treatment lasts three weeks.", note: "suivre un traitement = to be on a course of treatment."}
+      - {id: fr-b2-06-symptome, type: vocab, l2: "le symptôme", l1: "the symptom", ex: "Quels sont vos symptômes ?", ex_l1: "What are your symptoms?", note: "Spelling: ô, and p before t."}
+      - {id: fr-b2-06-prescrire, type: vocab, l2: "prescrire", l1: "to prescribe", ex: "Le médecin m'a prescrit des antibiotiques.", ex_l1: "The doctor prescribed me antibiotics.", note: "Like écrire: il prescrit, il a prescrit."}
+      - {id: fr-b2-06-guerir, type: vocab, l2: "guérir", l1: "to cure / to recover", ex: "Il a fini par guérir.", ex_l1: "He eventually recovered.", note: "Like finir. Both 'to cure' (guérir un malade) and 'to get better' (il a guéri)."}
+      - {id: fr-b2-06-soigner, type: vocab, l2: "soigner", l1: "to treat / to care for (a patient, an illness)", ex: "Ce médecin soigne ses patients avec patience.", ex_l1: "This doctor treats his patients patiently.", note: "se soigner = to look after one's health."}
+      - {id: fr-b2-06-douleur, type: vocab, l2: "la douleur", l1: "the pain", ex: "J'ai une douleur dans le dos.", ex_l1: "I have a pain in my back.", note: "For an everyday 'it hurts', say j'ai mal."}
+      - {id: fr-b2-06-blessure, type: vocab, l2: "la blessure", l1: "the injury / the wound", ex: "Sa blessure n'est pas grave.", ex_l1: "His injury isn't serious.", note: "blessé = injured; un blessé = an injured person. Not 'blessing'."}
+      - {id: fr-b2-06-vaccin, type: vocab, l2: "le vaccin", l1: "the vaccine", ex: "Le vaccin contre la grippe est conseillé aux personnes âgées.", ex_l1: "The flu vaccine is recommended for elderly people.", note: "se faire vacciner = to get vaccinated."}
+      - {id: fr-b2-06-contagieux, type: vocab, l2: "contagieux", l1: "contagious / infectious (masculine)", ex: "Restez chez vous, vous êtes contagieux.", ex_l1: "Stay at home, you're contagious.", note: "Feminine: contagieuse."}
+      - {id: fr-b2-06-arret-maladie, type: vocab, l2: "l'arrêt maladie", l1: "sick leave", alt: ["l'arrêt de travail"], ex: "Le médecin m'a mis en arrêt maladie pour une semaine.", ex_l1: "The doctor signed me off sick for a week.", note: "Masculine. être en arrêt maladie = to be on sick leave."}
+      - {id: fr-b2-06-enceinte, type: vocab, l2: "enceinte", l1: "pregnant", ex: "Elle est enceinte de six mois.", ex_l1: "She is six months pregnant.", note: "Only feminine. une enceinte is also a loudspeaker."}
+      - {id: fr-b2-06-comprime, type: vocab, l2: "le comprimé", l1: "the tablet / the pill", ex: "Prenez deux comprimés par jour.", ex_l1: "Take two tablets a day.", note: "Also la pilule, which on its own often means the contraceptive pill."}
+      - {id: fr-b2-06-allergique, type: vocab, l2: "allergique", l1: "allergic", ex: "Je suis allergique à la pénicilline.", ex_l1: "I'm allergic to penicillin.", note: "être allergique à. une allergie = an allergy."}
+      - {id: fr-b2-06-prise-de-sang, type: vocab, l2: "la prise de sang", l1: "the blood test", ex: "Je dois faire une prise de sang à jeun.", ex_l1: "I have to have a blood test on an empty stomach.", note: "à jeun = without having eaten."}
+      - {id: fr-b2-06-sante-mentale, type: vocab, l2: "la santé mentale", l1: "mental health", ex: "On parle davantage de santé mentale aujourd'hui.", ex_l1: "People talk more about mental health today.", note: "le bien-être = well-being."}
+      - {id: fr-b2-06-epuisement, type: vocab, l2: "l'épuisement professionnel", l1: "burnout", alt: ["le burn-out"], ex: "Il est en arrêt pour épuisement professionnel.", ex_l1: "He is on leave for burnout.", note: "Masculine. In France most people say le burn-out; l'épuisement professionnel is the official and Québec term."}
+      - {id: fr-b2-06-bon-retablissement, type: phrase, l2: "Bon rétablissement !", l1: "Get well soon!", alt: ["Prompt rétablissement !"], note: "le rétablissement = recovery; se rétablir = to recover."}
+      - {id: fr-b2-06-il-aura-oublie, type: phrase, l2: "Il aura oublié son rendez-vous.", l1: "He must have forgotten his appointment. (a guess, futur antérieur)", note: "The futur antérieur can express a guess about the past. Also: il a dû oublier."}
+      - {id: fr-b2-06-je-les-ai-pris, type: phrase, l2: "Je les ai déjà pris.", l1: "I've already taken them. (the tablets: les comprimés)", note: "pris looks the same in the masculine plural. With les pilules: je les ai prises."}
+      - {id: fr-b2-06-tomber-dans-les-pommes, type: phrase, l2: "Elle est tombée dans les pommes.", l1: "She fainted. (casual idiom with apples)", note: "tomber dans les pommes = to pass out. The neutral verb is s'évanouir."}
+      - {id: fr-b2-06-pas-dans-mon-assiette, type: phrase, l2: "Je ne suis pas dans mon assiette.", l1: "I'm feeling out of sorts. (idiom with a plate)", alt: ["Je suis pas dans mon assiette."], note: "Literally 'I'm not in my plate'."}
+      - {id: fr-b2-06-sante-de-fer, type: phrase, l2: "Il a une santé de fer.", l1: "He's as fit as a fiddle. (idiom: a health of iron)", note: "Literally 'a health of iron'."}
+      - {id: fr-b2-06-c1, type: cloze, text: "Ces pilules ? Je les ai ___ ce matin.", answer: "prises", l1: "These pills? I took them this morning.", note: "les (= les pilules, feminine plural) comes before avoir → prises."}
+      - {id: fr-b2-06-c2, type: cloze, text: "Voici l'ordonnance que le médecin m'a ___.", answer: "écrite", alt: ["rédigée", "faite"], l1: "Here is the prescription the doctor wrote for me.", note: "que (= l'ordonnance, feminine) comes before the verb → écrite."}
+      - {id: fr-b2-06-c3, type: cloze, text: "Quelle décision as-tu ___ ?", answer: "prise", l1: "What decision did you make?", note: "quelle + noun before the verb → agreement: prise."}
+      - {id: fr-b2-06-c4, type: cloze, text: "Ta lettre, je l'ai ___ hier.", answer: "reçue", l1: "Your letter — I received it yesterday. (informal)", note: "l' = la lettre, before the verb → reçue."}
+      - {id: fr-b2-06-c5, type: cloze, text: "Des médicaments ? J'en ai ___ trois.", answer: "pris", l1: "Medicines? I took three of them.", note: "No agreement with en."}
+      - {id: fr-b2-06-c6, type: cloze, text: "Les infirmières ? Je leur ai ___ hier.", answer: "parlé", l1: "The nurses? I spoke to them yesterday.", note: "leur is an indirect object (parler à): no agreement."}
+      - {id: fr-b2-06-c7, type: cloze, text: "Les vaccins que nous avons ___ sont efficaces.", answer: "reçus", l1: "The vaccines we received are effective.", note: "que = les vaccins (masculine plural), before the verb → reçus."}
+      - {id: fr-b2-06-c8, type: cloze, text: "Elle est ___ aux urgences hier soir.", answer: "allée", l1: "She went to A&E last night.", note: "With être the participle agrees with the subject: allée."}
+      - {id: fr-b2-06-c9, type: cloze, text: "Elle s'est ___ la jambe en skiant.", answer: "cassé", l1: "She broke her leg skiing.", note: "The direct object (la jambe) comes after: no agreement, elle s'est cassé la jambe."}
+      - {id: fr-b2-06-c10, type: cloze, text: "Ses mains, elle se les est ___ avant de manger.", answer: "lavées", l1: "Her hands — she washed them before eating.", note: "Now the direct object les (= les mains) comes first: lavées."}
+      - {id: fr-b2-06-c11, type: cloze, text: "Paul n'est pas venu ? Il ___ oublié.", answer: "aura", l1: "Paul didn't come? He must have forgotten.", note: "Futur antérieur for a guess about the past."}
+      - {id: fr-b2-06-c12, type: cloze, text: "Une fois que tu ___ guéri, tu pourras reprendre le sport.", answer: "seras", alt: ["auras"], l1: "Once you have recovered, you'll be able to take up sport again. (informal)", note: "Future after une fois que: tu seras guéri (a state) or tu auras guéri (the action)."}
+      - {id: fr-b2-06-c13, type: cloze, text: "Le médecin m'a dit que j'___ attrapé la grippe.", answer: "avais", l1: "The doctor told me I had caught the flu.", note: "Plus-que-parfait: the catching came before the telling."}
+      - {id: fr-b2-06-c14, type: cloze, text: "Si seulement nous ___ su !", answer: "avions", l1: "If only we had known!", note: "si seulement + plus-que-parfait = a regret about the past."}
+      - {id: fr-b2-06-c15, type: cloze, text: "Combien de cigarettes as-tu ___ aujourd'hui ?", answer: "fumées", l1: "How many cigarettes have you smoked today? (informal)", note: "combien de + noun placed before the verb → agreement in careful writing."}
+      - {id: fr-b2-06-c16, type: cloze, text: "Dès que les résultats ___ arrivés, je vous appellerai.", answer: "seront", l1: "As soon as the results have come in, I'll call you.", note: "Futur antérieur after dès que: seront arrivés."}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: fr4-07
+    title: "Education: reported speech in full"
+    goal: "I can talk about schools, studies and exams and report in detail what people said, asked, promised or admitted."
+    notes: |
+      When the reporting verb is in a past tense, each tense steps back:
+
+      | direct speech | reported (after a past verb) |
+      |---|---|
+      | présent | imparfait |
+      | passé composé | plus-que-parfait |
+      | futur | conditionnel présent |
+      | futur antérieur | conditionnel passé |
+      | imparfait, plus-que-parfait, conditionnel | no change |
+      | subjonctif | no change |
+      | impératif | de + infinitif |
+
+      *« J'**aurai fini** à midi. »* → *Elle a assuré qu'elle **aurait fini** à midi.*
+
+      ## Questions
+      *est-ce que* → **si**; *qu'est-ce que* → **ce que**; *qu'est-ce qui* → **ce qui**; other question words stay (*où, quand, pourquoi*), with ordinary word order.
+
+      ## Time and place
+      | direct | reported |
+      |---|---|
+      | aujourd'hui | ce jour-là |
+      | hier / demain | la veille / le lendemain |
+      | la semaine prochaine | la semaine suivante |
+      | il y a deux jours | deux jours plus tôt |
+      | ici | là |
+
+      Go beyond *dire*: **affirmer, assurer, avouer, reconnaître, admettre, préciser, promettre, expliquer, se demander**. After a present-tense verb (*il dit que…*) nothing shifts.
+    items:
+      - {id: fr-b2-07-enseignement, type: vocab, l2: "l'enseignement", l1: "teaching / education (the system)", ex: "L'enseignement public est gratuit en France.", ex_l1: "State education is free in France.", note: "Masculine. l'enseignement supérieur = higher education."}
+      - {id: fr-b2-07-college, type: vocab, l2: "le collège", l1: "the secondary school (ages 11–15)", ex: "Mon fils entre au collège en septembre.", ex_l1: "My son starts secondary school in September.", note: "False friend: a college or university is l'université or la fac."}
+      - {id: fr-b2-07-lycee, type: vocab, l2: "le lycée", l1: "the upper secondary school / the high school (ages 15–18)", ex: "Ma fille est au lycée.", ex_l1: "My daughter is at high school.", note: "Masculine despite the -ée. un lycéen, une lycéenne = a pupil there."}
+      - {id: fr-b2-07-bac, type: vocab, l2: "le bac", l1: "the baccalaureate (French school-leaving exam)", alt: ["le baccalauréat"], ex: "Il a eu son bac avec mention.", ex_l1: "He passed his bac with honours.", note: "avoir son bac = to pass it; passer le bac = to sit it. bac + 3 = three years of study after the bac."}
+      - {id: fr-b2-07-fac, type: vocab, l2: "la fac", l1: "university (casual)", alt: ["l'université"], ex: "Je suis en deuxième année de fac.", ex_l1: "I'm in my second year at university.", note: "Short for la faculté. aller à la fac = to go to university."}
+      - {id: fr-b2-07-licence, type: vocab, l2: "la licence", l1: "the bachelor's degree", ex: "Elle a une licence d'histoire.", ex_l1: "She has a bachelor's degree in history.", note: "False friend: a driving licence is le permis de conduire."}
+      - {id: fr-b2-07-note, type: vocab, l2: "la note", l1: "the mark / the grade", ex: "J'ai eu une bonne note en maths.", ex_l1: "I got a good mark in maths.", note: "French marks are out of 20: dix sur vingt is a pass."}
+      - {id: fr-b2-07-moyenne, type: vocab, l2: "la moyenne", l1: "the average / the pass mark", ex: "Il a eu la moyenne à l'examen.", ex_l1: "He got the pass mark in the exam.", note: "avoir la moyenne = to get at least 10 out of 20."}
+      - {id: fr-b2-07-redoubler, type: vocab, l2: "redoubler", l1: "to repeat a year (at school)", ex: "Il a redoublé deux fois.", ex_l1: "He repeated a year twice.", note: "Common in France, rare in English-speaking schools."}
+      - {id: fr-b2-07-s-inscrire, type: vocab, l2: "s'inscrire", l1: "to enrol / to sign up / to register", ex: "Je me suis inscrit à un cours de chinois.", ex_l1: "I've signed up for a Chinese course.", note: "Like écrire: je m'inscris, je me suis inscrit(e). l'inscription = enrolment."}
+      - {id: fr-b2-07-frais-d-inscription, type: vocab, l2: "les frais d'inscription", l1: "tuition fees / registration fees", ex: "Les frais d'inscription sont peu élevés en France.", ex_l1: "Tuition fees are low in France.", note: "Masculine plural: les frais = costs, fees."}
+      - {id: fr-b2-07-bourse, type: vocab, l2: "la bourse", l1: "the grant / the scholarship", ex: "Elle a obtenu une bourse pour étudier au Canada.", ex_l1: "She got a scholarship to study in Canada.", note: "la Bourse, with a capital, is the stock exchange."}
+      - {id: fr-b2-07-memoire, type: vocab, l2: "le mémoire", l1: "the dissertation (for a master's degree)", ex: "J'écris mon mémoire sur Molière.", ex_l1: "I'm writing my dissertation on Molière.", note: "Masculine! la mémoire = memory. A doctoral thesis is une thèse."}
+      - {id: fr-b2-07-reviser, type: vocab, l2: "réviser", l1: "to revise / to study (for an exam)", ex: "Je révise pour mes examens.", ex_l1: "I'm revising for my exams.", note: "les révisions = revision."}
+      - {id: fr-b2-07-echouer, type: vocab, l2: "échouer", l1: "to fail (an exam, an attempt)", ex: "Il a échoué à l'examen du permis.", ex_l1: "He failed his driving test.", note: "échouer à un examen. Careful: passer un examen = to sit it, réussir un examen = to pass it."}
+      - {id: fr-b2-07-concours, type: vocab, l2: "le concours", l1: "the competitive exam / the contest", ex: "Elle prépare le concours de professeur des écoles.", ex_l1: "She is preparing for the primary-teacher recruitment exam.", note: "Only the best candidates get a place, unlike an ordinary examen."}
+      - {id: fr-b2-07-rentree, type: vocab, l2: "la rentrée", l1: "the start of the school year (in September)", ex: "La rentrée a lieu début septembre.", ex_l1: "School starts again at the beginning of September.", note: "Also the return to work after the summer: la rentrée politique."}
+      - {id: fr-b2-07-avouer, type: vocab, l2: "avouer", l1: "to admit / to confess", ex: "J'avoue que je n'ai pas tout compris.", ex_l1: "I admit I didn't understand everything.", note: "J'avoue… is also a casual 'I must admit'."}
+      - {id: fr-b2-07-reconnaitre, type: vocab, l2: "reconnaître", l1: "to acknowledge / to recognise", ex: "Il a reconnu son erreur.", ex_l1: "He acknowledged his mistake.", note: "Like connaître: il reconnaît, il a reconnu."}
+      - {id: fr-b2-07-assurer, type: vocab, l2: "assurer", l1: "to assure (someone that…)", ex: "Elle m'a assuré qu'elle viendrait.", ex_l1: "She assured me she would come.", note: "Casual: Tu assures ! = You're doing brilliantly!"}
+      - {id: fr-b2-07-se-demander, type: vocab, l2: "se demander", l1: "to wonder", ex: "Je me demande ce qu'il fait.", ex_l1: "I wonder what he's doing.", note: "se demander si / ce que / pourquoi…"}
+      - {id: fr-b2-07-preciser, type: vocab, l2: "préciser", l1: "to specify / to point out", ex: "Il a précisé que le cours était annulé.", ex_l1: "He pointed out that the class was cancelled.", note: "précis = precise."}
+      - {id: fr-b2-07-ce-qui-s-etait-passe, type: phrase, l2: "Il m'a demandé ce qui s'était passé.", l1: "He asked me what had happened.", note: "« Qu'est-ce qui s'est passé ? » → ce qui s'était passé."}
+      - {id: fr-b2-07-elle-a-avoue, type: phrase, l2: "Elle a avoué qu'elle n'avait pas révisé.", l1: "She admitted she hadn't revised.", alt: ["Elle a reconnu qu'elle n'avait pas révisé.", "Elle a admis qu'elle n'avait pas révisé."]}
+      - {id: fr-b2-07-je-me-demande-s-il-viendra, type: phrase, l2: "Je me demande s'il viendra.", l1: "I wonder if he'll come.", alt: ["Je me demande s'il va venir."], note: "Here si means 'whether', so the future is fine after it."}
+      - {id: fr-b2-07-secher, type: phrase, l2: "Il a séché les cours.", l1: "He skipped classes. (casual)", alt: ["Il a séché le cours."], note: "sécher = to dry; sécher un cours = to skip a class."}
+      - {id: fr-b2-07-promis-qu-elle-le-ferait, type: phrase, l2: "Elle a promis qu'elle le ferait.", l1: "She promised she would do it.", alt: ["Elle a promis de le faire."], note: "« Je le ferai » → qu'elle le ferait."}
+      - {id: fr-b2-07-c1, type: cloze, text: "« Je viendrai demain. » → Il a dit qu'il ___ le lendemain.", answer: "viendrait", l1: "'I'll come tomorrow.' → He said he would come the next day.", note: "Futur → conditionnel présent; demain → le lendemain."}
+      - {id: fr-b2-07-c2, type: cloze, text: "« J'aurai fini à midi. » → Elle a assuré qu'elle aurait ___ à midi.", answer: "fini", alt: ["terminé"], l1: "'I'll have finished by noon.' → She assured us she would have finished by noon.", note: "Futur antérieur → conditionnel passé."}
+      - {id: fr-b2-07-c3, type: cloze, text: "« Où habites-tu ? » → Il m'a demandé où j'___.", answer: "habitais", l1: "'Where do you live?' → He asked me where I lived.", note: "Présent → imparfait. No inversion in a reported question."}
+      - {id: fr-b2-07-c4, type: cloze, text: "« Qu'est-ce qui te fait peur ? » → Elle m'a demandé ___ qui me faisait peur.", answer: "ce", l1: "'What frightens you?' → She asked me what frightened me.", note: "qu'est-ce qui → ce qui."}
+      - {id: fr-b2-07-c5, type: cloze, text: "« Ne parlez pas ! » → Le professeur nous a demandé de ne pas ___.", answer: "parler", l1: "'Don't talk!' → The teacher asked us not to talk.", note: "An order → de + infinitive. ne pas stays together before the infinitive."}
+      - {id: fr-b2-07-c6, type: cloze, text: "« J'ai raté l'examen. » → Il a avoué qu'il ___ raté l'examen.", answer: "avait", l1: "'I failed the exam.' → He admitted he had failed the exam.", note: "Passé composé → plus-que-parfait."}
+      - {id: fr-b2-07-c7, type: cloze, text: "« Je révisais quand tu as appelé. » → Elle a expliqué qu'elle ___ quand j'avais appelé.", answer: "révisait", l1: "'I was revising when you called.' → She explained that she had been revising when I called.", note: "The imparfait does not change."}
+      - {id: fr-b2-07-c8, type: cloze, text: "« Tu as réussi ? » → Ma mère m'a demandé ___ j'avais réussi.", answer: "si", l1: "'Did you pass?' → My mother asked me if I had passed.", note: "A yes/no question → si."}
+      - {id: fr-b2-07-c9, type: cloze, text: "« Le cours commence la semaine prochaine. » → Ils ont annoncé que le cours commençait la semaine ___.", answer: "suivante", l1: "'The course starts next week.' → They announced that the course started the following week.", note: "la semaine prochaine → la semaine suivante."}
+      - {id: fr-b2-07-c10, type: cloze, text: "« Il faut que tu travailles. » → Elle m'a dit qu'il fallait que je ___.", answer: "travaille", l1: "'You have to work.' → She told me I had to work.", note: "The subjunctive stays; only il faut becomes il fallait."}
+      - {id: fr-b2-07-c11, type: cloze, text: "« Je l'ai vu il y a deux jours. » → Il a dit qu'il l'avait vu deux jours plus ___.", answer: "tôt", l1: "'I saw him two days ago.' → He said he had seen him two days earlier.", note: "il y a deux jours → deux jours plus tôt (or auparavant)."}
+      - {id: fr-b2-07-c12, type: cloze, text: "« Qu'est-ce que vous étudiez ? » → Il nous a demandé ce que nous ___.", answer: "étudiions", l1: "'What are you studying?' → He asked us what we were studying.", note: "Imparfait of étudier with nous: two i's, étudiions."}
+      - {id: fr-b2-07-c13, type: cloze, text: "« Je suis fatigué. » → Il dit qu'il ___ fatigué.", answer: "est", l1: "'I'm tired.' → He says he is tired.", note: "The reporting verb is in the present (il dit): no shift."}
+      - {id: fr-b2-07-c14, type: cloze, text: "« J'aurais voulu être médecin. » → Elle a dit qu'elle ___ voulu être médecin.", answer: "aurait", l1: "'I would have liked to be a doctor.' → She said she would have liked to be a doctor.", note: "The conditionnel passé does not change."}
+      - {id: fr-b2-07-c15, type: cloze, text: "« Rendez vos copies ! » → Le surveillant leur a ordonné de ___ leurs copies.", answer: "rendre", l1: "'Hand in your papers!' → The invigilator ordered them to hand in their papers.", note: "An order → de + infinitive. une copie = an exam paper."}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: fr4-08
+    title: "Justice and public life: the passive, se faire and pronominal verbs"
+    goal: "I can talk about crime, the courts and official paperwork, and say what was done to whom using the passive, se faire + infinitive and pronominal verbs."
+    notes: |
+      ## The passive
+      **être** (in any tense) + past participle agreeing with the subject: *Les accusés **seront jugés** lundi.* The doer follows **par**; with verbs of feeling or state, **de** is usual: *aimé **de** tous, couvert **de** neige, entouré **d'**amis*.
+
+      Only a **direct** object can become the subject. *demander à, dire à, permettre à* cannot: "I was asked" is ***on m'a demandé***.
+
+      ## Three alternatives French likes
+      - **on** + active verb: *On a arrêté le suspect.*
+      - **pronominal passive** for general truths and habits: *Ça **se vend** bien. Le vin blanc **se boit** frais. Ça **ne se fait pas**.*
+      - **se faire + infinitive**: something done to you, often unwanted: *Il **s'est fait voler** son portefeuille. Elle **s'est fait opérer**.*
+
+      ## faire + infinitive
+      To have something done by someone else: *Je **fais réparer** ma voiture. Nous faisons construire une maison.* In *faire* + infinitive, the participle ***fait* never agrees**: *elle s'est **fait** couper les cheveux*.
+
+      **se laisser + infinitive** = to let oneself be…: *Il **s'est laissé convaincre**.*
+
+      False friend: *le crime* is a serious crime, usually murder; crime in general is *la délinquance*.
+    items:
+      - {id: fr-b2-08-tribunal, type: vocab, l2: "le tribunal", l1: "the court (of law)", ex: "L'affaire sera jugée par le tribunal de Paris.", ex_l1: "The case will be tried by the Paris court.", note: "Plural: les tribunaux."}
+      - {id: fr-b2-08-juge, type: vocab, l2: "le juge", l1: "the judge", ex: "Le juge a reporté le procès.", ex_l1: "The judge postponed the trial.", note: "For a woman: la juge."}
+      - {id: fr-b2-08-avocat, type: vocab, l2: "l'avocat", l1: "the lawyer (a man)", ex: "Vous avez le droit de voir un avocat.", ex_l1: "You have the right to see a lawyer.", note: "Feminine: l'avocate. un avocat is also an avocado!"}
+      - {id: fr-b2-08-proces, type: vocab, l2: "le procès", l1: "the trial", ex: "Le procès a duré trois semaines.", ex_l1: "The trial lasted three weeks.", note: "False friend: a process is un processus."}
+      - {id: fr-b2-08-accuse, type: vocab, l2: "l'accusé", l1: "the defendant / the accused (a man)", ex: "L'accusé a nié les faits.", ex_l1: "The defendant denied the charges.", note: "Feminine: l'accusée. les faits = the alleged acts."}
+      - {id: fr-b2-08-temoin, type: vocab, l2: "le témoin", l1: "the witness", ex: "Un témoin a vu toute la scène.", ex_l1: "A witness saw the whole scene.", note: "Masculine, even for a woman. témoigner = to testify."}
+      - {id: fr-b2-08-cambriolage, type: vocab, l2: "le cambriolage", l1: "the burglary", ex: "Il y a eu trois cambriolages dans la rue.", ex_l1: "There have been three burglaries in the street.", note: "cambrioler = to burgle; un cambrioleur = a burglar."}
+      - {id: fr-b2-08-arnaque, type: vocab, l2: "l'arnaque", l1: "the scam / the rip-off (casual)", alt: ["l'escroquerie"], ex: "Ce site, c'est une arnaque.", ex_l1: "This website is a scam.", note: "Feminine. arnaquer = to con. The formal word is l'escroquerie."}
+      - {id: fr-b2-08-peine, type: vocab, l2: "la peine", l1: "the sentence (a punishment)", ex: "Il a été condamné à une peine de prison.", ex_l1: "He was given a prison sentence.", note: "Also sorrow, trouble: ce n'est pas la peine = there's no need."}
+      - {id: fr-b2-08-amende, type: vocab, l2: "l'amende", l1: "the fine", ex: "J'ai eu une amende pour excès de vitesse.", ex_l1: "I got a fine for speeding.", note: "Feminine. Casual: une prune, un PV."}
+      - {id: fr-b2-08-porter-plainte, type: vocab, l2: "porter plainte", l1: "to press charges / to file a complaint (with the police)", ex: "Elle a porté plainte contre son voisin.", ex_l1: "She pressed charges against her neighbour.", note: "la plainte = the formal complaint. Different from se plaindre, just to complain."}
+      - {id: fr-b2-08-condamner, type: vocab, l2: "condamner", l1: "to sentence / to convict / to condemn", ex: "Le tribunal l'a condamnée à une amende.", ex_l1: "The court fined her.", note: "condamner quelqu'un à + a sentence. The m is silent."}
+      - {id: fr-b2-08-coupable, type: vocab, l2: "coupable", l1: "guilty", ex: "Le jury l'a déclaré coupable.", ex_l1: "The jury found him guilty.", note: "The opposite: innocent. la culpabilité = guilt."}
+      - {id: fr-b2-08-policier, type: vocab, l2: "le policier", l1: "the police officer", alt: ["l'agent de police"], ex: "Un policier m'a demandé mes papiers.", ex_l1: "A police officer asked for my papers.", note: "Feminine: la policière. Casual: un flic. la police = the police (singular)."}
+      - {id: fr-b2-08-commissariat, type: vocab, l2: "le commissariat", l1: "the police station", ex: "Je suis allé au commissariat pour porter plainte.", ex_l1: "I went to the police station to press charges.", note: "In the countryside: la gendarmerie."}
+      - {id: fr-b2-08-prefecture, type: vocab, l2: "la préfecture", l1: "the prefecture (state office for permits)", ex: "Je dois aller à la préfecture pour mon titre de séjour.", ex_l1: "I have to go to the prefecture for my residence permit.", note: "Where foreigners apply for and renew their permits."}
+      - {id: fr-b2-08-titre-de-sejour, type: vocab, l2: "le titre de séjour", l1: "the residence permit", ex: "Mon titre de séjour expire en mars.", ex_l1: "My residence permit expires in March.", note: "Also called la carte de séjour."}
+      - {id: fr-b2-08-demarches, type: vocab, l2: "les démarches", l1: "the formalities / the paperwork (steps to take)", alt: ["les démarches administratives"], ex: "Les démarches sont longues et compliquées.", ex_l1: "The paperwork is long and complicated.", note: "Feminine. faire des démarches = to go through the procedures."}
+      - {id: fr-b2-08-formulaire, type: vocab, l2: "le formulaire", l1: "the form (to fill in)", ex: "Remplissez ce formulaire, s'il vous plaît.", ex_l1: "Fill in this form, please."}
+      - {id: fr-b2-08-piece-d-identite, type: vocab, l2: "la pièce d'identité", l1: "the ID / the identity document", ex: "Munissez-vous d'une pièce d'identité.", ex_l1: "Bring some ID with you.", note: "se munir de = to bring with you (formal)."}
+      - {id: fr-b2-08-crime, type: vocab, l2: "le crime", l1: "the serious crime / the murder", ex: "Le crime n'a jamais été élucidé.", ex_l1: "The murder was never solved.", note: "Crime in general is la délinquance or la criminalité."}
+      - {id: fr-b2-08-fait-voler, type: phrase, l2: "Je me suis fait voler mon portefeuille.", l1: "I've had my wallet stolen.", alt: ["On m'a volé mon portefeuille."], note: "se faire + infinitive: something done to you. fait never agrees here."}
+      - {id: fr-b2-08-je-voudrais-porter-plainte, type: phrase, l2: "Je voudrais porter plainte.", l1: "I would like to report a crime. (at the police station)", alt: ["J'aimerais porter plainte.", "Je souhaite porter plainte.", "Je souhaiterais porter plainte."]}
+      - {id: fr-b2-08-fait-avoir, type: phrase, l2: "Il s'est fait avoir.", l1: "He got conned. / He was had. (casual)", note: "se faire avoir = to be tricked."}
+      - {id: fr-b2-08-ca-se-voit, type: phrase, l2: "Ça se voit.", l1: "It shows. / It's obvious.", note: "Pronominal passive: se voir = to be visible."}
+      - {id: fr-b2-08-nul-n-est-cense, type: phrase, l2: "Nul n'est censé ignorer la loi.", l1: "Ignorance of the law is no excuse. (set phrase)", note: "nul = nobody (formal); être censé = to be supposed to; ignorer = not to know."}
+      - {id: fr-b2-08-justice-soit-faite, type: phrase, l2: "Il faut que justice soit faite.", l1: "Justice must be done.", note: "No article in this set phrase: a passive in the subjunctive."}
+      - {id: fr-b2-08-c1, type: cloze, text: "Le suspect a été ___ par la police hier soir.", answer: "arrêté", alt: ["interpellé"], l1: "The suspect was arrested by the police last night.", note: "Passive in the passé composé: a été + participle, agreeing with the subject."}
+      - {id: fr-b2-08-c2, type: cloze, text: "Les accusés ___ jugés la semaine prochaine.", answer: "seront", l1: "The defendants will be tried next week.", note: "Future passive: seront + participle."}
+      - {id: fr-b2-08-c3, type: cloze, text: "Elle s'est fait ___ à l'hôpital lundi.", answer: "opérer", l1: "She had an operation in hospital on Monday.", note: "se faire opérer = to have an operation. fait does not agree."}
+      - {id: fr-b2-08-c4, type: cloze, text: "Le jardin était couvert ___ neige.", answer: "de", l1: "The garden was covered in snow.", note: "Passives of state or feeling often take de: couvert de, aimé de."}
+      - {id: fr-b2-08-c5, type: cloze, text: "Je me suis ___ couper les cheveux.", answer: "fait", l1: "I had my hair cut.", note: "se faire couper les cheveux. A woman also writes fait: it never agrees before an infinitive."}
+      - {id: fr-b2-08-c6, type: cloze, text: "Elle s'est fait ___ son sac dans le métro.", answer: "voler", alt: ["arracher"], l1: "She had her bag stolen on the metro.", note: "se faire voler quelque chose."}
+      - {id: fr-b2-08-c7, type: cloze, text: "Nous faisons ___ notre maison par un architecte.", answer: "construire", alt: ["bâtir"], l1: "We are having our house built by an architect.", note: "faire + infinitive = to have something done."}
+      - {id: fr-b2-08-c8, type: cloze, text: "Ce genre de vin se ___ très frais.", answer: "boit", alt: ["sert"], l1: "This kind of wine is drunk well chilled.", note: "Pronominal passive: se boire = to be drunk."}
+      - {id: fr-b2-08-c9, type: cloze, text: "Ce modèle se ___ très bien en ce moment.", answer: "vend", l1: "This model is selling very well at the moment.", note: "se vendre = to sell, to be sold."}
+      - {id: fr-b2-08-c10, type: cloze, text: "On m'a ___ de remplir ce formulaire.", answer: "demandé", l1: "I was asked to fill in this form.", note: "demander à quelqu'un cannot be passive: 'I was asked' = on m'a demandé."}
+      - {id: fr-b2-08-c11, type: cloze, text: "Les amendes ont été ___ en janvier.", answer: "augmentées", l1: "The fines were increased in January.", note: "The participle agrees with les amendes: feminine plural."}
+      - {id: fr-b2-08-c12, type: cloze, text: "Il s'est laissé ___ par l'avocat.", answer: "convaincre", alt: ["persuader"], l1: "He let himself be persuaded by the lawyer.", note: "se laisser + infinitive."}
+      - {id: fr-b2-08-c13, type: cloze, text: "Le cambrioleur n'a jamais été ___.", answer: "retrouvé", l1: "The burglar was never found.", note: "Passive with a negative: n'a jamais été + participle."}
+      - {id: fr-b2-08-c14, type: cloze, text: "Ça ne ___ fait pas de parler la bouche pleine.", answer: "se", l1: "It's not done to talk with your mouth full.", note: "ça ne se fait pas = that's not done."}
+      - {id: fr-b2-08-c15, type: cloze, text: "Il a été condamné ___ deux ans de prison.", answer: "à", l1: "He was sentenced to two years in prison.", note: "condamner à + the sentence."}
+
+  # ───────────────────────────────────────────────────────────────── 9
+  - id: fr4-09
+    title: "Culture and the arts: lequel, auquel, duquel, dont, ce dont"
+    goal: "I can talk about art, theatre, music and books and build complex sentences with relative pronouns after prepositions."
+    notes: |
+      ## Preposition + lequel
+      After a preposition, use **lequel / laquelle / lesquels / lesquelles**, agreeing with the noun: *le pinceau **avec lequel** il peint, la raison **pour laquelle** je viens*. For people, **qui** is more usual: *la femme avec qui je travaille*.
+
+      ## à and de contract
+      | | à + | de + |
+      |---|---|---|
+      | lequel | auquel | duquel |
+      | laquelle | à laquelle | de laquelle |
+      | lesquels | auxquels | desquels |
+      | lesquelles | auxquelles | desquelles |
+
+      - **à**-verbs: *participer à, assister à, penser à, s'intéresser à*: *le concours **auquel** j'ai participé*.
+      - **de** after a **compound preposition** (*près de, à côté de, au milieu de, à cause de*): *le musée **près duquel** j'habite*.
+
+      ## dont and ce dont
+      For a plain **de** (*parler de, avoir besoin de*) use **dont**, never *duquel*: *le livre **dont** je parle*. **dont** also means "whose", and the noun keeps its article: *un peintre **dont les** œuvres sont célèbres*.
+
+      "What" + a preposition verb: **ce dont** (*de*), **ce à quoi** (*à*): ***Ce dont** j'ai besoin, c'est de calme.*
+
+      And for time, French says **où**: *le jour **où** je l'ai rencontrée*.
+    items:
+      - {id: fr-b2-09-oeuvre, type: vocab, l2: "l'œuvre", l1: "the work (of art or literature)", ex: "C'est une œuvre de jeunesse de Picasso.", ex_l1: "It's an early work by Picasso.", note: "Feminine: une œuvre. les œuvres complètes = the complete works."}
+      - {id: fr-b2-09-chef-d-oeuvre, type: vocab, l2: "le chef-d'œuvre", l1: "the masterpiece", ex: "La Joconde est un chef-d'œuvre.", ex_l1: "The Mona Lisa is a masterpiece.", note: "Masculine, unlike œuvre. Plural: des chefs-d'œuvre. Say 'shè-deuvr'."}
+      - {id: fr-b2-09-peintre, type: vocab, l2: "le peintre", l1: "the painter (an artist)", ex: "Monet est un peintre impressionniste.", ex_l1: "Monet is an impressionist painter.", note: "Same form for a woman: une peintre."}
+      - {id: fr-b2-09-sculpteur, type: vocab, l2: "le sculpteur", l1: "the sculptor", ex: "Rodin est le sculpteur du Penseur.", ex_l1: "Rodin is the sculptor of The Thinker.", note: "The p is silent. For a woman: la sculptrice."}
+      - {id: fr-b2-09-patrimoine, type: vocab, l2: "le patrimoine", l1: "heritage", ex: "Le Mont-Saint-Michel fait partie du patrimoine mondial.", ex_l1: "Mont-Saint-Michel is part of world heritage.", note: "les Journées du patrimoine = Heritage Days, in September."}
+      - {id: fr-b2-09-spectacle, type: vocab, l2: "le spectacle", l1: "the show / the performance", ex: "Le spectacle commence à vingt heures.", ex_l1: "The show starts at 8 pm.", note: "Not 'spectacles': glasses are les lunettes."}
+      - {id: fr-b2-09-mise-en-scene, type: vocab, l2: "la mise en scène", l1: "the staging / the direction (of a play or film)", ex: "J'ai adoré la mise en scène.", ex_l1: "I loved the staging.", note: "le metteur en scène = the stage director."}
+      - {id: fr-b2-09-representation, type: vocab, l2: "la représentation", l1: "the performance (of a play)", ex: "Il reste des places pour la représentation de samedi.", ex_l1: "There are seats left for Saturday's performance.", note: "la première = the opening night."}
+      - {id: fr-b2-09-compositeur, type: vocab, l2: "le compositeur", l1: "the composer", ex: "Debussy est un compositeur français.", ex_l1: "Debussy is a French composer.", note: "Feminine: la compositrice."}
+      - {id: fr-b2-09-repetition, type: vocab, l2: "la répétition", l1: "the rehearsal", ex: "Les acteurs sont en répétition.", ex_l1: "The actors are rehearsing.", note: "Also 'repetition', but in the theatre it means rehearsal. répéter = to rehearse."}
+      - {id: fr-b2-09-public, type: vocab, l2: "le public", l1: "the audience / the public", ex: "Le public a applaudi pendant dix minutes.", ex_l1: "The audience applauded for ten minutes.", note: "Singular in French. applaudir is like finir."}
+      - {id: fr-b2-09-decor, type: vocab, l2: "le décor", l1: "the set / the scenery", ex: "Le décor représente une forêt.", ex_l1: "The set represents a forest.", note: "Often plural in the theatre: les décors."}
+      - {id: fr-b2-09-intrigue, type: vocab, l2: "l'intrigue", l1: "the plot (of a story)", ex: "L'intrigue est assez compliquée.", ex_l1: "The plot is rather complicated.", note: "Feminine."}
+      - {id: fr-b2-09-denouement, type: vocab, l2: "le dénouement", l1: "the ending / the outcome (of a story)", ex: "Je ne m'attendais pas à ce dénouement.", ex_l1: "I wasn't expecting that ending.", note: "Literally 'the untying' of the plot."}
+      - {id: fr-b2-09-emouvant, type: vocab, l2: "émouvant", l1: "moving / touching (masculine)", ex: "C'est un film très émouvant.", ex_l1: "It's a very moving film.", note: "Feminine: émouvante. From émouvoir, to move emotionally."}
+      - {id: fr-b2-09-bouleversant, type: vocab, l2: "bouleversant", l1: "deeply moving / overwhelming (masculine)", ex: "Son témoignage est bouleversant.", ex_l1: "Her testimony is deeply moving.", note: "bouleverser = to upset deeply, to turn upside down."}
+      - {id: fr-b2-09-bande-dessinee, type: vocab, l2: "la bande dessinée", l1: "the comic book / the comic strip", alt: ["la BD"], ex: "Astérix est une bande dessinée célèbre.", ex_l1: "Astérix is a famous comic.", note: "Short form: la BD (say 'bé-dé'), also written la bédé in Québec."}
+      - {id: fr-b2-09-court-metrage, type: vocab, l2: "le court-métrage", l1: "the short film", alt: ["le court métrage"], ex: "Elle a réalisé un court-métrage.", ex_l1: "She directed a short film.", note: "Plural: des courts-métrages. A feature film is un long-métrage."}
+      - {id: fr-b2-09-version-originale, type: vocab, l2: "en version originale", l1: "in the original language (with subtitles)", alt: ["en VO"], ex: "Je préfère voir les films en version originale.", ex_l1: "I prefer to watch films in the original language.", note: "VOST = original version with subtitles. The dubbed version is la VF (version française)."}
+      - {id: fr-b2-09-vernissage, type: vocab, l2: "le vernissage", l1: "the private view / the opening (of an exhibition)", ex: "Nous sommes invités au vernissage de l'exposition.", ex_l1: "We're invited to the opening of the exhibition.", note: "From vernir, to varnish."}
+      - {id: fr-b2-09-raison-pour-laquelle, type: phrase, l2: "C'est la raison pour laquelle je suis venu.", l1: "That's the reason why I came. (a man speaking)", alt: ["C'est pour cette raison que je suis venu."], note: "la raison is feminine → pour laquelle."}
+      - {id: fr-b2-09-ce-dont-j-ai-besoin, type: phrase, l2: "Ce dont j'ai besoin, c'est de calme.", l1: "What I need is some peace and quiet.", alt: ["Ce dont j'ai besoin, c'est du calme."], note: "avoir besoin de → ce dont; the de comes back after c'est."}
+      - {id: fr-b2-09-ca-m-a-touche, type: phrase, l2: "Ça m'a beaucoup touché.", l1: "It really moved me. (a man speaking)", alt: ["Ça m'a vraiment touché."], note: "A woman writes touchée: the participle agrees with m', a direct object placed before."}
+      - {id: fr-b2-09-vaut-le-detour, type: phrase, l2: "Ça vaut le détour.", l1: "It's worth the trip. / It's worth a visit.", note: "Guidebook language for a place worth going out of your way for."}
+      - {id: fr-b2-09-gouts-et-couleurs, type: phrase, l2: "Les goûts et les couleurs, ça ne se discute pas.", l1: "There's no accounting for taste. (saying)", note: "Literally 'tastes and colours are not argued about'."}
+      - {id: fr-b2-09-film-dont-tout-le-monde-parle, type: phrase, l2: "C'est un film dont tout le monde parle.", l1: "It's a film everyone is talking about.", note: "parler de → dont."}
+      - {id: fr-b2-09-c1, type: cloze, text: "Voici le pinceau avec ___ il a peint ce tableau.", answer: "lequel", l1: "Here is the brush he painted this picture with.", note: "le pinceau (masculine singular) → avec lequel."}
+      - {id: fr-b2-09-c2, type: cloze, text: "La raison pour ___ elle est partie reste un mystère.", answer: "laquelle", l1: "The reason why she left remains a mystery.", note: "la raison (feminine) → pour laquelle."}
+      - {id: fr-b2-09-c3, type: cloze, text: "C'est le concours ___ j'ai participé.", answer: "auquel", l1: "It's the competition I took part in.", note: "participer à + lequel → auquel."}
+      - {id: fr-b2-09-c4, type: cloze, text: "Les expositions ___ nous avons assisté étaient superbes.", answer: "auxquelles", l1: "The exhibitions we attended were superb.", note: "assister à + lesquelles → auxquelles."}
+      - {id: fr-b2-09-c5, type: cloze, text: "Ce sont des problèmes ___ on ne pense jamais.", answer: "auxquels", l1: "These are problems nobody ever thinks about.", note: "penser à + lesquels → auxquels."}
+      - {id: fr-b2-09-c6, type: cloze, text: "Le musée près ___ j'habite est gratuit le dimanche.", answer: "duquel", l1: "The museum I live near is free on Sundays.", note: "After a compound preposition (près de) → duquel, never dont."}
+      - {id: fr-b2-09-c7, type: cloze, text: "Les arbres à côté ___ nous avons pique-niqué étaient très vieux.", answer: "desquels", l1: "The trees we had a picnic next to were very old.", note: "à côté de + lesquels → à côté desquels."}
+      - {id: fr-b2-09-c8, type: cloze, text: "C'est un peintre ___ les œuvres sont exposées au Louvre.", answer: "dont", l1: "He is a painter whose works are exhibited in the Louvre.", note: "dont = whose; the noun keeps its article: dont les œuvres."}
+      - {id: fr-b2-09-c9, type: cloze, text: "___ dont j'ai envie, c'est de partir en voyage.", answer: "ce", l1: "What I feel like is going on a trip.", note: "avoir envie de → ce dont."}
+      - {id: fr-b2-09-c10, type: cloze, text: "Ce à ___ je m'intéresse, c'est la peinture moderne.", answer: "quoi", l1: "What I'm interested in is modern painting.", note: "s'intéresser à → ce à quoi."}
+      - {id: fr-b2-09-c11, type: cloze, text: "La femme avec ___ je travaille est sculptrice.", answer: "qui", alt: ["laquelle"], l1: "The woman I work with is a sculptor.", note: "For people after a preposition, qui is usual; laquelle is also correct."}
+      - {id: fr-b2-09-c12, type: cloze, text: "Le spectacle ___ j'ai vu hier était émouvant.", answer: "que", l1: "The show I saw yesterday was moving.", note: "voir has a direct object, no preposition → que."}
+      - {id: fr-b2-09-c13, type: cloze, text: "Le jour ___ je l'ai rencontrée, il pleuvait.", answer: "où", l1: "The day I met her, it was raining.", note: "For time, French uses où, not quand."}
+      - {id: fr-b2-09-c14, type: cloze, text: "Les raisons pour ___ il a refusé restent mystérieuses.", answer: "lesquelles", l1: "The reasons why he refused remain mysterious.", note: "les raisons (feminine plural) → pour lesquelles."}
+      - {id: fr-b2-09-c15, type: cloze, text: "Voici les documents sans ___ tu ne peux pas t'inscrire.", answer: "lesquels", l1: "Here are the documents without which you can't enrol. (informal)", note: "les documents (masculine plural) → sans lesquels."}
