@@ -203,13 +203,8 @@ button.pill { box-shadow: 0 3px 0 var(--line); } button.pill:active { transform:
 
 .room { position: absolute; border: 0; padding: 0; background: transparent; border-radius: 18px; -webkit-tap-highlight-color: transparent; }
 .room:hover, .room:focus-visible { background: #ffffff33; box-shadow: inset 0 0 0 3px #ffffffcc; }
-.room .plaque { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); max-width: 150%; padding: 2px 9px; border-radius: 11px; white-space: nowrap;
-  background: #1f2a44d9; color: #fff; font-size: clamp(.6rem, 1.15vw, .78rem); font-weight: 800; line-height: 1.5; }
-.room .plaque em { font-style: normal; margin-left: 6px; padding: 0 6px; border-radius: 8px; background: var(--gold); color: #3d2c00; }
-.room.closed .plaque { background: #ffffffd9; color: #45526d; }
 .bubble-collect { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px 3px 6px; border-radius: 16px; border: 2px solid #fff;
   background: var(--gold); color: #3d2c00; font-weight: 800; font-size: .86rem; box-shadow: 0 3px 0 var(--gold-d); transform-origin: bottom center; }
-@media (max-width: 640px) { .room .plaque { display: none; } }
 
 /* compact room cards (phones, where the scene is small) */
 .halls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
@@ -493,26 +488,14 @@ a { color: var(--gold); }
 .room.closed { background: #0a0705a8; backdrop-filter: grayscale(.9); }
 .room.closed:hover { background: #0a0705b0; }
 .room.building { background: repeating-linear-gradient(135deg, #0a0705b8 0 12px, #3a2b10b8 12px 24px); }
-.room .plaque { bottom: 4px; background: #120d0ae6; color: #f8e6bf; border: 1px solid #7d6a4a; font-family: var(--serif); }
-.room.closed .plaque { background: #120d0ae6; color: #b7a488; }
-.room .crew { position: absolute; left: 6px; top: 6px; display: flex; gap: 3px; flex-wrap: wrap; max-width: calc(100% - 12px); }
-.room .crew .face { width: clamp(16px, 2.6vw, 30px); height: clamp(16px, 2.6vw, 30px); }
 /* a room you can afford to raise: a soft lantern glow in the room, and its name plate warms (no badge, no arrow) */
 .room.can::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   box-shadow: inset 0 0 26px #f0c15e30, inset 0 -18px 40px -20px #f0c15e55; }
-.room .plaque .pl-name { display: block; }
-.room .pips { display: flex; justify-content: center; gap: 3px; margin: 1px 0 2px; }
 .pips b { width: 5px; height: 5px; border-radius: 50%; background: #5a4a36; box-shadow: inset 0 0 0 1px #7d6a4a; }
 .pips b.on { background: #e9b44c; box-shadow: 0 0 4px #e9b44c99; } .pips b.q { background: #5fa8e0; }
-.room .pl-note { display: block; font: italic 600 .62rem/1.2 var(--serif); color: #b7a488; }
-/* pips under the name; a room you can raise lights the plate's edge like a lantern */
-.room:not(.vault) .plaque { padding: 2px 10px 1px; border-radius: 8px; border-color: #4a3a28; }
-.room.can .plaque { border-color: #f0c15e; color: #fff3d6; box-shadow: 0 0 0 1px #e9b44c88, 0 0 16px 2px #e9b44c88; }
 /* a room whose crew made something since dawn: its lanterns brighten, and a small note says what */
 .room.tray::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: screen;
   background: radial-gradient(70% 60% at 50% 30%, #ffb64a2e 0%, #ffb64a12 45%, transparent 75%); }
-.room .trayn { position: absolute; left: 50%; bottom: calc(10px + 2.6em); transform: translateX(-50%); padding: 0 8px; border-radius: 9px; white-space: nowrap;
-  font: 700 clamp(.56rem, .95vw, .7rem)/1.6 var(--serif); color: #ffd98a; background: #120d0acc; border: 1px solid #a97a1c99; }
 @media (prefers-reduced-motion: no-preference) {
   .room.can::after { animation: glow 3.2s ease-in-out infinite; }
   .room.tray::before { animation: glow 3.6s ease-in-out infinite; }
@@ -538,7 +521,6 @@ a { color: var(--gold); }
 .hn-act { display: grid; justify-items: end; gap: 4px; text-align: right; } .hn-act .btn { min-height: 40px; padding: 4px 14px; font-size: .9rem; }
 .hn-prog { display: grid; gap: 4px; min-width: 180px; }
 @media (max-width: 760px) { .hallnext { grid-template-columns: 1fr; } .hn-act { justify-items: start; text-align: left; } }
-@media (max-width: 640px) { .room .plaque { display: block; font-size: .5rem; padding: 0 4px; bottom: 1px; } .room .plaque em { margin-left: 3px; padding: 0 3px; } }
 .found .hero { aspect-ratio: 1152 / 520; } .found .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* events, world, breakthroughs */
@@ -563,7 +545,6 @@ a { color: var(--gold); }
 .daylight.day { background: #ffffff00; } .daylight.dawn { background: #ffb37a33; } .daylight.dusk { background: #ff7a5a40; } .daylight.night { background: #1c2a6699; }
 .daylight.winter.day { background: #cfe4ff40; }
 @media (prefers-reduced-motion: no-preference) {
-  .room .crew .face { animation: bob 2.6s ease-in-out infinite; } .room .crew .face:nth-child(2n) { animation-delay: .9s; } .room .crew .face:nth-child(3n) { animation-delay: 1.7s; }
   .breakthrough.won { animation: flash 1.2s ease-out; } .panel.event { animation: rise .35s ease-out; }
 }
 @keyframes flash { 0% { filter: brightness(4) saturate(0); } 25% { filter: brightness(1); } 40% { filter: brightness(3); } 100% { filter: none; } }
@@ -992,19 +973,6 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .lneed { color: #ff9f8a; text-align: right; max-width: 22ch; }
 
 /* ---------------- room play: posts, trays, rushes ---------------- */
-/* a tray: a lantern-lit tag over the room; a morning's work makes it burn bright and gently pulse */
-.traybtn { position: absolute; z-index: 2; transform: translate(-50%, -50%); display: inline-flex; gap: 6px; align-items: baseline; white-space: nowrap; cursor: pointer;
-  padding: 3px 12px; border-radius: 14px; border: 1px solid #a97a1c; background: #1a120bd9; color: #f4dca8; font: 600 clamp(.6rem, .95vw, .78rem)/1.4 var(--serif);
-  box-shadow: 0 0 10px #e9b44c33; transition: transform .2s, opacity .3s; }
-.traybtn .num { font: 700 1.15em var(--serif); color: #ffd98a; }
-.traybtn:hover, .traybtn:focus-visible { border-color: #f0c15e; box-shadow: 0 0 16px #e9b44c80; outline: none; }
-.traybtn.full { border-color: #f0c15e; background: radial-gradient(120% 140% at 50% 0%, #6b4512f0, #24170cf0 70%); color: #fff0cc;
-  box-shadow: 0 0 0 1px #f0c15e66, 0 0 22px 4px #f0a83a88; font-size: clamp(.66rem, 1.05vw, .86rem); }
-.traybtn.full .num { color: #fff3d6; text-shadow: 0 0 8px #ffb64a; }
-.room.trayfull::before { background: radial-gradient(70% 70% at 50% 45%, #ffb64a55 0%, #ffb64a22 45%, transparent 78%); }
-.traybtn.taken { transform: translate(-50%, -140%); opacity: 0; transition: transform .6s ease-out .25s, opacity .45s ease-in .4s; }
-@media (prefers-reduced-motion: no-preference) { .traybtn.full { animation: traypulse 2.4s ease-in-out infinite; } }
-@keyframes traypulse { 50% { box-shadow: 0 0 0 1px #f0c15e99, 0 0 30px 8px #f0a83aaa; } }
 /* the roster under the map: pick a disciple up and drop them on a room */
 .roster { display: grid; gap: 6px; margin-top: 10px; }
 .rhint { font-size: .86rem; color: var(--dim); } .rhint .btn { min-height: 28px; padding: 1px 10px; font-size: .8rem; margin-left: 6px; }
@@ -1016,14 +984,6 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .token.on { border-color: #f0c15e; box-shadow: 0 0 12px #e9b44c66; background: #2a1e0c; }
 .dragghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -60%) scale(1.15); filter: drop-shadow(0 6px 10px #000c); }
 .dragghost .face { width: 46px; height: 46px; }
-/* while a disciple is in hand: each room glows for how well they suit it */
-.hq.holding .room.fit-good { background: #3fae8226; box-shadow: inset 0 0 0 2px #3fae82, inset 0 0 30px #3fae8240; }
-.hq.holding .room.fit-fair { background: #e9b44c1f; box-shadow: inset 0 0 0 2px #e9b44ccc, inset 0 0 26px #e9b44c33; }
-.hq.holding .room.fit-poor { background: #9a8f8014; box-shadow: inset 0 0 0 2px #9a8f8099; }
-.hq.holding .room.fit-full, .hq.holding .room.fit-none { background: #0a0705a0; }
-.hq.holding .room.over { box-shadow: inset 0 0 0 3px #fff3d6, inset 0 0 40px #f0c15e66; }
-.room .slotn { position: absolute; right: 8px; top: 6px; padding: 0 8px; border-radius: 9px; font: 700 .78rem/1.5 var(--serif); background: #120d0ae6; color: #f8e6bf; border: 1px solid #7d6a4a; }
-.room.fit-good .slotn { border-color: #3fae82; } .room.fit-full .slotn { color: #ff9f8a; border-color: #a13624; }
 /* the rush odds */
 .rushbox { margin: 14px 0 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid #5a4426; background: #0000003d; }
 .rushbox h3 { margin: 0 0 4px; font-size: 1.05rem; }
@@ -1121,10 +1081,8 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 /* the glows fade out before the room's edge, so no box shows on the painting */
 .room.can::after { box-shadow: none; background: radial-gradient(62% 58% at 50% 100%, #f0c15e42, transparent 72%); }
 .room.tray::before { background: radial-gradient(60% 55% at 50% 34%, #ffb64a2e 0%, #ffb64a12 45%, transparent 72%); }
-.room.trayfull::before { background: radial-gradient(64% 60% at 50% 42%, #ffb64a55 0%, #ffb64a22 45%, transparent 74%); }
 .room .lit { position: absolute; inset: 0; border-radius: 4px; pointer-events: none; transition: background .15s, box-shadow .15s; }
 .room:hover, .room:focus-visible { background: none; box-shadow: none; outline: none; }
-.room:hover .lit, .room:focus-visible .lit { background: #f0c15e14; box-shadow: inset 0 0 0 2px #f0c15ecc; }
 .hq .cap { position: absolute; background-repeat: no-repeat; pointer-events: none; }
 .hq .cap.l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 55%); mask-image: linear-gradient(90deg, transparent, #000 55%); }
 .hq .cap.r { -webkit-mask-image: linear-gradient(270deg, transparent, #000 55%); mask-image: linear-gradient(270deg, transparent, #000 55%); }
@@ -1132,32 +1090,11 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .room.closed, .room.building { background: none; backdrop-filter: none; }
 .room.closed .tiles, .room.wingsite .tiles { filter: grayscale(.6) brightness(.95); }
 .room.closed .lit, .room.wingsite .lit { background: repeating-linear-gradient(135deg, #0a070538 0 10px, #e9b44c12 10px 20px); }
-.room .crew { left: min(15%, 26px); right: auto; top: 22%; max-width: none; flex-wrap: nowrap; }
-.room .crew .face { width: clamp(16px, 2.2vw, 28px); height: clamp(16px, 2.2vw, 28px); }
-.room .crew .more { align-self: center; font: 700 .68rem var(--serif); color: #f8e6bf; text-shadow: 0 1px 2px #000; }
-.room .plaque { bottom: 5%; max-width: 96%; font-size: clamp(.56rem, .92vw, .76rem); line-height: 1.35; }
-.room.vault .plaque { padding: 2px 10px 1px; border-radius: 8px; border-color: #4a3a28; }
-.room .plaque .pl-name { overflow: hidden; text-overflow: ellipsis; }
 /* an empty alcove: nothing drawn until you point at it; with a room in hand every free one is lit */
 .alcove { position: absolute; border: 0; padding: 0; background: transparent; border-radius: 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, box-shadow .15s; }
-.alcove .plaque { position: absolute; left: 50%; bottom: 5%; transform: translateX(-50%); padding: 2px 10px 1px; border-radius: 8px; white-space: nowrap; opacity: 0; transition: opacity .15s;
-  background: #120d0ae6; color: #d8c49c; border: 1px solid #4a3a28; font: 600 clamp(.56rem, .92vw, .76rem)/1.35 var(--serif); }
-.alcove:hover, .alcove:focus-visible { background: #f0c15e12; box-shadow: inset 0 0 0 2px #f0c15e99; outline: none; }
-.alcove:hover .plaque, .alcove:focus-visible .plaque, .alcove.ok .plaque { opacity: 1; }
-.alcove.ok { background: #3fae8214; box-shadow: inset 0 0 0 2px #3fae82aa, inset 0 0 26px #3fae8226; }
-.alcove.ok .plaque { color: #d6f5e6; border-color: #3fae82; }
-.alcove.ok:hover, .alcove.ok:focus-visible { background: #3fae8230; box-shadow: inset 0 0 0 3px #d6f5e6, inset 0 0 36px #3fae8255; }
 .hq.placing .room { cursor: default; } .hq.placing .room .tiles { filter: brightness(.7); }
 .floorlock { position: absolute; display: grid; place-items: center; background: #0a0705a3; pointer-events: none; }
 .floorlock span { font: italic 600 clamp(.6rem, 1vw, .82rem) var(--serif); color: #a8977a; letter-spacing: .01em; }
-/* while a disciple is in hand the glow sits over the tile */
-.hq.holding .room.fit-good, .hq.holding .room.fit-fair, .hq.holding .room.fit-poor, .hq.holding .room.fit-full, .hq.holding .room.fit-none, .hq.holding .room.over { background: none; box-shadow: none; }
-.hq.holding .room.fit-good .lit { background: #3fae8226; box-shadow: inset 0 0 0 2px #3fae82, inset 0 0 30px #3fae8240; }
-.hq.holding .room.fit-fair .lit { background: #e9b44c1f; box-shadow: inset 0 0 0 2px #e9b44ccc, inset 0 0 26px #e9b44c33; }
-.hq.holding .room.fit-poor .lit { background: #9a8f8014; box-shadow: inset 0 0 0 2px #9a8f8099; }
-.hq.holding .room.fit-full .lit, .hq.holding .room.fit-none .lit, .hq.holding .room.vault .lit { background: #0a0705b0; }
-.hq.holding .room.over .lit { box-shadow: inset 0 0 0 3px #fff3d6, inset 0 0 40px #f0c15e66; }
-.room .slotn { top: 6%; right: 4%; z-index: 1; }
 /* the merge ledger: now against merged */
 .mergeled { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .9rem; }
 .mergeled th, .mergeled td { padding: 4px 8px; border-bottom: 1px solid #3b2d22; text-align: right; font-weight: 400; }
@@ -1168,3 +1105,84 @@ span.lthumb { cursor: default; }
 /* the building grows: floors not yet in use are cut out from under the roof */
 .hq .hqin { position: absolute; left: 0; right: 0; bottom: 0; }
 .hq .roof { position: absolute; left: 0; right: 0; top: 0; background: url(/art/hq_grid.webp) top center / 100% auto no-repeat; pointer-events: none; }
+
+/* ---------------- the home map's words: the painting carries the screen ----------------
+   Nothing is boxed on the painting: no plates, no pills, no borders. A room's name is carved on the floor beam under
+   it; anything more is plain serif under the lintel and shows only when asked (hover, focus, or a disciple in hand).
+   TEMPORARY: two looks for the owner to pick (MAP_LOOK in sect.js): .lookA names on the beams, .lookB a ledger rail. */
+.mapwrap { display: grid; gap: 14px; }
+.hq .words { position: absolute; inset: 0; pointer-events: none; }
+.nm, .nt { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; font-family: var(--serif); transition: opacity .25s, color .25s; }
+.nm { font-size: clamp(.5rem, .98vw, .8rem); line-height: 1; font-weight: 600; letter-spacing: .03em; color: #c9b58a;
+  text-shadow: 0 -1px 0 #000c, 0 1px 0 #ffffff12, 0 0 4px #000; }
+.nm b { font-weight: 600; } .nm i { font-style: normal; font-size: .86em; margin-left: .5em; color: #9c8a68; font-variant-numeric: lining-nums; }
+.nm em { font-style: italic; font-weight: 500; color: #9c8a68; } .nm b + em { margin-left: .5em; }
+/* a room you can afford to raise: its name warms to gold, like a lantern lit behind the carving (no badge, no arrow) */
+.nm.can { color: #f2c66a; text-shadow: 0 -1px 0 #000c, 0 0 9px #e9b44c99, 0 0 2px #000; } .nm.can i { color: #d9ad55; }
+.nm.hot, .nm.over { color: #fff0cf; } .nm.hot i, .nm.over i { color: #e0cba0; }
+.nm.empty, .nm.site { opacity: 0; } .nm.empty.hot, .nm.empty.ok, .nm.site.hot { opacity: 1; }
+.nm.empty.ok em { color: #a9dcc3; } .nm.empty.ok.hot em { color: #e6fff3; }
+.nt { opacity: 0; font-size: clamp(.5rem, .9vw, .74rem); line-height: 1.2; font-style: italic; font-weight: 500; color: #ead9b4; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+.nt.hot, .hq.holding .nt { opacity: 1; }
+.hq.holding .nt.fit-good { color: #a6e6c8; } .hq.holding .nt.fit-fair { color: #f2d48f; } .hq.holding .nt.fit-poor { color: #c4b8a4; }
+.hq.holding .nt.fit-full, .hq.holding .nt.fit-none { color: #9d8f7c; }
+.hq.holding .nm.fit-full, .hq.holding .nm.fit-none { color: #8a7b62; text-shadow: 0 -1px 0 #000c; }
+.hq.holding .nt.over { color: #fff; }
+.lookB .nm { opacity: 0; } .lookB .nm.hot:not(.empty), .lookB .hq.holding .nm, .lookB .nm.empty.hot, .lookB .nm.empty.ok, .lookB .nm.site.hot { opacity: 1; }
+/* pointing at a room: its lanterns lift a little, nothing is outlined; the keyboard's focus gets one thin warm line */
+.room .lit { transition: background .25s, box-shadow .25s; }
+.room:hover .lit, .room.hot .lit { background: radial-gradient(75% 85% at 50% 100%, #f0c15e2e, #f0c15e10 60%, transparent 85%); }
+.room:focus-visible .lit, .alcove:focus-visible { box-shadow: inset 0 0 0 1px #f0c15ecc; outline: none; }
+/* the crew stand on the room's floor line, shoulder to shoulder */
+.room .crew { position: absolute; left: calc(22% / var(--w, 1)); bottom: 8.5%; display: flex; align-items: flex-end; pointer-events: none; }
+.room .crew::after { content: ""; position: absolute; left: -4px; right: -4px; bottom: -3px; height: 7px; border-radius: 50%; background: radial-gradient(closest-side, #000000a6, transparent); z-index: -1; }
+.room .crew .face { width: clamp(13px, 1.9vw, 24px); height: clamp(13px, 1.9vw, 24px); box-shadow: 0 0 0 1px #140d08, 0 1px 3px #000c; }
+.room .crew .face + .face { margin-left: clamp(-7px, -.5vw, -3px); }
+.room .crew .more { margin-left: 4px; align-self: center; font: 600 .66rem var(--serif); color: #e6d5ae; text-shadow: 0 1px 2px #000; }
+/* the room itself glows for one thing only, a morning's work waiting; a room you can raise says so in its name */
+.room.can::after, .room.tray:not(.trayfull)::before { content: none; }
+/* a morning's work waiting: the room glows, and what was made fades in over it, in plain serif (a button all the same) */
+.room.trayfull::before { background: radial-gradient(60% 62% at 50% 46%, #ffb64a4d 0%, #ffb64a1f 48%, transparent 76%); }
+.traybtn { position: absolute; z-index: 2; transform: translate(-50%, -50%); display: inline-flex; gap: .35em; align-items: baseline; white-space: nowrap; cursor: pointer;
+  padding: 4px 8px; border: 0; background: none; border-radius: 4px; color: #ffe9bd; font: italic 500 clamp(.56rem, .98vw, .82rem)/1.3 var(--serif);
+  text-shadow: 0 1px 2px #000, 0 0 10px #f0a83acc, 0 0 3px #000; opacity: 0; pointer-events: none; transition: opacity .5s, transform .3s, color .2s; }
+.traybtn .num { font: 600 1.18em var(--serif); font-style: normal; color: #fff4d8; }
+.traybtn.full, .traybtn.hot, .traybtn:focus-visible { opacity: 1; pointer-events: auto; }
+.traybtn:not(.full) { color: #e2cfa4; text-shadow: 0 1px 2px #000, 0 0 3px #000; }
+.traybtn:hover, .traybtn:focus-visible { color: #fff; outline: none; }
+.traybtn:focus-visible { box-shadow: 0 0 0 1px #f0c15ecc; }
+.traybtn.taken, .rmade.taken { opacity: 0; transition: transform .6s ease-out .25s, opacity .45s ease-in .4s; }
+.traybtn.taken { transform: translate(-50%, -160%); }
+@media (prefers-reduced-motion: no-preference) { .traybtn.full { animation: trayin .9s ease-out both; } }
+@keyframes trayin { from { opacity: 0; transform: translate(-50%, -30%); } }
+/* an empty alcove: nothing until you point at it; with a room in hand every free one is lit from the floor */
+.alcove:hover, .alcove.hot { background: radial-gradient(70% 80% at 50% 100%, #f0c15e24, transparent 80%); }
+.alcove.ok { background: radial-gradient(70% 85% at 50% 100%, #3fae8233, #3fae8212 55%, transparent 82%); }
+.alcove.ok:hover, .alcove.ok.hot { background: radial-gradient(80% 95% at 50% 100%, #3fae8266, #3fae8226 60%, transparent 88%); }
+/* a disciple in hand: each room is lit from its floor by how well they suit it (the words under the lintel say it too) */
+.hq.holding .room .lit { background: none; }
+.hq.holding .room.fit-good .lit { background: radial-gradient(80% 95% at 50% 100%, #3fae8259, #3fae8221 55%, transparent 85%); }
+.hq.holding .room.fit-fair .lit { background: radial-gradient(80% 95% at 50% 100%, #e9b44c47, #e9b44c1a 55%, transparent 85%); }
+.hq.holding .room.fit-poor .lit { background: radial-gradient(70% 80% at 50% 100%, #b7a98f26, transparent 80%); }
+.hq.holding .room.fit-full .lit, .hq.holding .room.fit-none .lit { background: #0a0705a6; }
+.hq.holding .room.over:not(.fit-full):not(.fit-none) .lit { box-shadow: inset 0 0 0 1px #fff3d6b3, inset 0 -30px 50px -24px #fff3d680; }
+/* look B, the ledger rail: the rooms floor by floor, each floor level with its floor on the painting */
+@media (min-width: 900px) { .lookB { grid-template-columns: minmax(0, 1fr) clamp(250px, 26%, 290px); align-items: stretch; } }
+.rail { position: relative; font-family: var(--serif); color: #cdbb95; font-size: .84rem; line-height: 1.25; min-width: 0; }
+.rcap { margin: 0; display: flex; align-items: flex-end; padding: 0 2px 5px; font-style: italic; font-size: .72rem; color: #8f8068; white-space: nowrap; overflow: hidden; }
+.rfloor { display: flex; flex-direction: column; justify-content: center; border-top: 1px solid #3b2d2299; padding: 2px 0; }
+.rnone { margin: 0; padding: 0 2px; font-style: italic; color: #7d705c; font-size: .78rem; }
+.rrow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 0 10px; align-items: baseline; padding: 1px 2px; border-radius: 3px; transition: background .2s; }
+.rrow button { all: unset; cursor: pointer; font: inherit; color: inherit; }
+.rname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #e6d7b3; }
+.rname i { font-style: normal; margin-left: .5em; color: #9c8a68; font-size: .92em; }
+.rcrew { color: #9c8a68; font-size: .92em; white-space: nowrap; font-variant-numeric: lining-nums; }
+.rmade { white-space: nowrap; color: #b9a67e; font-style: italic; font-size: .92em; transition: opacity .3s; } .rmade .num { font-style: normal; }
+.rmade.full { color: #ffe2a6; text-shadow: 0 0 8px #f0a83a99; }
+.rrow.can .rname { color: #f2c66a; text-shadow: 0 0 8px #e9b44c66; } .rrow.can .rname i { color: #d9ad55; }
+.rrow.hot, .rrow.over { background: linear-gradient(90deg, #f0c15e1f, #f0c15e08 70%, transparent); } .rrow.hot .rname, .rrow.over .rname { color: #fff0cf; }
+.rrow button:focus-visible { box-shadow: 0 0 0 1px #f0c15ecc; border-radius: 2px; }
+.rrow.fit-good .rcrew { color: #a6e6c8; } .rrow.fit-fair .rcrew { color: #f2d48f; } .rrow.fit-poor .rcrew { color: #c4b8a4; }
+.rrow.fit-full .rname, .rrow.fit-none .rname { color: #8a7b62; }
+@media (max-width: 899px) { .rail { display: grid; gap: 2px; } .rail .rfloor { position: static; height: auto !important; } .rcap { height: auto !important; } }
+@media (min-width: 900px) { .rail .rfloor { position: absolute; left: 0; right: 0; } }

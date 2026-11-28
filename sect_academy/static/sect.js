@@ -197,6 +197,8 @@ export function mountSect(h) {
     else { paintScene(); if (pid && r) toast(`No one is posted to the ${r.name}.`); }
   }
   function cancelPick() { if (!selPawn) return; selPawn = ''; dragging = false; sceneSig = ''; paintScene(); }
+  // The room under the pointer: on the painting, or its row in the rail (look B).
+  const dropId = (el) => { const n = el && el.closest('[data-room], [data-railroom]'); return n ? n.dataset.room || (n.dataset.railroom === 'vault' ? '' : n.dataset.railroom) : ''; };
   function startDrag(e, pid, btn) {
     if (e.button !== undefined && e.button !== 0) return;
     const x0 = e.clientX; const y0 = e.clientY; let ghost = null;
@@ -209,9 +211,9 @@ export function mountSect(h) {
       }
       ghost.style.left = `${ev.clientX}px`; ghost.style.top = `${ev.clientY}px`;
       const over = document.elementFromPoint(ev.clientX, ev.clientY);
-      const room = over && over.closest('[data-room]');
-      document.querySelectorAll('.room.over').forEach((n) => { if (n !== room) n.classList.remove('over'); });
-      if (room) room.classList.add('over');
+      const id = dropId(over);
+      document.querySelectorAll('[data-hot].over').forEach((n) => { if (n.dataset.hot !== id) n.classList.remove('over'); });
+      if (id) document.querySelectorAll('#z-scene [data-hot]').forEach((n) => { if (n.dataset.hot === id) n.classList.add('over'); });
     };
     const up = (ev) => {
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
@@ -219,14 +221,20 @@ export function mountSect(h) {
       ghost.remove();
       heldAt = Date.now();
       const over = ev.type === 'pointerup' ? document.elementFromPoint(ev.clientX, ev.clientY) : null;
-      const room = over && over.closest('[data-room]');
-      if (room) postTo(room.dataset.room); else cancelPick();
+      const id = dropId(over);
+      if (id) postTo(id); else cancelPick();
     };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   }
 
   // Placing on the grid: a new room (from the Build ledger) or a room being moved waits here for an empty alcove.
   let placing = null;                               // { mode: 'build' | 'move', room }
+  let hotId = '';                                   // the room (or alcove) pointed at or focused: its words and rail row light up
+  // TEMPORARY, for the owner to pick one: the look of the home map's words.
+  //   'A' quiet until asked: a name carved on the beam under each room, the rest on hover, focus or while dragging.
+  //   'B' ledger rail: no words on the painting at rest; the rooms are listed floor by floor beside it.
+  // Change the letter here (or, to compare without editing: localStorage.setItem('sect.maplook', 'B') and reload).
+  const MAP_LOOK = (() => { try { const v = localStorage.getItem('sect.maplook'); if (v === 'A' || v === 'B') return v; } catch (e) { /* no storage */ } return 'A'; })();
   const roomOf = (id) => S.rooms.find((x) => x.id === id);
   const box = (r) => `left:${r[0].toFixed(3)}%;top:${r[1].toFixed(3)}%;width:${r[2].toFixed(3)}%;height:${r[3].toFixed(3)}%`;
   const ORD = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
@@ -274,52 +282,108 @@ export function mountSect(h) {
       Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.treasures.length, selPawn, dragging, S.pawns.map((p) => p.id + p.post)]);
     if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
-    const pips = (r) => `<i class="pips" aria-hidden="true">${Array.from({ length: r.max }, (_, i) => `<b class="${i < r.level ? 'on' : ''}"></b>`).join('')}</i>`;
     const placed = S.rooms.filter((r) => r.plot);
     const caps = placed.filter((r) => r.open).map((r) => capsHtml(r.id, r.plot)).join('') + (G.vault ? capsHtml('vault', G.vault) : '');
+    // Nothing is boxed on the painting. A room's name is carved on the floor beam under it (`.nm`, with its level as a
+    // small numeral); a line of plain words under the lintel (`.nt`) says the rest, and only when asked: on hover or
+    // focus, or while a disciple is in hand. Both live in a layer over the rooms, so a beam is never painted over.
+    const fitOf = (r) => (held ? (r.slots ? (r.posted.length >= r.slots && held.post !== r.id ? 'full' : held.fit[r.id] || 'poor') : 'none') : '');
+    const FIT_WORD = { good: 'suits them well', fair: 'suits them', poor: 'suits them poorly', full: 'is full', none: 'takes no post' };
+    const freeText = (r) => { const n = Math.max(0, r.slots - r.posted.length); return `${n} place${n === 1 ? '' : 's'} free`; };
+    const fitNote = (r) => { const f = fitOf(r); return f === 'none' ? 'no post here' : f === 'full' ? `full, ${r.posted.length} of ${r.slots}` : `${FIT_WORD[f]} · ${freeText(r)}`; };
+    const restNote = (r) => [r.open && r.slots ? `${r.posted.length} of ${r.slots} places taken` : '', r.affordable ? 'ready to raise' : '', r.wide && r.wide.affordable ? 'a wing can be built' : ''].filter(Boolean).join(' · ');
+    const roomAria = (r) => `${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'being built'}${r.wide && r.wide.w > 1 ? `, ${esc(r.wide.word)}` : ''}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${FIT_WORD[fitOf(r)] || ''}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}`;
+    const trayHtml = (r) => r.tray.slice(0, 2).map((t) => `<b class="num">+${t.n}</b> ${esc(t.name)}`).join(' ');
+    const trayAria = (r) => `${esc(r.name)} made ${esc(trayText(r))} since the last look. Inspect the work`;
+    const beam = ([x, y, w, hh], f, id, cls, html) => `<span class="nm ${cls}" data-hot="${esc(id)}" aria-hidden="true" style="left:${(x + w / 2).toFixed(3)}%;top:${(y + hh + (f === 0 ? -0.75 : 0.5)).toFixed(3)}%">${html}</span>`;
+    const lintel = ([x, y, w, hh], id, cls, text) => (text ? `<span class="nt ${cls}" data-hot="${esc(id)}" aria-hidden="true" style="left:${(x + w / 2).toFixed(3)}%;top:${(y + hh * 0.13).toFixed(3)}%">${esc(text)}</span>` : '');
+    let words = '';
     const rooms = placed.map((r) => {
-      const w = r.plot.w; const all = staff[r.id] || []; const show = Math.min(all.length, 3 * w);
-      const crew = all.slice(0, show).map((p) => face(p, 30)).join('') + (all.length > show ? `<b class="more">+${all.length - show}</b>` : '');
-      // A room you can afford to raise glows softly on its name plate (no badge, no arrow).
-      const name = `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : '<i class="pl-note">being built</i>'}`;
-      const fit = held ? (r.slots ? (r.posted.length >= r.slots && held.post !== r.id ? 'full' : held.fit[r.id] || 'poor') : 'none') : '';
-      const fitWord = { good: 'suits them well', fair: 'suits them', poor: 'suits them poorly', full: 'is full', none: 'takes no post' }[fit] || '';
-      return `<button class="room w${w} ${r.open ? '' : 'closed'} ${building.includes(r.id) && !r.wing ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" style="${box(cellRect(r.plot.f, r.plot.s, w))}"
-        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'being built'}${r.wide && r.wide.w > 1 ? `, ${esc(r.wide.word)}` : ''}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${fitWord}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}"${r.affordable && !held ? ' title="Ready to raise"' : ''}>
+      const w = r.plot.w; const all = staff[r.id] || []; const show = Math.min(all.length, 3 * w + 1);
+      const crew = all.slice(0, show).map((p) => face(p, 24)).join('') + (all.length > show ? `<b class="more">+${all.length - show}</b>` : '');
+      const fit = fitOf(r); const rect = cellRect(r.plot.f, r.plot.s, w);
+      words += beam(rect, r.plot.f, r.id, `${r.affordable ? 'can' : ''} ${fit ? `fit-${fit}` : ''}`, `<b>${esc(r.name)}</b>${r.open ? `<i>${r.level}</i>` : '<em>being built</em>'}`)
+        + lintel(rect, r.id, fit ? `fit-${fit}` : '', held ? fitNote(r) : restNote(r));
+      return `<button class="room w${w} ${r.open ? '' : 'closed'} ${building.includes(r.id) && !r.wing ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" data-hot="${esc(r.id)}" style="${box(rect)};--w:${w}"
+        aria-label="${roomAria(r)}">
         ${tilesHtml(r.id, w)}<span class="lit" aria-hidden="true"></span>
-        <span class="crew" aria-hidden="true">${crew}</span>
-        ${held && r.slots ? `<span class="slotn" aria-hidden="true">${r.posted.length}/${r.slots}</span>` : ''}
-        <span class="plaque">${name}</span></button>`;
+        <span class="crew" aria-hidden="true">${crew}</span></button>`;
     }).join('');
     // A wing being built: the room's tile in the next alcove, still dark, until the wall comes down.
-    const wings = placed.filter((r) => r.wing).map((r) => `<button class="room wingsite building" data-wingsite="${esc(r.id)}" style="${box(cellRect(r.wing.f, r.wing.s, 1))}" aria-label="A wing of the ${esc(r.name)}, being built">
-        ${tilesHtml(r.id === 'main_hall' ? '' : r.id, 1)}<span class="lit" aria-hidden="true"></span><span class="plaque"><span class="pl-name">${esc(r.name)}</span><i class="pl-note">wing being built</i></span></button>`).join('');
-    // A tray is a button of its own over the room: what the crew made since dawn, brighter when a morning's work waits.
-    const trays = held || placing ? '' : placed.filter((r) => r.tray.length).map((r) => {
-      const [x, y, w, hh] = cellRect(r.plot.f, r.plot.s, r.plot.w);
-      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.56}%"
-        aria-label="${esc(r.name)} made ${esc(trayText(r))} since the last look. Inspect the work">${r.tray.slice(0, 2).map((t) => `<b class="num">+${t.n}</b> ${esc(t.name)}`).join(' ')}</button>`;
+    const wings = placed.filter((r) => r.wing).map((r) => {
+      const rect = cellRect(r.wing.f, r.wing.s, 1);
+      words += beam(rect, r.wing.f, `wing-${r.id}`, 'site', '<em>a wing, being built</em>');
+      return `<button class="room wingsite building" data-wingsite="${esc(r.id)}" data-hot="wing-${esc(r.id)}" style="${box(rect)}" aria-label="A wing of the ${esc(r.name)}, being built">
+        ${tilesHtml(r.id === 'main_hall' ? '' : r.id, 1)}<span class="lit" aria-hidden="true"></span></button>`;
     }).join('');
-    // Empty alcoves are where you build. With a room in hand (placing) every one of them is lit.
+    if (G.vault) words += beam(cellRect(G.vault.f, G.vault.s, 1), G.vault.f, 'vault', held ? 'fit-none' : '', `<b>Treasure Vault</b>${S.treasures.length ? `<i>${S.treasures.length}</i>` : ''}`);
+    // What a room's crew made: look A writes it over the room, softly, and only once a morning's work waits (a fresh
+    // tray shows when you point at the room); look B keeps it in the rail. Either way the room itself glows.
+    const trays = held || placing || MAP_LOOK !== 'A' ? '' : placed.filter((r) => r.tray.length).map((r) => {
+      const [x, y, w, hh] = cellRect(r.plot.f, r.plot.s, r.plot.w);
+      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" data-hot="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.31}%"
+        aria-label="${trayAria(r)}">${trayHtml(r)}</button>`;
+    }).join('');
+    // Empty alcoves are where you build: nothing is written on one until you point at it. With a room in hand
+    // (placing) every one of them is lit.
     const pr = placing ? (placing.room === 'vault' ? { name: 'Treasure Vault' } : roomOf(placing.room)) : null;
-    const alcoves = held ? '' : G.free.map(([f, s]) => `<button class="alcove ${placing ? 'ok' : ''}" data-cell="${f},${s}" style="${box(cellRect(f, s, 1))}"
-        aria-label="Empty alcove, ${FLOOR[f]}, ${ORD[s]} from the left. ${pr ? `Put the ${esc(pr.name)} here` : 'Build here'}"><span class="plaque">${placing ? 'Place here' : 'Build here'}</span></button>`).join('');
+    const alcoves = held ? '' : G.free.map(([f, s]) => {
+      const rect = cellRect(f, s, 1);
+      words += beam(rect, f, `cell-${f}-${s}`, `empty ${placing ? 'ok' : ''}`, `<em>${placing ? 'place here' : 'build here'}</em>`);
+      return `<button class="alcove ${placing ? 'ok' : ''}" data-cell="${f},${s}" data-hot="cell-${f}-${s}" style="${box(rect)}"
+        aria-label="Empty alcove, ${FLOOR[f]}, ${ORD[s]} from the left. ${pr ? `Put the ${esc(pr.name)} here` : 'Build here'}"></button>`;
+    }).join('');
     // Only the floors in use are shown: the painting is cut under the roof, so the building grows as the Hall rises.
     const top = Math.max(0, ...placed.map((r) => r.plot.f), ...placed.filter((r) => r.wing).map((r) => r.wing.f), G.vault ? G.vault.f : 0);
     const show = Math.max(G.open, top + 1);
     const [cut, roofH] = gridCut(show); const keep = 100 - cut;
-    const locks = Array.from({ length: show - G.open }, (_, i) => G.open + i).map((f) => `<div class="floorlock" style="${box(floorRect(f))}"><span>${f === G.open ? `This floor opens at Main Hall ${G.next_floor}` : 'Not yet opened'}</span></div>`).join('');
+    const lockText = (f) => (f === G.open ? `This floor opens at Main Hall ${G.next_floor}` : 'Not yet opened');
+    const locks = Array.from({ length: show - G.open }, (_, i) => G.open + i).map((f) => `<div class="floorlock" style="${box(floorRect(f))}">${MAP_LOOK === 'A' ? `<span>${lockText(f)}</span>` : ''}</div>`).join('');
+    // Look B, the ledger rail: the painting carries no words at rest; beside it each floor lists its rooms in plain
+    // serif (name, level, places taken, what was made), level with that floor. A row and its room light together.
+    let rail = '';
+    if (MAP_LOOK === 'B') {
+      const yOf = (v) => 100 - (100 - v) * 100 / keep;
+      const row = (r) => {
+        const all = staff[r.id] || []; const fit = fitOf(r);
+        const crew = held ? fitNote(r) : !r.open ? 'being built' : r.wing ? 'a wing being built' : r.slots ? `${r.posted.length} of ${r.slots}` : all.length ? `${all.length} here` : '';
+        const made = !held && !placing && r.tray.length ? `<button class="rmade ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" aria-label="${trayAria(r)}">${trayHtml(r)}</button>` : '';
+        return `<div class="rrow ${r.affordable ? 'can' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-hot="${esc(r.id)}"><button class="rname" data-railroom="${esc(r.id)}" aria-label="${roomAria(r)}">${esc(r.name)}${r.open ? `<i>${r.level}</i>` : ''}</button><span class="rcrew">${esc(crew)}</span>${made}</div>`;
+      };
+      const floors = Array.from({ length: show }, (_, f) => f).reverse().map((f) => {
+        const here = placed.filter((r) => r.plot.f === f).map((r) => [r.plot.s, row(r)]);
+        if (G.vault && G.vault.f === f) here.push([G.vault.s, `<div class="rrow ${held ? 'fit-none' : ''}" data-hot="vault"><button class="rname" data-railroom="vault" aria-label="Treasure vault: manuals, treasures and the world beyond">Treasure Vault</button><span class="rcrew">${S.treasures.length ? `${S.treasures.length} kept` : ''}</span></div>`]);
+        here.sort((p, q) => p[0] - q[0]);
+        const [, fy, , fh] = floorRect(f);
+        return `<div class="rfloor" style="top:${yOf(fy).toFixed(3)}%;height:${(fh * 100 / keep).toFixed(3)}%">${f >= G.open ? `<p class="rnone">${lockText(f)}</p>` : here.length ? here.map((x) => x[1]).join('') : '<p class="rnone">Empty</p>'}</div>`;
+      }).join('');
+      rail = `<div class="rail" role="group" aria-label="The rooms, floor by floor"><p class="rcap" style="height:${(100 * roofH / keep).toFixed(3)}%">${held ? `where ${esc(held.name.split(' ').slice(-1)[0])} would fit` : 'room and level · places taken · made since dawn'}</p>${floors}</div>`;
+    }
     const roster = S.pawns.filter((p) => !p.away).map((p) => `<button class="token ${selPawn === p.id ? 'on' : ''}" data-token="${esc(p.id)}" aria-pressed="${selPawn === p.id}"
         aria-label="${esc(p.name)}${p.post ? `, posted to the ${esc((S.rooms.find((r) => r.id === p.post) || {}).name || '')}` : ''}. Pick up to post">${face(p, 34)}<span><b>${esc(p.name.split(' ').slice(-1)[0])}</b><small>${esc(p.post ? (S.rooms.find((r) => r.id === p.post) || {}).name || '' : p.doing || '')}</small></span></button>`).join('');
     const hint = held ? `Now choose a room for ${esc(held.name)}. <button class="btn" data-unpick>Cancel</button>`
       : pr ? `Choose an empty alcove for the ${esc(pr.name)}. <button class="btn" data-unplace>Cancel</button>`
         : 'Drag a disciple onto a room to post them there, or tap one and then a room. Tap an empty alcove to build in it.';
-    z.innerHTML = `<div class="hq ${held ? 'holding' : ''} ${placing ? 'placing' : ''}" style="aspect-ratio:1620 / ${(9.71 * keep).toFixed(2)}"><div class="hqin" style="height:${(10000 / keep).toFixed(3)}%">${sectScene()}${locks}${caps}${rooms}${wings}
-      ${G.vault ? `<button class="room vault" data-vault style="${box(cellRect(G.vault.f, G.vault.s, 1))}" aria-label="Treasure vault: manuals, treasures and the world beyond">
-        ${tilesHtml('vault', 1)}<span class="lit" aria-hidden="true"></span><span class="plaque"><span class="pl-name">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></span></button>` : ''}
-      ${alcoves}<div class="daylight" id="daylight"></div>${trays}</div>
-      ${cut > 0 ? `<div class="roof" style="height:${(100 * roofH / keep).toFixed(3)}%" aria-hidden="true"></div>` : ''}</div>
+    z.innerHTML = `<div class="mapwrap look${MAP_LOOK}"><div class="hq ${held ? 'holding' : ''} ${placing ? 'placing' : ''}" style="aspect-ratio:1620 / ${(9.71 * keep).toFixed(2)}"><div class="hqin" style="height:${(10000 / keep).toFixed(3)}%">${sectScene()}${locks}${caps}${rooms}${wings}
+      ${G.vault ? `<button class="room vault ${held ? 'fit-none' : ''}" data-vault data-hot="vault" style="${box(cellRect(G.vault.f, G.vault.s, 1))}" aria-label="Treasure vault: manuals, treasures and the world beyond">
+        ${tilesHtml('vault', 1)}<span class="lit" aria-hidden="true"></span></button>` : ''}
+      ${alcoves}<div class="daylight" id="daylight"></div><div class="words">${words}</div>${trays}</div>
+      ${cut > 0 ? `<div class="roof" style="height:${(100 * roofH / keep).toFixed(3)}%" aria-hidden="true"></div>` : ''}</div>${rail}</div>
       <div class="roster" role="group" aria-label="Post disciples to rooms"><span class="rhint">${hint}</span><div class="tokens">${roster}</div></div>`;
+    // Pointing at a room (or its rail row, its tray, or tabbing to any of them) lights everything that belongs to it.
+    const wrap = z.firstElementChild;
+    const hot = (id) => { if (id === hotId) return; hotId = id; z.querySelectorAll('[data-hot]').forEach((n) => n.classList.toggle('hot', !!id && n.dataset.hot === id)); };
+    const hotOf = (t) => { const n = t && t.closest ? t.closest('[data-hot]') : null; return n ? n.dataset.hot : ''; };
+    wrap.onmouseover = (e) => { if (!dragging) hot(hotOf(e.target)); };
+    wrap.onmouseleave = () => { if (!dragging) hot(hotOf(document.activeElement)); };
+    wrap.addEventListener('focusin', (e) => hot(hotOf(e.target)));
+    wrap.addEventListener('focusout', () => hot(''));
+    const was = hotId; hotId = ''; hot(was);
+    z.querySelectorAll('[data-railroom]').forEach((b) => { b.onclick = () => {
+      if (Date.now() - heldAt < 400) return;
+      const id = b.dataset.railroom;
+      if (id === 'vault') { const v = $('[data-vault]', z); if (v) v.click(); } else if (selPawn) postTo(id); else roomSheet(id);
+    }; });
     z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => { if (Date.now() - heldAt < 400) return; if (selPawn) postTo(b.dataset.room); else roomSheet(b.dataset.room); }; });
     z.querySelectorAll('[data-wingsite]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.wingsite); });
     z.querySelectorAll('[data-cell]').forEach((b) => { b.onclick = () => { const [f, s] = b.dataset.cell.split(',').map(Number); pickCell(f, s); }; });
