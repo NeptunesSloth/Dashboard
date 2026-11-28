@@ -298,6 +298,42 @@ as `room_main_hall` at 800x300 (two alcoves wide).
 **Check before delivering**: put three copies of one tile side by side; the
 seams must read as one long hall. Reject tiles whose floor or ceiling line jumps.
 
+### Batch A, second pass: the owner rejected the first room tiles
+
+The first `room_<type>` tiles and `hq_grid` were delivered and judged **"AI-ish
+and ugly"**: the rooms themselves, not the idea of a grid. Compared with the old
+cut-away (`docs/art_ref/hq_old.webp`, the room-by-room repaint the owner chose),
+the first tiles are sparse (a bare back wall with two or three props), soft and
+smooth where the old rooms are dense and crisp, and all lit the same orange.
+Redo them like this:
+
+- **Start from the old rooms, not from text.** Crop each room from
+  `docs/art_ref/hq_old.webp` (the boxes in the table under "Do `hq` room by
+  room"), upscale the crop 2x, and repaint it image-to-image at **denoise
+  0.40-0.50** so it keeps the old room's density, pixel grain and layout. For
+  `market` and the two wide bottom rooms, crop the most characteristic
+  alcove-wide part.
+- **Fill the tile.** Props floor to ceiling and edge to edge, as in the old
+  rooms: shelves to the beams, things hanging, things on the floor, depth. No
+  empty back wall. No figures.
+- **A light of its own per room**, so the grid is not thirty orange boxes: blue
+  array glow in the library, green furnace light in alchemy, violet qi in
+  meditation, pink blossom and moonlight on the terraces, cold blue crystal in
+  the spirit vein, gold in the vault, red banners in training, warm rice-straw
+  in the storehouse. Lanterns stay, but small.
+- **Deliver at 800x600** (the Main Hall at 1600x600); the page scales them down,
+  and they stay crisp on large screens. Keep the edge pillars and the floor line
+  at the same height, and the three-in-a-row seam check.
+- **`hq_grid`, repainted**: the same 6x5 alcove positions (the game has them
+  measured; draw the old grid's alcove boxes over each variant and reject any
+  that drift), but a mountain, not a shelf: rough rock between alcoves, roots
+  and moss, worn steps and ladders between floors, alcoves that differ a little
+  (a cracked lintel, a hanging charm, a carved beast head), **unlit** except for
+  a few scattered lanterns. Empty alcoves should look like dark rooms waiting,
+  not like framed boxes.
+- Make **3 variants of each and show the owner a contact sheet next to the old
+  cut-away** before pushing. They pick; nothing goes in unpicked.
+
 **Place emblems for the World map (required, part of Batch A).** The map's
 markers are painted emblems; the page draws none itself. Until an emblem's file
 exists that place shows only its name banner hanging from a point of lantern
