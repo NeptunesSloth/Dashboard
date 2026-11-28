@@ -1168,8 +1168,8 @@ span.lthumb { cursor: default; }
 .hq.holding .room.fit-fair .lit { background: radial-gradient(80% 95% at 50% 100%, #e9b44c47, #e9b44c1a 55%, transparent 85%); }
 .hq.holding .room.fit-poor .lit { background: radial-gradient(70% 80% at 50% 100%, #b7a98f26, transparent 80%); }
 .hq.holding .room.fit-full .tiles, .hq.holding .room.fit-none .tiles { filter: brightness(.6) saturate(.55); transition: filter .25s; }
-.hq.holding .room.over:not(.fit-full):not(.fit-none) .tiles { filter: brightness(1.34) saturate(1.1); }
-.hq.holding .room.over:not(.fit-full):not(.fit-none) .lit { box-shadow: inset 0 -34px 46px -26px #fff3d699; }
+.hq.holding .room.over:not(.fit-full):not(.fit-none) .tiles { filter: brightness(1.3) saturate(1.08); }
+.hq.holding .room.over:not(.fit-full):not(.fit-none) .lit { background: radial-gradient(85% 100% at 50% 100%, #fff3d666, #fff3d624 55%, transparent 88%); }
 .hq.holding .nm.over { text-shadow: 0 -1px 0 #000c, 0 0 10px #fff3d6aa, 0 0 2px #000; }
 /* look B, the ledger rail: the rooms floor by floor, each floor level with its floor on the painting */
 @media (min-width: 900px) { .lookB { grid-template-columns: minmax(0, 1fr) clamp(250px, 26%, 290px); align-items: stretch; } }
