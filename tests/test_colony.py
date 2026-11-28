@@ -93,6 +93,7 @@ def test_building_costs_materials_takes_work_and_is_gated(st):
     c = st["colony"]
     c["hour"] = 8
     c["res"].update(wood=200, stone=200)
+    c["rooms"]["main_hall"] = 2                                                     # the Pavilion opens at Main Hall 2
     cost = colony.room_cost(c, "library", 0)
     assert colony.queue_build(st, "library", T0)["ok"] and c["res"]["wood"] == 200 - cost["wood"]
     assert colony.view(st, T0)["builds"][0]["name"] == "Scripture Pavilion"
@@ -106,11 +107,13 @@ def test_building_costs_materials_takes_work_and_is_gated(st):
             p.update(rest=max(p["rest"], 60), food=90, joy=90)
         colony.advance(st, 1, T0)
         hours += 1
-    assert c["rooms"]["library"] == 1 and hours > 3                                 # took real work
-    # level gate: a room may be at most one level above the Main Hall
+    assert c["rooms"]["library"] == 1 and hours >= colony.build_hours("library", 1)  # a builder's hours, helped or not
+    # level gate: the Hall's ladder caps the other rooms (level 3 under Hall 2)
     c["res"].update(wood=999, stone=999, stones=99)
-    assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 2, hall is 1
-    assert "Main Hall" in colony.queue_build(st, "library", T0)["error"]            # -> level 3 refused
+    assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 2
+    assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 3, the cap at Hall 2
+    c["rooms"]["fields"] = 3
+    assert "Main Hall" in colony.queue_build(st, "fields", T0)["error"]             # -> level 4 refused, whatever the builders
     wood = c["res"]["wood"]
     assert colony.cancel_build(st, 0, T0)["ok"] and c["res"]["wood"] > wood        # materials come back
 
@@ -810,24 +813,6 @@ def test_resource_chips_show_what_work_made_and_what_upkeep_spends(st):
     assert c["made"] == {str(c["hour"]): {"rice|farm|p1": 0.0}}
 
 
-def test_build_tab_says_why_nobody_is_building(st):
-    c = st["colony"]
-    c["res"].update(wood=500.0, stone=500.0)
-    for p in c["pawns"]:
-        p["prio"] = {j: 0 for j in colony.JOBS}
-    assert colony.queue_build(st, "fields", T0)["ok"]
-    assert "no disciple has Build" in colony.view(st, T0)["build_stall"]
-    for p in c["pawns"]:
-        p["prio"].update(build=3, wood=1)
-    _run(st, 1)
-    why = colony.view(st, T0)["build_stall"]
-    assert "Cut wood at priority 1, ahead of Build at 3" in why and "raise Build to 1" in why
-    for p in c["pawns"]:
-        p["prio"].update(build=1)
-    _run(st, 1)
-    assert colony.view(st, T0)["build_stall"] == ""
-
-
 def test_direct_disciple_rank_and_ledger(st):
     c = st["colony"]
     p = c["pawns"][1]
@@ -852,3 +837,40 @@ def test_view_lists_the_disciple_faces_that_exist():
     for n in colony.FACES:
         assert _re.fullmatch(r"[a-z0-9_]{1,24}", n) and (art / f"p_{n}.webp").is_file()
     assert "leader" not in colony.FACES and "elder" not in colony.FACES
+
+
+def test_world_map_emblems_are_painted_files_listed_by_the_server(st, monkeypatch):
+    """Map markers are painted emblems (static/art/place_<kind>.webp). The view names each place's emblem and lists
+    the ones that exist, so the page never asks for a missing picture; with none painted it shows banners only."""
+    import re as _re
+    from pathlib import Path
+
+    from sect_academy import app as webapp
+    art = Path(colony.__file__).parent / "static" / "art"
+    assert colony.PLACE_ART == {k for k in colony.PLACE_KINDS if (art / f"place_{k}.webp").is_file()}
+    # no stray or placeholder emblem in the repo: every place_*.webp is a known kind
+    assert {f.stem[6:] for f in art.glob("place_*.webp")} <= set(colony.PLACE_KINDS)
+    v = colony.view(st, T0)
+    assert v["place_art"] == sorted(colony.PLACE_ART)
+    assert all(m["emblem"] in colony.PLACE_KINDS for m in v["map"])
+    by = {m["id"]: m["emblem"] for m in v["map"]}
+    assert by["home"] == "home" and by["marsh"] == "marsh" and by["forest"] == "wilds" and by["lord"] == "lord" and by["ruins"] == "ruins"
+    # a sect's emblem follows how it stands: ally first, then the demonic hall, then a rival's war banner
+    c = st["colony"]
+    s0, s1, s2 = c["sects"][:3]
+    s0["kind"], s0["rel"], s0["ally"] = "righteous", 60, True
+    s1["kind"], s1["rel"], s1["ally"] = "righteous", -30, False
+    s2["kind"], s2["rel"], s2["ally"] = "demonic", -30, False
+    c["branches"].append({"name": "East Hall", "leader": "Mei"})
+    monkeypatch.setattr(colony, "PLACE_ART", frozenset({"rival", "home"}))     # as if two emblems had been painted
+    v = colony.view(st, T0)
+    by = {m["id"]: m["emblem"] for m in v["map"]}
+    assert [by[str(s["id"])] for s in (s0, s1, s2)] == ["ally", "rival", "demonic"] and by["branch0"] == "branch"
+    assert v["place_art"] == ["home", "rival"]
+    s1["rel"] = 0
+    assert {m["id"]: m["emblem"] for m in colony.view(st, T0)["map"]}[str(s1["id"])] == "sect"
+    # the page knows the same kinds (art.js builds the path from this fixed set only), and the file route is a fixed list
+    js = (art.parent / "art.js").read_text(encoding="utf-8")
+    kinds = _re.search(r"const PLACES = new Set\(\[([^\]]*)\]\)", js).group(1)
+    assert set(_re.findall(r"'([a-z]+)'", kinds)) == set(colony.PLACE_KINDS)
+    assert all(f"place_{k}.webp" in webapp.ART for k in colony.PLACE_KINDS if (art / f"place_{k}.webp").is_file())

@@ -1,0 +1,182 @@
+id: mandarin-swear
+title: "Mandarin Chinese — Swearing & slang"
+kind: language
+language: Mandarin
+lang: zh-CN
+track: mandarin
+addon: swear
+hall: tongues_west
+blurb: "Opt-in, for understanding: the swearing, insults and rude slang you hear in films, on the street, online and in games, with how strong each word is and where mainland China and Taiwan differ."
+
+# An opt-in add-on: the aim is to understand real speech and judge how strong a word is,
+# not to encourage anyone to use it. Every note gives: literal meaning, real meaning,
+# strength (mild / strong / very strong) and who says it where.
+# rom is pinyin with tone marks, as in mandarin-a1/a2. Characters are simplified, as in
+# the course; where Taiwan writes a word differently the traditional form is given too.
+# Excluded on purpose: slurs aimed at race, ethnicity, religion, disability, sexuality or
+# gender identity (e.g. no 弱智, 智障, 脑残, 白痴, no ethnic slurs).
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: zh-sw-01
+    title: "Mild: oh no, damn, what bad luck"
+    goal: "I can recognise the mild exclamations anyone says when something goes wrong."
+    notes: |
+      Everyday Mandarin "swearing" is mostly mild: you call on heaven, your mum or bad luck.
+
+      - **天哪** (heaven!), **我的妈呀** (my mum!): surprise.
+      - **糟糕**, **完了**, **倒霉**: something has gone wrong.
+      - **该死**: the word dubbed films use for English *damn*.
+      - **我去**: a young, softened *wow / damn* (it replaces stronger words, unit 2).
+
+      The strength scale used in this course is **mild** (fine almost anywhere), **strong** (crude: friends yes, work and elders no) and **very strong** (insulting or fighting words).
+    items:
+      - {id: zh-sw-01-tianna, type: vocab, l2: "天哪", rom: "tiān na", l1: "Oh my God! / Good heavens! (literally 'heaven!')", alt: ["天啊", "tiān a", "我的天", "wǒ de tiān"],
+         note: "Literal: 'heaven!'. Real meaning: surprise or shock. Strength: mild, fine anywhere. Heard: mainland and Taiwan; 我的天 (my heaven) is the same."}
+      - {id: zh-sw-01-wodemaya, type: phrase, l2: "我的妈呀", rom: "wǒ de mā ya", l1: "Oh my God! (literally 'oh, my mum!')",
+         note: "Literal: 'my mum!'. Real meaning: surprise, fright or 'wow'. Strength: mild. Heard: everywhere."}
+      - {id: zh-sw-01-zaogao, type: vocab, l2: "糟糕", rom: "zāogāo", l1: "Oh no! / Damn! (something has gone wrong)",
+         ex: "糟糕，我忘了带钥匙！", ex_rom: "Zāogāo, wǒ wàng le dài yàoshi!", ex_l1: "Oh no, I forgot to bring my keys!",
+         note: "Literal: 糟 'dregs, rotten' + 糕 'cake'; as a word it means 'terrible'. Real meaning: oh no. Strength: mild. Heard: everywhere; also an adjective: 很糟糕 = really bad."}
+      - {id: zh-sw-01-wanle, type: phrase, l2: "完了", rom: "wán le", l1: "I'm done for! / We're screwed! (literally 'finished')",
+         note: "Literal: 'it's finished'. Real meaning: it's all over, I'm in trouble. Strength: mild. Heard: everywhere; 我完了 = I'm dead (in trouble)."}
+      - {id: zh-sw-01-daomei, type: vocab, l2: "倒霉", rom: "dǎoméi", l1: "What rotten luck! / Just my luck!", alt: ["倒楣", "真倒霉", "zhēn dǎoméi"],
+         note: "Literal: roughly 'to strike bad luck' (霉 = mould, bad luck). Real meaning: bad luck, damn it. Strength: mild. Heard: everywhere; Taiwan often writes 倒楣."}
+      - {id: zh-sw-01-gaisi, type: vocab, l2: "该死", rom: "gāisǐ", l1: "Damn (it)! / damned (literally 'deserves to die')",
+         note: "Literal: 'ought to die'. Real meaning: damn, the usual translation of English 'damn' in dubbing and subtitles; 该死的电脑 = damned computer. Strength: mild to strong; a bit bookish in speech. Heard: everywhere."}
+      - {id: zh-sw-01-jiangui, type: vocab, l2: "见鬼", rom: "jiàn guǐ", l1: "What the hell! / Damn it! (literally 'see a ghost')", alt: ["见鬼了", "jiàn guǐ le"],
+         note: "Literal: 'to see a ghost'. Real meaning: what the hell, this is absurd; 真是见鬼了 = this is crazy. Strength: mild. Heard: everywhere."}
+      - {id: zh-sw-01-taoyan, type: vocab, l2: "讨厌", rom: "tǎoyàn", l1: "Ugh, annoying! / You're so annoying! (often playful)",
+         note: "Literal: 'to invite disgust'. Real meaning: annoying, I hate it; said with a smile it is teasing. Strength: mild. Heard: everywhere."}
+      - {id: zh-sw-01-woqu, type: phrase, l2: "我去", rom: "wǒ qù", l1: "Whoa! / Damn! (young people; literally 'I go')",
+         note: "Literal: 'I go'. Real meaning: surprise or dismay, a softened stand-in for 我靠 or 我操 (unit 2). Strength: mild. Heard: mainland, young people and online."}
+
+  # ---------------------------------------------------------------- 2
+  - id: zh-sw-02
+    title: "Strong: the real swearwords"
+    goal: "I can recognise the strong swearwords and their softened written forms."
+    notes: |
+      The heavy Mandarin swearwords are about **mothers** and **sex**. The best known, **他妈的** ("his mother's"), was called the national curse by the writer Lu Xun.
+
+      - **操** (properly written **肏**, both read *cào*): *fuck*. Online it is disguised as **卧槽** or **草** (grass), which sound similar.
+      - **靠**: a softened *damn / fuck*; very common with young people in both mainland and Taiwan.
+      - **Taiwan** has its own: **幹** (*gàn*, the Taiwanese 'fuck') and **靠北**, from Taiwanese Hokkien.
+
+      Note the trap: in the mainland 干 *gàn* simply means "to do" (干什么? = what are you doing?).
+    items:
+      - {id: zh-sw-02-tamade, type: phrase, l2: "他妈的", rom: "tā mā de", l1: "Fuck! / damn (literally 'his mother's')", alt: ["妈的", "mā de"],
+         ex: "他妈的，又下雨了！", ex_rom: "Tā mā de, yòu xià yǔ le!", ex_l1: "Fuck, it's raining again!",
+         note: "Literal: 'his mother's' (short for an insult to his mother). Real meaning: an exclamation of anger, or 'fucking' before a word: 他妈的冷 = fucking cold. Strength: strong. Heard: everywhere; 妈的 is the short form."}
+      - {id: zh-sw-02-cao, type: vocab, l2: "操", rom: "cào", l1: "Fuck! (the verb itself)", alt: ["肏", "我操", "wǒ cào"],
+         note: "Literal: 'to fuck' (the correct character is 肏; 操, normally cāo 'to hold', is written instead). Real meaning: an exclamation of anger or shock. Strength: very strong. Heard: mainland especially; 我操 is the usual exclamation."}
+      - {id: zh-sw-02-wocao, type: vocab, l2: "卧槽", rom: "wòcáo", l1: "Holy shit! / WTF! (online spelling of 我操)", alt: ["我草", "wǒ cǎo"],
+         note: "Literal: 'lie down in a trough', chosen only for the sound of 我操. Real meaning: holy shit, wow (good or bad). Strength: strong, though young people say it constantly. Heard: mainland, online and among young people."}
+      - {id: zh-sw-02-kao, type: vocab, l2: "靠", rom: "kào", l1: "Damn! / Crap! (literally 'to lean on')", alt: ["我靠", "wǒ kào"],
+         note: "Literal: 'to lean on', used for its sound as a softer 操. Real meaning: damn, shit, what the hell. Strength: strong but milder than 操; very common among young people. Heard: mainland and Taiwan."}
+      - {id: zh-sw-02-kaobei, type: vocab, l2: "靠北", rom: "kàoběi", l1: "Damn! / Stop whining! (Taiwan, from Hokkien)", alt: ["靠杯", "kàobēi"],
+         note: "Literal: written for Taiwanese Hokkien khàu-pē (哭爸), 'to wail for one's (dead) father' as at a funeral; 靠杯 ('lean cup') is a further softened spelling. Real meaning: damn it, or 'stop complaining' (你在靠北什么 = what are you bitching about). Strength: strong. Heard: Taiwan; little known in the mainland."}
+      - {id: zh-sw-02-gan, type: vocab, l2: "幹", rom: "gàn", l1: "Fuck! (Taiwan's main swearword)", alt: ["干"],
+         note: "Literal: 'to do'; the character is written for Taiwanese Hokkien kàn, 'to fuck'. Real meaning: fuck!, the commonest strong exclamation in Taiwan. Strength: very strong. Heard: Taiwan. In the mainland 干 gàn just means 'to do'."}
+      - {id: zh-sw-02-fangpi, type: vocab, l2: "放屁", rom: "fàngpì", l1: "Bullshit! / Nonsense! (literally 'to fart')",
+         note: "Literal: 'to let off a fart'. Real meaning: what you said is rubbish. Strength: strong (crude), though common. Heard: everywhere."}
+      - {id: zh-sw-02-qusi, type: phrase, l2: "去死吧", rom: "qù sǐ ba", l1: "Drop dead! / Go to hell! (literally 'go and die')", alt: ["去死", "qù sǐ"],
+         note: "Literal: 'go die'. Real meaning: drop dead; among friends 去死啦 can be a joke. Strength: strong. Heard: everywhere."}
+      - {id: zh-sw-02-gun, type: vocab, l2: "滚", rom: "gǔn", l1: "Get lost! / Piss off! (literally 'roll')", alt: ["滚蛋", "gǔndàn", "滚开", "gǔnkāi"],
+         note: "Literal: 'roll (away)'. Real meaning: get out, go away. Strength: strong; 滚蛋 (roll, egg) is as strong. Heard: everywhere."}
+
+  # ---------------------------------------------------------------- 3
+  - id: zh-sw-03
+    title: "Insults: from 'silly' to fighting words"
+    goal: "I can understand what someone is being called, and how bad it is."
+    notes: |
+      Many Mandarin insults are built on **蛋** (egg): *笨蛋* (stupid egg) is mild, *混蛋* (muddled egg) is strong, *王八蛋* (turtle egg) is stronger.
+
+      - **Mild, often affectionate**: 笨蛋, 傻瓜, 猪头.
+      - **Strong**: 混蛋, 王八蛋, 废物, 不要脸, 神经病.
+      - **Very strong**: 傻逼 (written *SB* or *傻B* online).
+
+      Between couples and close friends, 笨蛋 and 傻瓜 are almost terms of endearment; 傻逼 never is.
+    items:
+      - {id: zh-sw-03-bendan, type: vocab, l2: "笨蛋", rom: "bèndàn", l1: "idiot / dummy (literally 'stupid egg')",
+         note: "Literal: 'stupid egg'. Real meaning: fool. Strength: mild; often teasing. Heard: everywhere."}
+      - {id: zh-sw-03-shagua, type: vocab, l2: "傻瓜", rom: "shǎguā", l1: "silly fool (literally 'silly melon'; often affectionate)",
+         note: "Literal: 'silly melon'. Real meaning: fool, silly. Strength: mild, often affectionate between couples. Heard: everywhere."}
+      - {id: zh-sw-03-zhutou, type: vocab, l2: "猪头", rom: "zhūtóu", l1: "pighead / numbskull",
+         note: "Literal: 'pig's head'. Real meaning: idiot. Strength: mild, usually teasing. Heard: everywhere."}
+      - {id: zh-sw-03-erbaiwu, type: vocab, l2: "二百五", rom: "èrbǎiwǔ", l1: "idiot (literally 'two hundred and fifty')",
+         note: "Literal: 'two hundred and fifty'. Real meaning: a fool, someone not quite all there (there are several folk stories for why). Strength: mild to strong. Heard: mainland especially; people tend to avoid the number 250 in prices for this reason."}
+      - {id: zh-sw-03-erhuo, type: vocab, l2: "二货", rom: "èrhuò", l1: "dimwit / goofball (northern slang)",
+         note: "Literal: 二 'two' (northern slang for 'silly') + 货 'goods', used of a person as 'thing, sort'. Real meaning: a silly person; 你真二 = you're so daft. Strength: mild, often teasing. Heard: mainland, especially the north and online."}
+      - {id: zh-sw-03-shenjingbing, type: vocab, l2: "神经病", rom: "shénjīngbìng", l1: "nutcase / are you crazy? (literally 'nerve disease')", alt: ["有病", "yǒubìng"],
+         note: "Literal: 'nervous disease'. Real meaning: an everyday 'you're nuts!', 'what's wrong with you?', not a comment on anyone's health; 你有病吧 is similar. Strength: strong as an insult, though very common in dramas. Heard: everywhere."}
+      - {id: zh-sw-03-hundan, type: vocab, l2: "混蛋", rom: "húndàn", l1: "bastard / jerk (literally 'muddled egg')",
+         note: "Literal: 'muddled egg'. Real meaning: bastard, scoundrel. Strength: strong. Heard: everywhere; very common in films and dubbing."}
+      - {id: zh-sw-03-wangbadan, type: vocab, l2: "王八蛋", rom: "wángbādàn", l1: "son of a bitch / bastard (literally 'turtle egg')", alt: ["wángbadàn", "王八", "wángba"],
+         note: "Literal: 'turtle's egg' (王八 = turtle, also a man whose wife cheats). Real meaning: bastard. Strength: strong. Heard: everywhere."}
+      - {id: zh-sw-03-feiwu, type: vocab, l2: "废物", rom: "fèiwù", l1: "useless loser / good-for-nothing (literally 'waste material')",
+         note: "Literal: 'waste, scrap'. Real meaning: a useless person. Strength: strong; hurtful. Heard: everywhere."}
+      - {id: zh-sw-03-buyaolian, type: phrase, l2: "不要脸", rom: "bú yào liǎn", l1: "Shameless! / Have you no shame? (literally 'not want face')",
+         note: "Literal: 'doesn't want face'. Real meaning: shameless; 真不要脸 = how shameless. Strength: strong; said playfully between friends too. Heard: everywhere."}
+      - {id: zh-sw-03-shabi, type: vocab, l2: "傻逼", rom: "shǎbī", l1: "fucking idiot (very crude)", alt: ["傻B", "SB", "煞笔", "shàbǐ"],
+         note: "Literal: 'stupid cunt'. Real meaning: fucking idiot, one of the commonest heavy insults. Strength: very strong. Heard: mainland, especially the north; online written SB or 煞笔 (a sound-alike) to dodge filters."}
+
+  # ---------------------------------------------------------------- 4
+  - id: zh-sw-04
+    title: "Rude but everyday: slang you hear all day"
+    goal: "I can follow the crude everyday slang of friends talking and posting online, including the rude words that mean something good."
+    notes: |
+      Much crude Mandarin slang is not angry. **牛逼** (vulgar, from *cow* + a crude word for the vulva) means **awesome**; people say *牛* alone, or write *NB*, to keep it clean.
+
+      The internet invents sound-alikes to slip past filters: **尼玛** for *你妈* (your mum), **草泥马** for an insult to someone's mother (unit 5).
+
+      These words are **strong** in form: normal between friends and online, wrong in front of your teacher.
+    items:
+      - {id: zh-sw-04-niubi, type: vocab, l2: "牛逼", rom: "niúbī", l1: "fucking awesome / badass", alt: ["牛B", "NB", "牛", "niú"],
+         ex: "这个游戏太牛逼了！", ex_rom: "Zhège yóuxì tài niúbī le!", ex_l1: "This game is fucking awesome!",
+         note: "Literal: 'cow' + a crude word for the vulva. Real meaning: amazing, impressive. Strength: strong; plain 牛 (cow) is the clean way. Heard: mainland, constantly among young people."}
+      - {id: zh-sw-04-zhuangbi, type: vocab, l2: "装逼", rom: "zhuāngbī", l1: "to show off / to act like a big shot (crude)", alt: ["装B"],
+         note: "Literal: 'to pretend' + the crude word in 牛逼. Real meaning: to pose, to brag. Strength: strong. Heard: mainland, very common among young people and online."}
+      - {id: zh-sw-04-diaosi, type: vocab, l2: "屌丝", rom: "diǎosī", l1: "loser / nobody (often self-mocking; literally 'dick hair')",
+         note: "Literal: 'penis hair' (屌 is a crude word for penis). Real meaning: an ordinary, unsuccessful person; usually said of oneself, as a joke. Strength: strong in form. Heard: mainland, online slang from the 2010s."}
+      - {id: zh-sw-04-kengdie, type: vocab, l2: "坑爹", rom: "kēngdiē", l1: "What a rip-off! / What a con! (literally 'cheat dad')",
+         note: "Literal: 'to trick your dad'. Real meaning: a let-down, a swindle. Strength: mild. Heard: mainland, online slang."}
+      - {id: zh-sw-04-nima, type: vocab, l2: "尼玛", rom: "nímǎ", l1: "WTF / damn (online stand-in for 你妈, 'your mum')",
+         note: "Literal: a sound-alike for 你妈 ('your mum'). Real meaning: an exclamation or intensifier online: 尼玛，太贵了 = damn, that's pricey. Strength: strong in meaning, jokey in form. Heard: mainland internet."}
+      - {id: zh-sw-04-dongge-pi, type: phrase, l2: "你懂个屁", rom: "nǐ dǒng ge pì", l1: "You don't know shit. (literally 'you understand a fart')",
+         note: "Literal: 'you understand a fart'. Real meaning: you know nothing about it. Strength: strong. Heard: everywhere; 屁 (fart) also means 'nothing': 屁用都没有 = no bloody use at all."}
+      - {id: zh-sw-04-gao-shenme-gui, type: phrase, l2: "搞什么鬼", rom: "gǎo shénme guǐ", l1: "What the hell are you doing? (literally 'doing what ghost?')", alt: ["你搞什么鬼", "nǐ gǎo shénme guǐ"],
+         note: "Literal: 'doing what ghost?'. Real meaning: what the hell is going on / are you up to. Strength: mild. Heard: everywhere."}
+      - {id: zh-sw-04-goushiyun, type: vocab, l2: "狗屎运", rom: "gǒushǐyùn", l1: "dumb luck / a fluke (literally 'dog-shit luck')",
+         note: "Literal: 'dog-shit luck'. Real meaning: undeserved good luck; 走狗屎运 = to have a lucky break. Strength: strong in form, but common. Heard: everywhere."}
+      - {id: zh-sw-04-jiche, type: vocab, l2: "機車", rom: "jīchē", l1: "annoying / a pain (Taiwan slang; literally 'motorbike')", alt: ["机车"],
+         note: "Literal: 'motorbike'. Real meaning in Taiwan: annoying, difficult, petty: 你很機車耶 = you're such a pain. Some think it comes from a cruder word, so older people may frown. Strength: mild. Heard: Taiwan; in the mainland 机车 is only a locomotive or motorbike."}
+
+  # ---------------------------------------------------------------- 5
+  - id: zh-sw-05
+    title: "How strong is it? Shut up, get lost, and fighting words"
+    goal: "I can tell an ordinary rude reply from fighting words, and recognise the online disguises."
+    notes: |
+      A ladder of telling someone off:
+
+      - **mild**: *去你的* (get away with you), *搞什么* (what are you doing).
+      - **strong**: *闭嘴* (shut up), *关你屁事* (none of your damn business), *你算老几* (who do you think you are).
+      - **very strong**: anything aimed at the listener's **mother**: *操你妈* is fighting words.
+
+      Online, the strongest words are disguised by sound: **草泥马** ('grass-mud horse', an alpaca) became a famous joke because it sounds like *操你妈*.
+    items:
+      - {id: zh-sw-05-qunide, type: phrase, l2: "去你的", rom: "qù nǐ de", l1: "Get away with you! / Oh, shut up! (playful or annoyed)",
+         note: "Literal: 'go your (way)'. Real meaning: get lost, or a playful 'oh stop it'. Strength: mild. Heard: everywhere."}
+      - {id: zh-sw-05-bizui, type: vocab, l2: "闭嘴", rom: "bìzuǐ", l1: "Shut up! (literally 'close mouth')",
+         note: "Literal: 'close (your) mouth'. Real meaning: shut up. Strength: strong-ish: rude but not vulgar. Heard: everywhere."}
+      - {id: zh-sw-05-guan-ni-pishi, type: phrase, l2: "关你屁事", rom: "guān nǐ pì shì", l1: "None of your damn business! (literally 'concerns your fart')",
+         note: "Literal: 'is it your fart's business?'. Real meaning: mind your own business. Strength: strong. Heard: everywhere; milder: 关你什么事."}
+      - {id: zh-sw-05-suan-laoji, type: phrase, l2: "你算老几", rom: "nǐ suàn lǎo jǐ", l1: "Who do you think you are? (literally 'what number sibling are you?')",
+         note: "Literal: 'which number in the family do you count as?'. Real meaning: you're nobody, don't tell me what to do. Strength: strong. Heard: everywhere."}
+      - {id: zh-sw-05-jiangui-quba, type: phrase, l2: "见鬼去吧", rom: "jiàn guǐ qù ba", l1: "Go to hell! (literally 'go and see the ghosts')", alt: ["你见鬼去吧", "nǐ jiàn guǐ qù ba"],
+         note: "Literal: 'go and see ghosts'. Real meaning: go to hell. Strength: strong; it is also the usual dubbing for English 'go to hell'. Heard: everywhere."}
+      - {id: zh-sw-05-cao-ni-ma, type: phrase, l2: "操你妈", rom: "cào nǐ mā", l1: "Fuck your mother! (fighting words)", alt: ["肏你妈"],
+         note: "Literal: 'fuck your mother'. Real meaning: the heaviest common insult. Strength: very strong; can start a fight. Heard: everywhere; in Taiwan 幹你娘 (gàn nǐ niáng) is the equivalent."}
+      - {id: zh-sw-05-caonima, type: vocab, l2: "草泥马", rom: "cǎonímǎ", l1: "'grass-mud horse' (the alpaca joke that sounds like the worst insult)",
+         note: "Literal: 'grass-mud horse', an imaginary animal drawn as an alpaca. Real meaning: a sound-alike for 操你妈, a famous internet joke from 2009. Strength: very strong in meaning, comic in form. Heard: mainland internet."}
+      - {id: zh-sw-05-ganniniang, type: phrase, l2: "幹你娘", rom: "gàn nǐ niáng", l1: "Fuck your mother! (Taiwan, fighting words)", alt: ["干你娘"],
+         note: "Literal: 'fuck your mother', from Taiwanese Hokkien. Real meaning: the heaviest insult in Taiwan. Strength: very strong. Heard: Taiwan; the mainland equivalent is 操你妈."}

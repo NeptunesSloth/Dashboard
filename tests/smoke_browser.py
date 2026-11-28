@@ -88,9 +88,12 @@ def main() -> int:
 
         # 1) found a sect, take a placement test, land on the sect
         pg.goto(BASE + "/", wait_until="load", timeout=25000)
-        pg.wait_for_selector("#f-go, #sect-root", timeout=10000)
+        pg.wait_for_selector("#f-go, #sect-root", state="attached", timeout=10000)
         if pg.query_selector("#f-go"):
             pg.fill("#f-name", "Smoke Sect")
+            pg.click(".rite-step[data-step='1'] [data-next]")
+            pg.click(".tongue >> nth=0")          # takes up the first language (its whole track: one course)
+            pg.click(".rite-step[data-step='2'] [data-next]")
             pg.click("#f-go")
             pg.wait_for_selector("[data-place]", timeout=10000)
             pg.click("[data-place]")
@@ -119,9 +122,16 @@ def main() -> int:
         pg.click(".pawn")
         pg.wait_for_selector("#sheet .body", timeout=5000)
         pg.keyboard.press("Escape")
-        pg.click(".room[data-room='library']")
+        # the grid: a standing room opens its sheet; an empty alcove offers the rooms not built yet, and building
+        # one there puts it on the map in that alcove
+        pg.click(".room[data-room='fields']")
         pg.wait_for_selector("#sheet .body", timeout=5000)
         pg.keyboard.press("Escape")
+        pg.click(".alcove[data-cell='1,1']")
+        pg.wait_for_selector("#sheet [data-new='storehouse']", timeout=5000)
+        pg.click("#sheet [data-new='storehouse']")
+        pg.wait_for_selector(".hq .room[data-room='storehouse']", timeout=5000)
+        assert not pg.query_selector(".alcove[data-cell='1,1']"), "the alcove a room was built in is still offered as empty"
         pg.click("[data-speed='0']")
 
         # 3) a study session answers and gives feedback
@@ -201,7 +211,21 @@ def main() -> int:
             where = ".lookup .lk-path" if lang in ("ko", "fr") else ".lookup"
             assert want in pg.inner_text(where), f"{name}: {tap} gave {pg.inner_text('.lookup')}"
 
-        # 6) phone width, dark mode
+        # 6) the sect is optional: off in Settings gives a study-only home with no Sect tab; on again brings it back
+        pg.goto(BASE + "/progress", wait_until="load", timeout=25000)
+        pg.wait_for_selector("#set-sect", timeout=10000)
+        pg.uncheck("#set-sect")
+        pg.wait_for_selector("#set-sec:has-text('holiday')", timeout=10000)      # re-drawn for study only
+        assert not pg.query_selector("#set-tell"), "the storyteller is offered with the sect off"
+        pg.goto(BASE + "/", wait_until="load", timeout=25000)
+        pg.wait_for_selector(".studyhome .today", timeout=10000)
+        assert "Sect" not in pg.inner_text("#nav") and not pg.query_selector("#sect-root"), "the sect showed while off"
+        pg.goto(BASE + "/progress", wait_until="load", timeout=25000)
+        pg.wait_for_selector("#set-sect", timeout=10000)
+        pg.check("#set-sect")
+        pg.wait_for_selector("#set-tell", timeout=10000)
+
+        # 7) phone width, dark mode
         m = b.new_context(viewport={"width": 390, "height": 800}, color_scheme="dark")
         m.route("**/*", gate)
         mp = m.new_page()
@@ -212,7 +236,7 @@ def main() -> int:
 
     assert not outside, f"the app tried to reach outside hosts: {outside[:5]}"
     assert not errors, f"JS errors: {errors[:5]}"
-    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, EUC-KR Korean, windows-1252 French, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, phone)")
+    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, EUC-KR Korean, windows-1252 French, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, sect off and on, phone)")
     return 0
 
 

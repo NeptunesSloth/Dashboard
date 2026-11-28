@@ -62,6 +62,29 @@ def test_the_second_month_still_has_teeth(runs):
         assert r["rivals_max"] <= max(1, r["pop_max"] // colony.RIVAL_PER), r["rivals_max"]
 
 
+def test_a_careful_sect_climbs_the_main_hall_ladder(runs):
+    """SECT_OVERHAUL_PLAN 3.2: careful play reaches about Hall 4 by day 60 and 6 to 8 by day 150."""
+    for r in runs.values():
+        assert r["hall_by_day"][60] >= 4 and 6 <= r["hall_by_day"][150] <= 8, r["hall_by_day"]
+
+
+def test_tapping_trays_is_optional(careful):
+    """Collecting twice a day only cheers the crew: food and deaths match the careful player who never taps."""
+    r = play("balanced", "collect", 150, 12345)
+    assert r["deaths"] == careful["deaths"] and abs(r["min_food_days"] - careful["min_food_days"]) < 2.0, (r["min_food_days"], careful["min_food_days"])
+    assert abs(r["pop"] - careful["pop"]) <= 2
+
+
+def test_merging_rooms_helps_without_tipping_the_game(careful):
+    """SECT_OVERHAUL_PLAN 3.6 (4): a careful player who builds wings whenever they can survives balanced as the one
+    who never merges does: wings cost what they give (the Hall climbs a little slower), so nothing needed retuning."""
+    r = play("balanced", "merge", 150, 12345)
+    assert r["wide"] >= 3 and r["deaths"] == careful["deaths"] == 0
+    assert abs(r["min_food_days"] - careful["min_food_days"]) < 2.0, (r["min_food_days"], careful["min_food_days"])
+    assert careful["hall_by_day"][150] - 2 <= r["hall_by_day"][150] <= careful["hall_by_day"][150]
+    assert r["fame"] <= careful["fame"] * 1.15                         # no runaway
+
+
 def test_research_moves_without_study(runs):
     for r in runs.values():
         assert 5 <= r["techs70"] <= 8, r["techs70"]                   # no study at all in the scripted game
@@ -152,10 +175,8 @@ def test_work_gathers_a_trickle_of_qi_and_a_stalled_disciple_is_named(st):
 def test_fame_for_a_raised_hall_and_a_held_festival(st):
     c = st["colony"]
     c["builds"] = [{"room": "main_hall", "need": 0.01, "done": 0.0}]
-    p = c["pawns"][1]
-    p["prio"] = {j: 0 for j in colony.JOBS} | {"build": 1}
-    p["rest"], p["joy"], c["hour"] = 100.0, 100.0, 24 * 2 + 9
-    colony._do_job(c, p, "build", False)
+    c["hour"] = 24 * 2 + 9
+    colony._tick_builds(c)
     assert c["fame"] == 4 and c["rooms"]["main_hall"] == 2
     c["res"]["rice"] = 100.0
     colony._ask(c, "festival", "Feast", "x", [("hold", "h"), ("skip", "s")], name="Feast", flavour="f", cost=12)

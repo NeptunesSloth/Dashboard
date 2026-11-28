@@ -81,10 +81,10 @@ sect_academy/
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
                 pictures.js (picture lessons: pins, drag/tap exercises),
                 handwriting.js (writing pad, live stroke hints, demo, self-check),
-                art.js (places the painted art), art/*.webp, academy.css, sw.js,
+                art.js (places the painted art: the room grid, tiles, scenes, emblems), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
-tests/          test_engine.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
-                test_handwriting.py,
+tests/          test_engine.py, test_tracks.py, test_sect_optional.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
+                test_handwriting.py, test_overhaul.py (the sect overhaul, stage by stage),
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
@@ -101,6 +101,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   pass mark, `multi` (choose N) and `order` items, a full-length mock.
 - **The sect must not depend on study.** Everyone cultivates by meditating; study
   adds Master qi, research insight and mood. Don't make progress study-gated.
+- **The sect is optional** (`settings.sect_enabled`, default True; `colony.enabled`).
+  Off = study only: founding's "Just study, no sect" (`/api/setup` with
+  `study_only`, names kept in `settings.sect_name`/`sect_master`) or the Settings
+  toggle (`POST /api/sect-mode`). While off: `colony.ensure` pins `last_real` to
+  now (no catch-up), `/api/sect/*` answers 409 except `seclusion` (holiday mode),
+  study pays no qi/insight/mood (the streak still counts), and the UI shows a
+  study home at `/` (`renderHome`) with no Sect tab. Turning it on founds it if
+  needed and restarts its clock from now. Study routes never read sect state.
 - **Work choice** (`colony._pick_job`): meditation is not a chore; level with the
   work a disciple would do it takes half their hours (`MED_SHARE`), and any
   store under `LOW_STORE_DAYS` of use (not share of capacity) comes first. The
@@ -122,6 +130,65 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **The art is painted, not vector.** The owner disliked the bright vector look;
   keep the lantern-night palette that matches `static/art/`. New images go in
   `static/art/` as WebP and are served from the fixed list in `app.py`.
+- **Sect overhaul** (`docs/SECT_OVERHAUL_PLAN.md`, approved; built stage by stage):
+  the home map has no upgrade badges and nothing boxed on the painting (a room's name
+  is carved on the beam under it with its level as a numeral, and warms to gold when affordable; crews stand on
+  the floor line; slots, fit and the rest show on hover, focus or while dragging; `MAP_LOOK` in `sect.js` is a
+  temporary A/B: names on the beams, or a ledger rail beside the map, until the owner picks; the Build tab is a ledger: lantern timers, rooms sorted by
+  ready / short of materials / waiting on the Hall — the owner's picks, one path only);
+  `colony.trays` lights a room with what its crew made since dawn (view
+  only until stage 4); `colony.hall_next` feeds the "Main Hall n" card under the map.
+  **Builders** (stage 2): building is builder slots (`builders`, ledger `builder_rows`:
+  2, +1 at Hall 3/6/9, +1 while the Master is lent by a week of study). The first
+  `builders(c)` jobs in `c["builds"]` each gain one sim hour an hour (`_tick_builds`)
+  whether or not anyone helps; disciples on Build are helpers (`HELPER_X` each, two
+  per job, ledger `build_rate_rows`). Times are `ROOM_HOURS`/`HALL_HOURS` (sim hours,
+  none over 36). While an event waits, only the builders work on, at the away rate
+  (`_builders_wait`); sealed gates stop them too. A counted session draws a Master's
+  Blueprint (`use_blueprint`: 25% off one job, one a real day, 3 kept). The old
+  `build_stall` alert is gone: a builder cannot stall.
+  **Main Hall ladder** (stage 3): Hall 1–10, rooms to 8 (Trade Post 3). `HALL_LADDER`
+  says which rooms each level opens and the room cap (never above Hall+1);
+  `build_block` gives the reason a build is refused (also the view's `locked`), and
+  raising the Hall to n+1 needs `HALL_ROOMS_NEEDED` other rooms at level n
+  (`hall_rooms_check`, the card's checklist). Costs: base × `COST_CURVE`**level,
+  spirit stones from level 4. Old saves above the new caps keep their rooms.
+  Builders still idle most hours: with timers capped at 36 h, materials pace the
+  ladder (balance columns `idle_builder`, `want_mat`, `hall`).
+  **Room play** (stage 4): the roster under the map posts a disciple by drag (or tap,
+  then a room): `set_post` makes the room's job(s) (`POSTS`) first priority, within
+  `room_slots`; the Work grid stays as the detailed view (setting a post's job off 1
+  clears the post). A tray (`trays`, since dawn or the last look) is already in the
+  stores; tapping it (`inspect_tray`) only cheers the crew (+3 mood, 12 h, once a room
+  a day), so never tapping loses nothing (balance profile `collect` pins it). `rush`
+  (room: 6 h of its work now; build: finished now) rolls the odds `rush_rows` and
+  `contain_rows` show; an uncontained incident idles the room 6 h (`room_idle`,
+  checked in `_job_open`) or sets the build back, wounds but never kills, and queues
+  an `incident` scene.
+  **Grid and merging** (stage 5): the home map is `hq_grid.webp` (5 floors × 6 alcoves) with a painted tile per room
+  (`room_<type>.webp`; `art.js` `cellRect` holds the alcove borders, measured on the painting). One room of each kind:
+  its level stays in `c["rooms"]`, where it stands is `c["plots"]` (`{room: {f, s, w}}`, floor 0 = the ground; the Hall
+  is always 2 wide, the vault 1). `colony._layout` runs on every `_c` and in `_repair`: every standing room, the Hall and
+  the vault get alcoves (an old save lands on `DEFAULT_CELL`), nothing overlaps, so tests may still poke `c["rooms"]`.
+  Floors open with the Hall (`FLOOR_HALL`); the page shows only the floors in use, cut under the roof. A new room takes
+  the empty alcove you pick (`queue_build(..., cell)`; none given = its usual place). **Merging**: `widen` builds a wing
+  (a build job with `wing: [f, s]`, cost `wing_cost` = every level so far, a builder like any job) in the empty alcove
+  beside a room; when done the room is one alcove wider (2 from Hall 3, 3 from Hall 5, `WIDE_HALL`). Width gives
+  places/beds × width and yield `WIDE_X` (1.1 / 1.2), and later levels cost `WIDE_COST` and take `WIDE_TIME` (never
+  over 36 h); every one is a ledger row (`merge_rows` in the room and alcove sheets, plus rows in `farm_rows`,
+  `research_rows`, `qi_rate`). No level while a wing is built (the halls must match), and a wing is refused if it
+  would leave fewer empty alcoves than rooms not yet built. `move_room` is free. Count queued levels with
+  `colony._queued` (a wing is not a level). Balance profile `merge` (wings whenever affordable) is pinned level with careful.
+- **World map** (`sect.js` `worldMap`): a list of places beside the painting, a
+  hanging banner per landmark, the chosen place's card opened under its row in the
+  list (never on the painting, so it hides no label). Markers are **painted emblems
+  only**: `static/art/place_<kind>.webp` (`colony.PLACE_KINDS`; the view gives each
+  place its `emblem` and lists the files that exist in `place_art`, `art.place()`
+  builds the path). Until an emblem is painted there is no icon: the banner hangs
+  from a soft point of lantern light (cinnabar rival, jade ally, dim not-yet-known)
+  and the list row is name + status with a thin coloured left rule. Never draw a
+  marker in CSS: the owner rejected dots, flat shapes and both seal looks. Status
+  stays in words ("Hostile −26", "Sworn ally", "Not yet known").
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the
@@ -219,6 +286,18 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   A unit whose `static/art/pic_<id>.webp` is missing is held back (`pack["soon"]`,
   "Picture coming soon"). `scripts/pin_preview.py <id>` draws the pins on the
   painting to set coordinates; brief in docs/ART_PIPELINE.md "Round 3".
+- **Tracks** (`packs.tracks()`): a language's levels are one course to the learner.
+  A pack header with `track: french` + `level: A1` is a stage; `track: french` +
+  `addon: talk` is an add-on (conversations, pictures, `swear`: swearing & slang, opt-in), never a stage. Pack and item
+  ids are unchanged; `settings.courses` still holds pack ids, but enrolling any
+  stage (or the track id) enrols every stage, and `engine.migrate_tracks` widens
+  old saves on load. Only the current stage (the lowest with unseen items) gets
+  new items, from one allowance per track (`engine.track_state`; it spills into
+  the next stage only once the current one is fully introduced); add-ons keep their
+  own. Placement for a track is one test that walks on into the next stage only
+  when every unit of the stage was passed (`PLACEMENT_MAX_QUESTIONS` per stage,
+  `PLACEMENT_TRACK_MAX` overall), saved under the track id. The UI deals in
+  `OV.tracks` (library card with a level strip, "French · A2" in today/progress).
 - One process only: state is held in memory.
 - **Handwriting** (`glyph_write`): a glyph item that is known (FSRS stability >=
   `hand.WRITE_MIN_S`, every other review, setting `handwriting` on) is asked

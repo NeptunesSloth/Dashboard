@@ -3,27 +3,35 @@
 // places them and lays the live state over them.
 // Nothing in this file takes untrusted text: callers pass numbers, ids and known keys only.
 
-/* Where each room sits in the painted cut-away of the sect (percent of the picture): x, y, w, h. */
-export const SITES = {
-  dormitory:   [2, 3, 31, 19],
-  main_hall:   [34, 3, 22, 19],
-  fields:      [57, 3, 41, 19],
-  market:      [2, 24.5, 96, 14.5],
-  storehouse:  [3, 41, 31, 16.5],
-  library:     [35, 41, 30, 16.5],
-  ward:        [66, 41, 32, 16.5],
-  alchemy:     [3, 59, 31, 16.5],
-  training:    [35, 59, 30, 16.5],
-  spirit_vein: [3, 77.5, 40, 20],
-  meditation:  [44, 77.5, 54, 20],
-};
-export const VAULT = [66, 59, 32, 16.5];        // the treasure vault: opens the World tab
+/* The sect is one painting of 5 floors x 6 empty alcoves (hq_grid.webp); each room is a painted tile laid in its
+   alcove(s). The alcove borders are the lantern lines of the painting, in percent of the picture. */
+const GX = [3.395, 18.519, 33.951, 49.815, 65.617, 81.173, 96.481];     // left to right
+const GY = [5.149, 24.099, 42.842, 61.792, 80.33, 99.279];              // top to bottom (floor 4 is the top one)
+const int = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(v) || 0)));
+/** The rectangle of `w` alcoves from alcove `s` on floor `f` (0 = the ground floor): [x, y, width, height] in percent. */
+export function cellRect(f, s, w = 1) {
+  const row = 4 - int(f, 0, 4); const a = int(s, 0, 5); const b = int(a + int(w, 1, 3), a + 1, 6);
+  return [GX[a], GY[row], GX[b] - GX[a], GY[row + 1] - GY[row]];
+}
+/** A whole floor's rectangle. */
+export function floorRect(f) { const row = 4 - int(f, 0, 4); return [0, GY[row], 100, GY[row + 1] - GY[row]]; }
 
-export function siteRect(id) { return SITES[id] || [0, 0, 0, 0]; }
+/** The building grows with the sect: with `show` floors in use, the floors above them are cut out from under the roof.
+ *  Returns [cut, roof]: the share of the painting hidden, and the roof strip's height, both in percent of the painting. */
+export function gridCut(show) { return [GY[5 - int(show, 1, 5)] - GY[0], GY[0]]; }
 
-/** The sect itself: one painting; the page lays rooms, crews and veils over it. */
+const TILES = new Set(['main_hall', 'dormitory', 'fields', 'storehouse', 'library', 'meditation', 'alchemy', 'training', 'ward', 'spirit_vein', 'market', 'vault']);
+/** The painted tile of a known room ('' for anything else). The Main Hall's tile is two alcoves wide. */
+export function roomTile(id) { return TILES.has(id) ? `/art/room_${id}.webp` : ''; }
+/** A room's tile as inline CSS for a small round thumbnail. Known ids only. */
+export function roomThumb(id) {
+  const t = roomTile(id);
+  return t ? `background-image:url(${t});background-size:${id === 'main_hall' ? '230% auto' : '150% auto'};background-position:50% 55%` : '';
+}
+
+/** The sect itself: the empty halls; the page lays the rooms, crews and veils over them. */
 export function sectScene() {
-  return '<img class="art" src="/art/hq.webp" alt="A cut-away painting of your sect: five lantern-lit floors of halls" draggable="false">';
+  return '<img class="art" src="/art/hq_grid.webp" alt="A cut-away painting of your sect: five lantern-lit floors of rock-cut halls" draggable="false">';
 }
 
 const BACKDROPS = new Set(['map', 'seclusion', 'technique', 'treasure', 'leader', 'hall', 'pill', 'mission']);
@@ -34,12 +42,20 @@ export function backdrop(name) { return `/art/bg_${BACKDROPS.has(name) ? name : 
    The server says whether that file exists (scene.painted), so a missing picture is never requested;
    until then the closest backdrop stands in. */
 const SCENE_FALLBACK = { raid: 'map', tournament: 'technique', festival: 'hall', funeral: 'leader', tribulation: 'seclusion', breakthrough: 'seclusion', realm: 'treasure',
-  sickness: 'pill', blight: 'map', infiltrator: 'leader', theft: 'treasure',
+  sickness: 'pill', blight: 'map', infiltrator: 'leader', theft: 'treasure', incident: 'pill',
   festival_spring: 'hall', festival_moon: 'hall', festival_ghost: 'hall', festival_winter: 'hall' };
 /** The backdrop for a result scene of a known kind. */
 export function scene(kind, painted = false) {
   if (!Object.prototype.hasOwnProperty.call(SCENE_FALLBACK, kind)) return backdrop('hall');
   return painted === true ? `/art/scene_${kind}.webp` : backdrop(SCENE_FALLBACK[kind]);
+}
+
+/* World map emblems: one small painting per kind of place (static/art/place_<kind>.webp, 128x128, transparent).
+   The server lists the ones that exist (S.place_art); a kind that is not painted yet has no picture at all. */
+const PLACES = new Set(['home', 'sect', 'ally', 'rival', 'demonic', 'village', 'wilds', 'valley', 'ruins', 'marsh', 'lord', 'branch']);
+/** The emblem for a known kind of place, or '' when it is not painted (have: the server's list). */
+export function place(kind, have) {
+  return PLACES.has(kind) && Array.isArray(have) && have.includes(kind) ? `/art/place_${kind}.webp` : '';
 }
 
 /* ---------------- characters ---------------- */

@@ -46,13 +46,16 @@ def path() -> str:
 
 def blank_settings() -> dict:
     return {
-        "courses": [],            # enrolled pack ids
-        "new_per_day": 8,         # new items per course per day
+        "courses": [],            # enrolled pack ids (a track's stages are enrolled together: engine.migrate_tracks)
+        "new_per_day": 8,         # new items per course (a whole track counts as one) per day
         "session_size": 20,       # target exercises per session
         "retention": 0.9,         # FSRS desired retention
         "tz_offset_min": 0,       # learner's UTC offset (minutes east), set by the UI
         "audio": True,
         "handwriting": True,      # glyph items also asked written (hand.py); off for people who only type
+        "sect_enabled": True,     # the sect sim is optional: False = study only (the sect is paused, nothing deleted)
+        "sect_name": "",          # the name kept for the sect when founding was skipped (study only)
+        "sect_master": "",
     }
 
 
@@ -111,6 +114,9 @@ def clean_settings(raw) -> dict:
     s["tz_offset_min"] = _int(raw.get("tz_offset_min"), 0, -840, 840)
     s["audio"] = raw.get("audio") if isinstance(raw.get("audio"), bool) else True
     s["handwriting"] = raw.get("handwriting") if isinstance(raw.get("handwriting"), bool) else True
+    s["sect_enabled"] = raw.get("sect_enabled") if isinstance(raw.get("sect_enabled"), bool) else True
+    s["sect_name"] = _str(raw.get("sect_name"), "", 40).strip()
+    s["sect_master"] = _str(raw.get("sect_master"), "", 30).strip()
     return s
 
 
@@ -196,7 +202,8 @@ def sanitize(data: dict) -> dict:
     st["words"] = reader.clean_words(data.get("words"))
     st["book_pos"] = reader.clean_positions(data.get("book_pos"))
     pl = data.get("placements")
-    st["placements"] = {_str(k, "", 64): {x: _int(v.get(x), 0, 0) for x in ("passed_units", "units", "placed", "asked", "right")}
+    st["placements"] = {_str(k, "", 64): {**{x: _int(v.get(x), 0, 0) for x in ("passed_units", "units", "placed", "asked", "right")},
+                                          **{x: _str(v.get(x), "", 64) for x in ("level", "stage")}}
                         for k, v in (pl.items() if isinstance(pl, dict) else []) if isinstance(k, str) and isinstance(v, dict)}
     return st
 

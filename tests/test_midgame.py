@@ -77,7 +77,7 @@ def test_a_queued_build_wins_a_tie_while_the_stores_hold(st):
     p = c["pawns"][1]
     p["prio"] = {j: 0 for j in colony.JOBS} | {"farm": 1, "build": 1}         # the elder's first lesson
     c["res"].update(rice=30.0, wood=200.0, stone=200.0)                       # under half the store, but days of food
-    assert colony.queue_build(st, "library", T0)["ok"]
+    assert colony.queue_build(st, "ward", T0)["ok"]
     assert colony._pick_job(c, p, {}) == "build"
     c["res"]["rice"] = 1.0                                                   # nearly out: the harvest comes first
     assert colony._pick_job(c, p, {}) == "farm"
@@ -336,27 +336,6 @@ def _answer(st, c, hours):
         colony.advance(st, 1, T0)
         if c["pending"]:
             colony.resolve(st, c["pending"]["options"][-1]["id"], T0)
-
-
-def test_a_build_just_queued_is_not_a_stall_and_meditation_is_never_blamed(st):
-    c = st["colony"]
-    c["res"].update(wood=500.0, stone=500.0)
-    for q in c["pawns"]:
-        q["prio"] = {j: 0 for j in colony.JOBS} | {"meditate": 1, "build": 1}
-    _answer(st, c, 14)                                       # half a day of meditating before anything was queued
-    assert colony.queue_build(st, "training", T0)["ok"]
-    assert colony.view(st, T0)["build_stall"] == ""          # queued this hour: the hours before say nothing about it
-    _answer(st, c, colony.BUILD_STALL_HOURS + 1)
-    assert colony.view(st, T0)["build_stall"] == ""          # meditation level with Build leaves half the hours to building
-    # a real stall: a chore ahead of Build for half a day; the advice never says to lower Meditate
-    for q in c["pawns"]:
-        q["prio"].update(build=3, wood=1)
-    if not c["builds"]:
-        assert colony.queue_build(st, "training", T0)["ok"]
-    c["builds"][0]["at"] = c["builds"][0]["moved"] = c["hour"]
-    _answer(st, c, colony.BUILD_STALL_HOURS + 1)
-    why = colony.view(st, T0)["build_stall"]
-    assert "ahead of Build at 3" in why and "Meditate" not in why, why
 
 
 def test_new_recruits_meditate_level_with_their_main_chore(st):

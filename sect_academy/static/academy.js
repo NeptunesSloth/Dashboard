@@ -53,6 +53,12 @@ function scrub(ov) {
   fix(ov.today, NUMERIC.today); fix(ov.settings, NUMERIC.settings);
   (ov.courses || []).forEach((c) => { fix(c, NUMERIC.course); (c.units || []).forEach((u) => fix(u, NUMERIC.unit)); });
   Object.values(ov.placements || {}).forEach((pl) => fix(pl, ['passed_units', 'units', 'placed', 'asked', 'right']));
+  (ov.tracks || []).forEach((t) => {
+    fix(t, ['total', 'seen', 'mastered', 'due', 'new_left', 'strength', 'units']);
+    (t.stages || []).forEach((x) => fix(x, ['total', 'seen', 'mastered', 'due', 'units', 'pct']));
+    (t.addons || []).forEach((x) => fix(x, ['total', 'seen', 'due', 'new_left', 'units', 'soon']));
+    if (t.placement) fix(t.placement, ['passed_units', 'units', 'placed', 'asked', 'right']);
+  });
   return ov;
 }
 function showEvents(events) { (events || []).slice(0, 4).forEach((e, i) => setTimeout(() => toast(e.text), i * 700)); }
@@ -106,7 +112,10 @@ function speak(text, lang) {
 /* ---------------- routing ---------------- */
 // The reader lives in its own module; it gets the shell's helpers rather than copies of them.
 const readCtx = { api, esc, num, toast, ICON, view, go: (p) => go(p), ov: () => OV, setKeys: (fn) => { keyHandler = fn; } };
-const ROUTES = { '/': renderSect, '/study': renderStudy, '/read': (params) => renderRead(params, readCtx), '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
+// The sect is optional (settings.sect_enabled): with it off the app is study only, '/' is the study home and no Sect tab shows.
+const sectOn = () => !OV || OV.settings.sect_enabled !== false;
+const homeLabel = () => (sectOn() ? 'Return to the sect' : 'Return home');
+const ROUTES = { '/': () => (sectOn() ? renderSect() : renderHome()), '/study': renderStudy, '/read': (params) => renderRead(params, readCtx), '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
 const NAV = [['/', 'sect', 'Sect'], ['/study', 'study', 'Study'], ['/read', 'read', 'Read'], ['/library', 'library', 'Library'], ['/trials', 'trials', 'Trials'], ['/progress', 'progress', 'Progress']];
 const GUIDE = 'Elder Bai';
 const guide = (mood = 'calm', size = 56) => portrait(GUIDE, { kind: 'elder', mood, size });
@@ -115,7 +124,8 @@ const face = (d, size = 48) => portrait(d.id + d.name, { root: d.root, size });
 function drawNav() {
   const path = ROUTES[location.pathname] ? location.pathname : '/';
   const due = OV ? OV.today.due : 0;
-  $('#nav').innerHTML = NAV.map(([href, glyph, label]) =>
+  const nav = sectOn() ? NAV : [['/', 'sect', 'Home'], ...NAV.filter(([href]) => href !== '/')];
+  $('#nav').innerHTML = nav.map(([href, glyph, label]) =>
     `<a href="${href}" data-link ${href === path ? 'aria-current="page"' : ''}>${ICON[glyph]}${label}${href === '/study' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
 }
 async function refresh() {
@@ -146,8 +156,8 @@ async function go(path, push = true) {
   const url = new URL(path, location.origin);
   await refresh();
   if (!OV) { view.innerHTML = `<div class="panel"><h2>The mountain gate is closed</h2><p class="dim">The server did not answer. Check that it is running, then try again.</p><button class="btn primary" id="retry">Try again</button></div>`; $('#retry').onclick = () => go(path, false); return; }
-  if (!OV.sect.founded) { renderFounding(); return; }
-  (ROUTES[url.pathname] || renderSect)(url.searchParams);
+  if (!OV.sect.founded && sectOn()) { renderFounding(); return; }
+  (ROUTES[url.pathname] || ROUTES['/'])(url.searchParams);
   view.focus({ preventScroll: true }); window.scrollTo(0, 0);
 }
 document.addEventListener('click', (e) => {
@@ -166,42 +176,189 @@ function closeSheet() { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
 
 /* ================= founding ================= */
+/* A sect name from three small word lists: "Azure Cloud Sect", "Nine Lantern Pavilion", "Frost Lotus Valley". */
+const SECT_FIRST = ['Azure', 'Crimson', 'Jade', 'Golden', 'Silver', 'Frost', 'Thunder', 'Cloud', 'Moon', 'Sun', 'Star', 'Nine', 'Seven', 'Hidden', 'Silent', 'Eternal', 'Heavenly', 'Misty', 'Scarlet', 'Violet', 'Iron', 'Ancient', 'Drifting', 'Burning', 'Falling', 'Endless', 'Twin', 'White', 'Black', 'Emerald'];
+const SECT_SECOND = ['Lantern', 'Lotus', 'Peak', 'Cloud', 'Sword', 'Crane', 'Dragon', 'Phoenix', 'Tiger', 'Pine', 'Bamboo', 'Willow', 'River', 'Spring', 'Mist', 'Blossom', 'Feather', 'Moon', 'Star', 'Wind', 'Rain', 'Snow', 'Flame', 'Jade', 'Bell', 'Scroll', 'Mirror', 'Tortoise', 'Qilin', 'Plum'];
+const SECT_KIND = ['Sect', 'Sect', 'Sect', 'Pavilion', 'Palace', 'Valley', 'Mountain', 'Peak', 'Hall', 'Manor', 'Temple', 'School', 'Gate', 'Sword Sect', 'Abode'];
+function sectName() {
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  let a = pick(SECT_FIRST), b = pick(SECT_SECOND);
+  while (b === a) b = pick(SECT_SECOND);
+  let k = pick(SECT_KIND);
+  if (k === 'Sword Sect' && b === 'Sword') k = 'Sect';
+  if (k === 'Peak' && b === 'Peak') k = 'Sect';
+  return `${a} ${b} ${k}`;
+}
+
 function renderFounding() {
   const courses = OV.courses;
-  const firstPick = (courses.find((c) => c.id.endsWith('-a1')) || courses[0] || {}).id;   // one art ticked to start; the learner adds the rest
-  view.innerHTML = `<div class="found">
-    <div class="hero"><img src="${backdrop('map')}" alt="A sect of pavilions on mountain peaks above the clouds"></div>
-    <h1>Found your sect</h1>
-    <p class="dim">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect. Choose what you will cultivate — you can change this later in the library.</p>
-    <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
-    <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
-    <h3 style="margin-top:20px">Arts to cultivate</h3>
-    ${courses.length ? courses.map((c) => `<label class="pick"><input type="checkbox" value="${esc(c.id)}" ${c.id === firstPick ? 'checked' : ''}>
-      <span><b>${esc(c.title)}</b><br><span class="dim small">${esc(c.blurb)} ${c.total} items in ${c.units.length} units.</span></span></label>`).join('')
-    : '<p class="dim">No courses are installed. Add a pack under <code>sect_academy/packs</code> and reload.</p>'}
-    <p class="dim small" style="margin-top:14px">Each art adds about 8 new items a day. One is ticked to start; two or three is a comfortable daily load, and more arts can be added later in the library.</p>
-    <h3 style="margin-top:20px">How harsh should the world be?</h3>
-    ${OV.sect.storytellers.map((t) => `<label class="pick"><input type="radio" name="f-tell" value="${esc(t.id)}" ${t.id === 'balanced' ? 'checked' : ''}>
-      <span><b>${esc(t.name)}</b><br><span class="dim small">${esc(t.blurb)}</span></span></label>`).join('')}
-    <p class="dim small" style="margin-top:10px">The sect lives on its own clock: disciples farm, build and cultivate whether or not you study. Studying makes them better at it.</p>
-    <p id="f-err" class="small" style="color:var(--verm-d);font-weight:800" role="alert"></p>
-    <button class="btn primary big" id="f-go" style="width:100%">Found the sect</button>
+  const tracks = OV.tracks || [];
+  const LANGS = [
+    ['Spanish', 'Español'], ['French', 'Français'], ['Mandarin', '中文'], ['Japanese', '日本語'], ['Korean', '한국어'],
+  ];
+  const certName = (c) => String(c.title).split(' — ')[0].replace(/\s*\(.*\)$/, '');
+  const known = new Set(LANGS.map((l) => l[0]));
+  const langs = [...LANGS.filter(([l]) => tracks.some((t) => t.language === l)),
+    ...tracks.filter((t) => !known.has(t.language)).map((t) => [t.language, t.language])];
+  const trackFor = (l) => tracks.find((t) => t.language === l);
+  const certs = courses.filter((c) => c.kind !== 'language');
+  const picked = new Set();        // track ids, add-on ids, certificate ids
+  let step = 1; let openLang = null;
+  let studyOnly = false;           // "Just study, no sect": step 2 is the last step, nothing is founded
+  const tells = OV.sect.storytellers;
+  let tell = 'balanced';
+
+  view.innerHTML = `<div class="rite" style="--rite-bg:url(${backdrop('map')})">
+    <div class="rite-panel">
+      <ol class="rite-steps" aria-label="Founding steps">
+        <li data-s="1">Name</li><li data-s="2">Arts</li><li data-s="3">World</li>
+      </ol>
+      <section class="rite-step" data-step="1">
+        <h1>Found your sect</h1>
+        <p class="rite-lede">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect.</p>
+        <label class="field"><span>Name of the sect</span><span class="namebox"><input type="text" id="f-name" maxlength="40" placeholder="${esc(sectName())}" autocomplete="off"><button type="button" class="dice" id="f-dice" title="Roll a sect name" aria-label="Roll a random sect name">🎲</button></span></label>
+        <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
+        <div class="rite-foot"><span></span><button class="btn primary big" data-next>Choose your arts</button></div>
+        <div class="rite-alt"><span>Rather not run a sect?</span><button type="button" class="btn quiet" id="f-study">Just study, no sect</button>
+          <span class="dim small">The courses are the same. You can found a sect later in Progress, Settings.</span></div>
+      </section>
+      <section class="rite-step" data-step="2" hidden>
+        <h2>What will you cultivate?</h2>
+        <p class="rite-lede">Pick one or two to start. Each language is one long course, from its first words upward, and adds about eight new items a day. You can change them later in the library.</p>
+        <div class="tongues" role="list">${langs.map(([l, native]) => `<button type="button" class="tongue" role="listitem" data-lang="${esc(l)}" aria-pressed="false" aria-expanded="false">
+            <span class="native" lang="${esc((trackFor(l) || {}).lang || '')}">${esc(native)}</span><span class="en">${esc(l)}</span><span class="count" hidden>✓</span></button>`).join('')}</div>
+        <div class="levels" id="f-levels" hidden></div>
+        ${certs.length ? `<h3 class="rite-sub">Or a technical art</h3>
+        <div class="seals">${certs.map((c) => `<button type="button" class="seal" data-id="${esc(c.id)}" aria-pressed="false" title="${esc(`${c.blurb} ${c.total} items.`)}">${esc(certName(c))}</button>`).join('')}</div>` : ''}
+        <p class="rite-chosen" id="f-picked" aria-live="polite"></p>
+        <p id="f-err2" class="rite-err" role="alert"></p>
+        <div class="rite-foot"><button class="btn quiet" data-back>Back</button><button class="btn primary big" data-next>Next</button></div>
+      </section>
+      <section class="rite-step" data-step="3" hidden>
+        <h2>How harsh is the world?</h2>
+        <p class="rite-lede">The sect lives on its own clock. Disciples farm, build and cultivate whether or not you study; studying makes them better at it.</p>
+        <div class="fates">${tells.map((t) => `<button type="button" class="fate" data-tell="${esc(t.id)}" aria-pressed="${t.id === tell}"><b>${esc(t.name)}</b><span>${esc(t.blurb)}</span></button>`).join('')}</div>
+        <p id="f-err" class="rite-err" role="alert"></p>
+        <div class="rite-foot"><button class="btn quiet" data-back>Back</button><button class="btn primary big" id="f-go">Found the sect</button></div>
+      </section>
+    </div>
   </div>`;
-  $('#f-go').onclick = async () => {
-    const picked = [...view.querySelectorAll('.pick input:checked')].map((i) => i.value);
-    if (!picked.length) { $('#f-err').textContent = 'Choose at least one art to cultivate.'; return; }
-    const tell = (view.querySelector('input[name="f-tell"]:checked') || {}).value || 'balanced';
-    const res = await api('/api/setup', { name: $('#f-name').value, master: $('#f-master').value, courses: picked, storyteller: tell });
-    if (res.ok === false) { $('#f-err').textContent = res.error; return; }
-    await refresh();
-    offerPlacement(picked);
+
+  const root = view.querySelector('.rite');
+  const show = (n) => {
+    step = n;
+    if (n === 1) studyOnly = false;
+    const steps = root.querySelector('.rite-steps');
+    steps.querySelector('[data-s="1"]').textContent = studyOnly ? 'Study only' : 'Name';
+    steps.querySelector('[data-s="3"]').hidden = studyOnly;
+    root.querySelector('.rite-step[data-step="2"] [data-next]').textContent = studyOnly ? 'Begin studying' : 'Next';
+    root.querySelectorAll('.rite-step').forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
+    root.querySelectorAll('.rite-steps li').forEach((li) => { const s = Number(li.dataset.s); li.className = s === n ? 'now' : s < n ? 'done' : ''; li.setAttribute('aria-current', s === n ? 'step' : 'false'); });
+    const f = root.querySelector(`.rite-step[data-step="${n}"] h1, .rite-step[data-step="${n}"] h2`); if (f) { f.tabIndex = -1; f.focus({ preventScroll: true }); }
+    window.scrollTo({ top: 0 });
   };
+  const sync = () => {
+    const names = [];
+    for (const t of tracks) {
+      if (!picked.has(t.id)) continue;
+      const extra = t.addons.filter((a) => picked.has(a.id)).map((a) => ADDON_NAME[a.addon] || a.title);
+      names.push(`${t.language} (${t.span})${extra.length ? ` with ${extra.join(' and ')}` : ''}`);
+    }
+    certs.forEach((c) => { if (picked.has(c.id)) names.push(certName(c)); });
+    root.querySelector('#f-picked').textContent = names.length ? `Chosen: ${names.join(', ')}` : '';
+    root.querySelectorAll('.tongue').forEach((b) => {
+      const t = trackFor(b.dataset.lang); const on = !!t && picked.has(t.id);
+      b.querySelector('.count').hidden = !on;
+      b.classList.toggle('has', on); b.classList.toggle('open', b.dataset.lang === openLang);
+      b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-expanded', String(b.dataset.lang === openLang));
+    });
+    root.querySelectorAll('.seal').forEach((b) => { const on = picked.has(b.dataset.id); b.setAttribute('aria-pressed', String(on)); });
+    root.querySelectorAll('.level').forEach((b) => b.setAttribute('aria-pressed', String(picked.has(b.dataset.id))));
+  };
+  // The open language's panel: the span of its one course, and its optional add-ons.
+  const paintLevels = () => {
+    const box = root.querySelector('#f-levels');
+    const t = openLang && trackFor(openLang);
+    if (!t) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = `<div class="track-head"><b>${esc(t.language)}</b> <span class="span">${esc(t.span)} · ${num(t.total).toLocaleString('en')} items</span>
+        <span class="tnote">One course: it begins at ${esc((t.stages[0] || {}).level || '')} and moves on to the next level by itself as you learn.</span></div>
+      ${t.addons.length ? `<span class="track-sub">Add-ons, if you like</span>${t.addons.map((a) => `<button type="button" class="level" data-id="${esc(a.id)}" aria-pressed="false" ${a.units ? '' : 'disabled'}>
+        <b>${esc(ADDON_NAME[a.addon] || a.title)}</b><span>${a.units ? `${esc(ADDON_NOTE[a.addon] || '')} · ${num(a.total)} items` : 'Pictures coming soon'}</span></button>`).join('')}` : ''}
+      <button type="button" class="linkish small track-drop" data-unpick="${esc(t.id)}">Remove ${esc(t.language)}</button>`;
+    sync();
+  };
+  root.addEventListener('click', (e) => {
+    const t = e.target.closest('button'); if (!t || !root.contains(t)) return;
+    if (t.matches('[data-next]')) {
+      if (step === 2 && !picked.size) { root.querySelector('#f-picked').textContent = 'Choose at least one art to cultivate.'; return; }
+      if (step === 2 && studyOnly) { found(true); return; }
+      show(step + 1); return;
+    }
+    if (t.matches('[data-back]')) { show(step - 1); return; }
+    if (t.id === 'f-study') { studyOnly = true; show(2); return; }
+    if (t.classList.contains('tongue')) {
+      const tr = trackFor(t.dataset.lang); if (!tr) return;
+      if (!picked.has(tr.id)) { picked.add(tr.id); openLang = t.dataset.lang; }      // tapping a language takes up all of it
+      else openLang = openLang === t.dataset.lang ? null : t.dataset.lang;
+      paintLevels(); sync(); return;
+    }
+    if (t.matches('[data-unpick]')) {
+      const tr = tracks.find((x) => x.id === t.dataset.unpick);
+      if (tr) { picked.delete(tr.id); tr.addons.forEach((a) => picked.delete(a.id)); }
+      openLang = null; paintLevels(); sync(); return;
+    }
+    if (t.classList.contains('level')) {
+      const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id);
+      const tr = tracks.find((x) => x.addons.some((a) => a.id === id)); if (tr && picked.has(id)) picked.add(tr.id);
+      sync(); return;
+    }
+    if (t.classList.contains('seal')) { const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id); sync(); return; }
+    if (t.classList.contains('fate')) { tell = t.dataset.tell; root.querySelectorAll('.fate').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); }
+  });
+  root.querySelector('#f-dice').addEventListener('click', () => {
+    const f = root.querySelector('#f-name'); let n = sectName(); for (let i = 0; i < 5 && n === f.value; i++) n = sectName();
+    f.value = n; f.focus(); f.select();
+  });
+  root.querySelector('#f-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); root.querySelector('#f-master').focus(); } });
+  root.querySelector('#f-master').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); show(2); } });
+  show(1); sync();
+  root.querySelector('#f-name').focus();
+  const found = async (only) => {
+    const list = [...picked];
+    if (!list.length) { show(2); root.querySelector('#f-picked').textContent = 'Choose at least one art to cultivate.'; return; }
+    // Study only: no name is asked; the one typed (or the one on offer) is kept for a sect founded later.
+    const nameBox = $('#f-name');
+    const res = await api('/api/setup', { name: nameBox.value || (only ? nameBox.placeholder : ''), master: $('#f-master').value, courses: list, storyteller: tell, study_only: !!only });
+    if (res.ok === false) { $(only ? '#f-err2' : '#f-err').textContent = res.error; return; }
+    await refresh();
+    offerPlacement(list);
+  };
+  $('#f-go').onclick = () => found(false);
 }
 
 /* ================= sect home ================= */
 const ago = (ts) => { const s = Date.now() / 1000 - ts; if (s < 90) return 'now'; if (s < 3600) return `${Math.round(s / 60)}m`; if (s < 86400) return `${Math.round(s / 3600)}h`; return `${Math.round(s / 86400)}d`; };
 
 const shortName = (c) => { const [a, b] = String(c.title).split(' — '); return c.kind === 'language' && b ? `${a} ${b.split(' ')[0]}` : a; };
+// A language's levels are one course (a track, OV.tracks); conversations, picture lessons and swearing are its add-ons.
+const ADDON_NAME = { talk: 'Conversations', pictures: 'Picture lessons', swear: 'Swearing & slang' };
+const ADDON_NOTE = { talk: 'Spoken exchanges', pictures: 'Words on pictures', swear: 'Opt-in: rude words, to understand real speech' };
+const trackOf = (id) => (OV.tracks || []).find((t) => t.id === id) || null;
+const addonName = (c) => ADDON_NAME[c.addon] || String(c.title).split(' — ').pop();
+const isStage = (c) => !!c.track && !c.addon;
+// A course as the learner names it: "French · A2", "French · Conversations", "Security+".
+function courseLabel(c) {
+  const t = c.track ? trackOf(c.track) : null;
+  if (!t) return shortName(c);
+  return c.addon ? `${t.language} · ${addonName(c)}` : `${t.language} · ${t.level}`;
+}
+// What you study: one line per enrolled language (its current level), one per add-on or other course.
+function studyLines() {
+  const out = (OV.tracks || []).filter((t) => t.enrolled).map((t) => ({ id: t.id, label: `${t.language} · ${t.level}`, due: t.due, new_left: t.new_left, seen: t.seen, total: t.total, mastered: t.mastered, track: t }));
+  OV.courses.filter((c) => c.enrolled && !isStage(c)).forEach((c) => out.push({ id: c.id, label: courseLabel(c), due: c.due, new_left: c.new_left, seen: c.seen, total: c.total, mastered: c.mastered, course: c }));
+  return out;
+}
 
 function todayPanel() {
   const t = OV.today, g = OV.sect;
@@ -212,24 +369,27 @@ function todayPanel() {
     head = 'Choose an art to study'; sub = 'You are not enrolled in any course yet. Pick one in the library to begin.';
     btn = `<a class="btn primary big" href="/library" data-link>Open the library</a>`; mood = 'think'; tone = 'rest';
   } else if (g.seclusion) {
-    head = 'The gates are sealed'; sub = 'You are in seclusion. Your study streak is frozen and the sect stands still until you return.';
-    btn = `<button class="btn primary big" data-act="unseclude">Reopen the gates</button>`; tone = 'rest';
+    head = sectOn() ? 'The gates are sealed' : 'You are on holiday';
+    sub = sectOn() ? 'You are in seclusion. Your study streak is frozen and the sect stands still until you return.' : 'Your study streak is frozen until you return. Studying ends the holiday.';
+    btn = `<button class="btn primary big" data-act="unseclude">${sectOn() ? 'Reopen the gates' : 'End the holiday'}</button>`; tone = 'rest';
   } else if (work > 0) {
     head = g.studied_today ? 'There is more, if you wish' : 'Your study for today';
     sub = `<span class="counts"><span class="count"><b class="num">${t.due}</b>to review</span><span class="count new"><b class="num">${t.new_left}</b>new</span></span>`;
     btn = `<a class="btn primary big" href="/study" data-link>${g.studied_today ? 'Keep studying' : 'Begin studying'}</a>`;
     mood = g.studied_today ? 'happy' : 'calm';
   } else {
-    head = 'Today is complete'; sub = 'Nothing more is due until tomorrow. Tend the sect, or sharpen your weakest items.';
+    head = 'Today is complete'; sub = `Nothing more is due until tomorrow. ${sectOn() ? 'Tend the sect, or sharpen' : 'Read something, or sharpen'} your weakest items.`;
     btn = `<a class="btn big" href="/study?practice=1" data-link>Practice weak items</a>`; mood = 'happy'; tone = 'rest';
   }
   const extras = [OV.mistakes ? `<a class="chip" href="/study?kind=mistakes" data-link>Put right ${num(OV.mistakes)} mistake${num(OV.mistakes) === 1 ? '' : 's'}</a>` : '',
     OV.can_listen && synth ? '<a class="chip" href="/study?kind=listen" data-link>Listening practice</a>' : ''].join('');
   const risk = g.streak_at_risk && !g.seclusion && work > 0 ? `<p class="small" style="margin:6px 0 0;font-weight:700">Study today to keep your ${g.streak}-day streak${g.grace ? ` (${g.grace} rest day${g.grace > 1 ? 's' : ''} in reserve)` : ''}.</p>` : '';
-  const chips = mine.length > 1 && work > 0 && !g.seclusion ? `<div class="chips">${mine.filter((c) => c.due + c.new_left > 0).map((c) =>
-    `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(shortName(c))} <span class="dim num">${c.due + c.new_left}</span></a>`).join('')}</div>` : '';
-  return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2><div style="margin-top:6px">${sub}</div>${risk}
-      <p class="dim small" style="margin:8px 0 0">Each correct answer gives you qi and the sect a point of insight for research. A finished session lifts every disciple's mood.</p></div></div>
+  const lines = studyLines();
+  const chips = lines.length > 1 && work > 0 && !g.seclusion ? `<div class="chips">${lines.filter((c) => c.due + c.new_left > 0).map((c) =>
+    `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(c.label)} <span class="dim num">${num(c.due + c.new_left)}</span></a>`).join('')}</div>` : '';
+  const named = lines.length === 1 && work > 0 && !g.seclusion ? `<p class="dim small" style="margin:6px 0 0">${esc(lines[0].label)}</p>` : '';
+  return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2>${named}<div style="margin-top:6px">${sub}</div>${risk}
+      ${sectOn() ? '<p class="dim small" style="margin:8px 0 0">Each correct answer gives you qi and the sect a point of insight for research. A finished session lifts every disciple\'s mood.</p>' : ''}</div></div>
     <div class="row">${btn}</div>${chips}${extras ? `<div class="chips">${extras}</div>` : ''}</section>`;
 }
 
@@ -273,16 +433,54 @@ function renderSect() {
   });
 }
 
+/* ================= study home (the sect is off) ================= */
+function renderHome() {
+  const lines = studyLines();
+  const g = OV.sect;
+  const streak = num(g.streak);
+  view.innerHTML = `<div class="studyhome"><h1>Today</h1>
+    ${todayPanel()}
+    ${lines.length ? `<section class="panel"><h2>Your arts</h2>${lines.map((c) => `<div class="home-art"><div class="row small"><span class="grow"><b>${esc(c.label)}</b>
+        <span class="dim num">${num(c.seen)}/${num(c.total)} learned, ${num(c.mastered)} mastered</span></span>
+        ${num(c.due) + num(c.new_left) ? `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${num(c.due)} due · ${num(c.new_left)} new</a>` : '<span class="tag">Done today</span>'}</div>
+      <div class="bar jade" style="margin-top:6px"><i style="width:${Math.round(100 * num(c.seen) / Math.max(num(c.total), 1))}%"></i></div></div>`).join('')}</section>` : ''}
+    <div class="stats home-stats">
+      <div class="stat"><b class="num">${streak}</b><span>day streak${num(g.best_streak) > streak ? ` (best ${num(g.best_streak)})` : ''}</span></div>
+      <div class="stat"><b class="num">${num(OV.today.answers)}</b><span>answers today</span></div>
+      <div class="stat"><b class="num">${num(OV.today.sessions)}</b><span>session${num(OV.today.sessions) === 1 ? '' : 's'} today</span></div>
+    </div>
+    <div class="chips home-links"><a class="chip" href="/read" data-link>Read</a><a class="chip" href="/library" data-link>Library</a><a class="chip" href="/trials" data-link>Trials and drills</a><a class="chip" href="/progress" data-link>Progress and settings</a></div>
+  </div>`;
+  view.querySelectorAll('[data-act="unseclude"]').forEach((un) => { un.onclick = async () => { await api('/api/sect/seclusion', { on: false }); go('/', false); }; });
+}
+
 /* ================= placement ================= */
-function offerPlacement(courses) {
-  const list = OV.courses.filter((c) => courses.includes(c.id));
-  view.innerHTML = `<div class="found"><div class="guide">${guide('think', 72)}<div class="speech">Before we begin: how much do you already know?</div></div>
+function offerPlacement(ids) {
+  // One test per language (it walks on through the levels) and one per other course.
+  const placed = OV.placements || {};
+  const rows = [];
+  for (const t of OV.tracks || []) {
+    if (!ids.includes(t.id) && !t.stages.some((x) => ids.includes(x.id))) continue;
+    rows.push({ id: t.id, title: `Find your ${t.language} level`, p: t.placement, lang: t.language,
+      sub: `${t.span} · ${num(t.units)} units. It starts at ${t.level} and goes on to the next level only if you know all of this one.` });
+  }
+  for (const c of OV.courses) {
+    if (!ids.includes(c.id) || c.track || !c.units.length) continue;
+    rows.push({ id: c.id, title: c.title, p: placed[c.id], sub: `${num(c.units.length)} units` });
+  }
+  const line = (r) => {
+    if (!r.p) return `<span class="dim small">${esc(r.sub)}</span>`;
+    const where = r.p.level ? `, you start at ${esc(r.lang)} ${esc(r.p.level)}` : '';
+    return `<span class="dim small">Tested: ${num(r.p.right)}/${num(r.p.asked)} right, ${num(r.p.passed_units)} unit${num(r.p.passed_units) === 1 ? '' : 's'} known${where}</span>`;
+  };
+  const todo = rows.filter((r) => !r.p);
+  view.innerHTML = `<div class="found"><div class="guide">${guide('think', 72)}<div class="speech">${todo.length ? 'Before we begin: how much do you already know?' : 'Your levels are set.'}</div></div>
     <h1>Find your level</h1>
-    <p class="dim">A short placement test checks each course a unit at a time and stops when it finds your level. Units you already know are skipped (they come back as reviews, so a lucky guess is caught). It takes a few minutes per course, and you can do it later from the library.</p>
-    ${list.map((c) => `<div class="pick" style="cursor:default"><span class="grow"><b>${esc(c.title)}</b><br><span class="dim small">${c.units.length} units</span></span>
-      <button class="btn primary" data-place="${esc(c.id)}">Take the test</button></div>`).join('')}
-    <div class="foot"><button class="btn big" id="pl-skip">I am a beginner — start from the first unit</button></div></div>`;
-  view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => offerPlacement(courses)); });
+    <p class="dim">A short test checks a course a unit at a time and stops when it finds your level. Units you already know are skipped (they come back as reviews, so a lucky guess is caught). You can test again later from the library.</p>
+    ${rows.map((r) => `<div class="pick place-row ${r.p ? 'done' : 'test'}" style="cursor:default"><span class="grow"><b>${esc(r.title)}</b><br>${line(r)}</span>
+      ${r.p ? '<span class="tag">Done</span>' : `<button class="btn primary" data-place="${esc(r.id)}">Take the test</button>`}</div>`).join('')}
+    <div class="foot"><button class="btn ${todo.length ? '' : 'primary'} big" id="pl-skip">${todo.length ? 'Skip the tests and start from the beginning' : sectOn() ? 'Continue to the sect' : 'Continue'}</button></div></div>`;
+  view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => offerPlacement(ids)); });
   $('#pl-skip').onclick = () => go('/', false);
 }
 
@@ -292,14 +490,15 @@ async function runPlacement(course, done) {
   document.body.classList.add('in-session');
   let over = false;
   leaveGuard = async () => over || confirm('Stop the placement test? What you have proven so far is kept.');
-  const title = (OV.courses.find((c) => c.id === course) || {}).title || '';
+  const tr = trackOf(course);
+  const title = tr ? tr.language : (OV.courses.find((c) => c.id === course) || {}).title || '';
   const block = (b) => {
     const qs = b.questions; const answers = qs.map(() => null); let cur = 0; let sending = false;
     const draw = () => {
       const q = qs[cur];
       view.innerHTML = `<div class="session"><div class="top"><button aria-label="Stop the test" id="pl-exit">✕</button>
-          <div class="bar azure"><i style="width:${Math.round(100 * b.unit / b.units)}%"></i></div><span class="dim small num">unit ${b.unit + 1}/${b.units}</span></div>
-        <div class="ex"><div class="guide">${guide('think')}<div class="speech">${esc(b.unit_title)}: ${esc(q.ask || '')}</div></div>
+          <div class="bar azure"><i style="width:${Math.round(100 * num(b.unit) / Math.max(num(b.units), 1))}%"></i></div><span class="dim small num">unit ${num(b.unit) + 1}/${num(b.units)}</span></div>
+        <div class="ex"><div class="guide">${guide('think')}<div class="speech">${b.level ? `${esc(b.level)} · ` : ''}${esc(b.unit_title)}: ${esc(q.ask || '')}</div></div>
           ${questionHtml(q, answers[cur], 'pl')}
           <div class="foot"><div class="row"><button class="btn grow" id="pl-idk">I don't know</button><button class="btn primary big grow" id="pl-next">Next</button></div></div></div></div>`;
       $('#pl-exit').onclick = async () => { if (await leaveGuard()) { over = true; leaveGuard = null; document.body.classList.remove('in-session'); (done || (() => go('/library', false)))(); } };
@@ -319,7 +518,7 @@ async function runPlacement(course, done) {
           <p class="dim">${esc(title)}</p>
           <div class="gains"><div><b class="num">${num(res.passed_units)}/${num(res.units)}</b><span>units known</span></div><div><b class="num">${num(res.placed)}</b><span>items skipped</span></div>
             <div><b class="num">${num(res.right)}/${num(res.asked)}</b><span>answered right</span></div></div>
-          <p>${res.start_at ? `You will start at <b>${esc(res.start_at)}</b>.` : 'You tested out of the whole course. It will come back as reviews.'}
+          <p>${res.start_at ? `You will start at <b>${res.level ? `${esc(title)} ${esc(res.level)}: ` : ''}${esc(res.start_at)}</b>.` : 'You tested out of the whole course. It will come back as reviews.'}
             ${res.placed ? ' The items you skipped return for a quick check over the next two weeks.' : ''}</p>
           <div class="foot"><button class="btn primary big" id="pl-done">Continue</button></div></div>`;
         $('#pl-done').onclick = () => (done || (() => go('/library', false)))();
@@ -409,7 +608,7 @@ async function renderStudy(params) {
       <div class="row" style="justify-content:center;margin-top:16px">
         ${!practice && OV.courses.some((c) => c.seen > 0) ? '<a class="btn" href="/study?practice=1" data-link>Practice weak items</a>' : ''}
         ${!practice ? '<a class="btn" href="/library" data-link>Learn more today</a>' : ''}
-        <a class="btn primary" href="/" data-link>Return to the sect</a></div></div>`;
+        <a class="btn primary" href="/" data-link>${homeLabel()}</a></div></div>`;
     return;
   }
   runSession(s);
@@ -459,13 +658,13 @@ function runSession(s) {
     const events = [...st.events, ...((res && res.events) || [])];
     const petals = acc >= 70 ? `<div class="petals" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="left:${(i * 53) % 100}%;animation-delay:${(i % 6) * 0.18}s"></i>`).join('')}</div>` : '';
     view.innerHTML = `<div class="session summary">${petals}${guide(acc >= 70 ? 'happy' : 'calm', 96)}<h1>${s.practice ? 'Practice complete' : 'Session complete'}</h1>
-      <p class="dim">${acc >= 90 ? 'Clean recall. The sect grows stronger.' : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses come back until they stick.'}</p>
-      <div class="gains"><div><b class="num">${acc}%</b><span>first try</span></div><div><b class="num">+${num(st.qi)}</b><span>qi</span></div><div><b class="num">+${num(st.insight)}</b><span>insight</span></div></div>
+      <p class="dim">${acc >= 90 ? (sectOn() ? 'Clean recall. The sect grows stronger.' : 'Clean recall.') : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses come back until they stick.'}</p>
+      <div class="gains"><div><b class="num">${acc}%</b><span>first try</span></div>${sectOn() ? `<div><b class="num">+${num(st.qi)}</b><span>qi</span></div><div><b class="num">+${num(st.insight)}</b><span>insight</span></div>` : `<div><b class="num">${num(st.first)}</b><span>answered</span></div>`}</div>
       ${res && res.counted === false && !s.practice ? '<p class="dim small">Finish a whole session for it to count toward your streak.</p>' : ''}
       ${events.length ? `<ul class="list panel">${events.map((e) => `<li>${esc(e.text)}</li>`).join('')}</ul>` : ''}
       <div class="foot"><div class="row">
         ${res && res.due_left > 0 && !s.practice ? '<a class="btn grow" href="/study" data-link>Keep going</a>' : ''}
-        <a class="btn primary grow" href="/" data-link>Return to the sect</a></div></div></div>`;
+        <a class="btn primary grow" href="/" data-link>${homeLabel()}</a></div></div></div>`;
     refresh();
   }
 
@@ -790,38 +989,80 @@ window.addEventListener('beforeunload', (e) => { if (leaveGuard && document.body
 function renderLibrary(params) {
   const cid = params && params.get('course'); const uid = params && params.get('unit');
   if (cid && uid) return renderUnit(cid, uid);
-  const mine = OV.courses.filter((c) => c.enrolled), rest = OV.courses.filter((c) => !c.enrolled);
+  const others = OV.courses.filter((c) => !c.track);
+  const mine = others.filter((c) => c.enrolled), rest = others.filter((c) => !c.enrolled);
+  const tracks = OV.tracks || [];
+  const myTracks = tracks.filter((t) => t.enrolled), restTracks = tracks.filter((t) => !t.enrolled);
+  const few = myTracks.length + mine.length <= 2;
   const HUE = { tongues_west: ['#5bb6ff', 'Fr'], tongues_south: ['#ff8a5c', 'Es'], ward_hall: ['#2fd39a', 'Sec'] };
+  const LANG_HUE = { fr: ['#5bb6ff', 'Fr'], es: ['#ff8a5c', 'Es'], zh: ['#f2b84b', '中'], ja: ['#ec8fae', '日'], ko: ['#7fd1c7', '한'] };
+  const byId = (id) => OV.courses.find((c) => c.id === id);
+  // A course's units as a path. ``later``: a level not reached yet, so its units show as locked.
+  const units = (c, enrolled, open, label, later = false) => {
+    const cur = enrolled && !later ? c.units.find((u) => u.unlocked && !u.done) : null;
+    return `<details class="units" ${open ? 'open' : ''}><summary>${label}${num(c.units.length + (c.soon || []).length)} units${enrolled ? `, ${num(c.units_done)} finished` : ''}</summary>
+    <div class="path">${c.units.map((u, i) => {
+      const state = !enrolled ? '' : u.done ? 'done' : (cur && cur.id === u.id) ? 'now' : (u.unlocked && !later) ? '' : 'locked';
+      return `<button class="step ${state}" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
+        <span class="node">${state === 'done' ? ICON.check : state === 'locked' ? ICON.lock : i + 1}</span>
+        <span><b>${esc(u.title)}</b><span class="dim small">${esc(u.goal)}</span>
+        ${enrolled && u.seen > 0 && !u.done ? `<span class="bar thin jade" style="display:block"><i style="width:${Math.round(100 * u.seen / Math.max(u.items, 1))}%"></i></span>` : ''}</span></button>`;
+    }).join('')}${(c.soon || []).map((u) => `<div class="step locked soon"><span class="node">${ICON.lock}</span>
+        <span><b>${esc(u.title)}</b><span class="dim small">Picture coming soon: this lesson opens once its painting is in.</span></span></div>`).join('')}</div></details>`;
+  };
   const card = (c) => {
     const [hue, mark] = HUE[c.hall] || ['#a78bfa', '·'];
-    const cur = c.units.find((u) => u.unlocked && !u.done);
     return `<section class="panel course">
     <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true">${c.hall === 'ward_hall' ? esc((c.exam && c.exam.code || 'Sec').slice(0, 3)) : mark}</span>
       <div class="grow"><h2>${esc(c.title)}</h2><p class="dim small" style="margin:2px 0 0">${esc(c.blurb)}</p></div>
       ${c.enrolled ? `<span class="tag jade">Enrolled</span>` : !c.units.length && (c.soon || []).length ? '<span class="tag gold">Pictures coming soon</span>' : `<button class="btn primary" data-enroll="${esc(c.id)}">Begin this course</button>`}</header>
-    ${c.enrolled ? `<div class="row small"><span class="grow dim">${c.seen} of ${c.total} learned · ${c.mastered} mastered · memory ${c.strength}%</span></div>
+    ${c.enrolled ? `<div class="row small"><span class="grow dim">${num(c.seen)} of ${num(c.total)} learned · ${num(c.mastered)} mastered · memory ${num(c.strength)}%</span></div>
       <div class="bar jade" style="margin:6px 0 12px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div>
-      <div class="row"><a class="btn primary" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="num">${c.due + c.new_left}</span></a>
+      <div class="row"><a class="btn primary" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="num">${num(c.due + c.new_left)}</span></a>
         ${c.seen < c.total ? `<button class="btn" data-more="${esc(c.id)}">Learn 5 more today</button>` : ''}
         ${c.seen < c.total ? `<button class="btn" data-place="${esc(c.id)}">${(OV.placements || {})[c.id] ? 'Retake the placement test' : 'Placement test'}</button>` : ''}
         <button class="btn quiet" data-drop="${esc(c.id)}">Set aside</button></div>` : ''}
-    <details class="units" ${c.enrolled && mine.length <= 2 ? 'open' : ''}><summary>${c.units.length + (c.soon || []).length} units${c.enrolled ? `, ${c.units_done} finished` : ''}</summary>
-    <div class="path">${c.units.map((u, i) => {
-      const state = !c.enrolled ? '' : u.done ? 'done' : (cur && cur.id === u.id) ? 'now' : u.unlocked ? '' : 'locked';
-      return `<button class="step ${state}" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
-        <span class="node">${state === 'done' ? ICON.check : state === 'locked' ? ICON.lock : i + 1}</span>
-        <span><b>${esc(u.title)}</b><span class="dim small">${esc(u.goal)}</span>
-        ${c.enrolled && u.seen > 0 && !u.done ? `<span class="bar thin jade" style="display:block"><i style="width:${Math.round(100 * u.seen / u.items)}%"></i></span>` : ''}</span></button>`;
-    }).join('')}${(c.soon || []).map((u) => `<div class="step locked soon"><span class="node">${ICON.lock}</span>
-        <span><b>${esc(u.title)}</b><span class="dim small">Picture coming soon: this lesson opens once its painting is in.</span></span></div>`).join('')}</div></details>
+    ${units(c, c.enrolled, c.enrolled && few, '')}
   </section>`;
   };
-  view.innerHTML = `<h1 style="margin-bottom:14px">Library</h1>${mine.map(card).join('')}
-    ${rest.length ? `<h2 style="margin:22px 0 10px">Other arts you can take up</h2>${rest.map(card).join('')}` : ''}`;
+  // One card per language: its levels as one strip, its add-ons below, each level's units to browse.
+  const trackCard = (t) => {
+    const [hue, mark] = LANG_HUE[String(t.lang).slice(0, 2)] || ['#a78bfa', '·'];
+    const stages = t.stages.map((x) => byId(x.id)).filter(Boolean);
+    const curIdx = t.stages.findIndex((x) => x.current);
+    const strip = `<ol class="stages" aria-label="Levels">${t.stages.map((x, i) => {
+      const cls = t.enrolled && x.current ? 'now' : x.pct >= 100 ? 'done' : '';
+      return `<li class="stage ${cls}" ${t.enrolled && x.current ? 'aria-current="step"' : ''} title="${esc(x.title)}: ${num(x.seen)} of ${num(x.total)} met">
+        <b>${esc(x.level)}</b><span class="bar thin ${cls === 'now' ? 'gold' : 'jade'}"><i style="width:${num(x.pct)}%"></i></span><span class="pct num">${num(x.pct)}%</span>${i < t.stages.length - 1 ? '<span class="arrow" aria-hidden="true">▸</span>' : ''}</li>`;
+    }).join('')}</ol>`;
+    const cur = curIdx >= 0 ? t.stages[curIdx] : null;
+    const addons = t.addons.map((a) => byId(a.id)).filter(Boolean);
+    return `<section class="panel course langcourse">
+    <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true" lang="${esc(t.lang)}">${esc(mark)}</span>
+      <div class="grow"><h2>${esc(t.language)}</h2><p class="dim small" style="margin:2px 0 0">One course, ${esc(t.span)}: ${num(t.total).toLocaleString('en')} items in ${num(t.units)} units. Each level opens as you finish introducing the one before.</p></div>
+      ${t.enrolled ? `<span class="tag jade">Enrolled · ${esc(t.level)}</span>` : `<button class="btn primary" data-enroll="${esc(t.id)}">Begin ${esc(t.language)}</button>`}</header>
+    ${strip}
+    ${t.enrolled ? `<div class="row small"><span class="grow dim">${cur ? `Now: <b>${esc(cur.title.split(' — ').pop())}</b> · ` : ''}${num(t.seen)} of ${num(t.total)} learned · ${num(t.mastered)} mastered · memory ${num(t.strength)}%</span></div>
+      <div class="row" style="margin-top:10px"><a class="btn primary" href="/study?course=${encodeURIComponent(t.id)}" data-link>Study ${esc(t.language)} <span class="num">${num(t.due + t.new_left)}</span></a>
+        ${t.seen < t.total ? `<button class="btn" data-more="${esc(t.id)}">Learn 5 more today</button>` : ''}
+        ${t.seen < t.total ? `<button class="btn" data-place="${esc(t.id)}">${t.placement ? 'Retake the placement test' : 'Placement test'}</button>` : ''}
+        <button class="btn quiet" data-drop="${esc(t.id)}">Set aside</button></div>` : ''}
+    ${addons.length ? `<div class="addons"><h3>Add-ons</h3>${addons.map((c) => `<div class="addon"><span class="grow"><b>${esc(addonName(c))}</b>
+        <span class="dim small">${c.units.length ? `${esc(ADDON_NOTE[c.addon] || '')} · ${num(c.total)} items${c.enrolled ? ` · ${num(c.seen)} learned` : ''}` : 'Pictures coming soon'}</span></span>
+        ${c.enrolled && c.due + c.new_left > 0 ? `<a class="btn" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study <span class="num">${num(c.due + c.new_left)}</span></a>` : ''}
+        <button type="button" class="toggle" role="switch" aria-checked="${c.enrolled}" data-addon="${esc(c.id)}" ${c.units.length || c.enrolled ? '' : 'disabled'} aria-label="${esc(addonName(c))}: ${c.enrolled ? 'on' : 'off'}"><i></i><span>${c.enrolled ? 'On' : 'Off'}</span></button></div>
+        ${c.enrolled ? units(c, true, false, `${esc(addonName(c))}: `) : ''}`).join('')}</div>` : ''}
+    ${stages.map((c, i) => units(c, t.enrolled, t.enrolled && few && c.current_stage, `<b>${esc(c.level)}</b> ${esc(c.title.split(' — ').pop().replace(/^[A-C][12]\s*/, ''))}: `, curIdx >= 0 && i > curIdx)).join('')}
+  </section>`;
+  };
+  view.innerHTML = `<h1 style="margin-bottom:14px">Library</h1>${myTracks.map(trackCard).join('')}${mine.map(card).join('')}
+    ${restTracks.length + rest.length ? `<h2 style="margin:22px 0 10px">Other arts you can take up</h2>${restTracks.map(trackCard).join('')}${rest.map(card).join('')}` : ''}`;
   view.querySelectorAll('[data-unit]').forEach((b) => { b.onclick = () => go(`/library?course=${encodeURIComponent(b.dataset.course)}&unit=${encodeURIComponent(b.dataset.unit)}`); });
-  view.querySelectorAll('[data-enroll]').forEach((b) => { b.onclick = async () => { await api('/api/enroll', { course: b.dataset.enroll, on: true }); await refresh(); offerPlacement([b.dataset.enroll]); }; });
+  view.querySelectorAll('[data-enroll]').forEach((b) => { b.onclick = async () => { const r = await api('/api/enroll', { course: b.dataset.enroll, on: true }); if (r.ok === false) { toast(r.error); return; } await refresh(); offerPlacement([b.dataset.enroll]); }; });
   view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => go('/library', false)); });
   view.querySelectorAll('[data-drop]').forEach((b) => { b.onclick = async () => { if (!confirm('Set this art aside? Your progress is kept, and you can take it up again any time.')) return; await api('/api/enroll', { course: b.dataset.drop, on: false }); go('/library', false); }; });
+  view.querySelectorAll('[data-addon]').forEach((b) => { b.onclick = async () => { const on = b.getAttribute('aria-checked') !== 'true'; const r = await api('/api/enroll', { course: b.dataset.addon, on }); if (r.ok === false) toast(r.error);
+    const y = window.scrollY; await refresh(); renderLibrary(); window.scrollTo(0, y); }; });
   view.querySelectorAll('[data-more]').forEach((b) => { b.onclick = async () => { const r = await api('/api/learn-more', { course: b.dataset.more, n: 5 }); if (r.ok !== false) { toast('5 more new items added to today.'); go(`/study?course=${encodeURIComponent(b.dataset.more)}`); } else toast(r.error); }; });
 }
 
@@ -851,10 +1092,11 @@ async function renderUnit(cid, uid) {
 
 /* ================= trials ================= */
 async function renderTrials() {
-  const mine = OV.courses.filter((c) => c.enrolled);
+  // A language's levels each have a checkpoint, shown once the level is begun (or is the current one).
+  const mine = OV.courses.filter((c) => c.enrolled && (!isStage(c) || c.seen > 0 || c.current_stage));
   view.innerHTML = '<p class="loading">Reading the heavens…</p>';
   const infos = await Promise.all(mine.map((c) => api(`/api/trial?course=${encodeURIComponent(c.id)}`)));
-  view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints and no feedback until the end. The pass mark here is set above the real exam's, and the questions are harder, so that passing here means something. Passing lifts the whole sect; anything you get wrong that you have studied goes back into your review queue.</p>
+  view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints and no feedback until the end. The pass mark here is set above the real exam's, and the questions are harder, so that passing here means something. ${sectOn() ? 'Passing lifts the whole sect; anything' : 'Anything'} you get wrong that you have studied goes back into your review queue.</p>
     ${infos.map((t, i) => (t.ok === false ? '' : `<section class="panel"><div class="row"><div class="grow"><h2>${esc(t.name)}</h2>
         <p class="dim small" style="margin:2px 0 0">${num(t.questions)} questions, ${num(t.minutes)} minutes, ${num(t.pass_pct)}% to pass${t.best != null ? `. Your best: ${num(t.best)}%` : ''}</p></div>
         <button class="btn seal" data-trial="${esc(mine[i].id)}" ${t.ready ? '' : 'disabled'}>Quick trial</button>
@@ -1035,14 +1277,14 @@ async function startTrial(course, full) {
     const misses = res.review.filter((r) => !r.correct);
     view.innerHTML = `<div class="summary" style="max-width:720px;margin:0 auto">${guide(res.passed ? 'happy' : 'think', 96)}<h1>${res.passed ? 'You passed the trial' : 'The trial stands unbroken'}</h1>
       <p class="dim">${res.passed ? 'Your foundation holds.' : res.overtime ? 'The time ran out before you finished.' : `You need ${num(res.pass_pct)}% to pass. What you missed is listed below, and the ones you have studied are back in your review queue.`}</p>
-      <div class="gains"><div><b class="num">${num(res.pct)}%</b><span>score</span></div><div><b class="num">${num(res.right)}/${num(res.total)}</b><span>correct</span></div><div><b class="num">${res.passed ? '✓' : '—'}</b><span>${res.passed ? 'the sect surges' : 'try again'}</span></div></div>
+      <div class="gains"><div><b class="num">${num(res.pct)}%</b><span>score</span></div><div><b class="num">${num(res.right)}/${num(res.total)}</b><span>correct</span></div><div><b class="num">${res.passed ? '✓' : '—'}</b><span>${res.passed ? (sectOn() ? 'the sect surges' : 'passed') : 'try again'}</span></div></div>
       ${res.domains.length > 1 ? `<section class="panel" style="text-align:left"><h2>By domain</h2>${res.domains.map((d) => `<div style="margin-top:10px"><div class="row small"><span class="grow">${esc(d.title)}</span><b class="num">${num(d.pct)}%</b></div>
         <div class="bar ${num(d.pct) >= num(res.pass_pct) ? 'jade' : ''}"><i style="width:${num(d.pct)}%"></i></div></div>`).join('')}</section>` : ''}
       ${misses.length ? `<section class="panel" style="text-align:left"><h2>What you missed</h2><ul class="list">${misses.map((m) => `<li><b>${esc(m.prompt)}</b>
         <div class="small"><span style="color:#ff9a8a">${m.given ? esc(m.given) : 'No answer'}</span> <span class="dim">should be</span> <span style="color:var(--jade)">${esc(m.expected)}</span></div>
         ${m.explain.whys && m.explain.whys[m.given] ? `<div class="small">Your choice: ${esc(m.explain.whys[m.given])}</div>` : ''}
         ${m.explain.why ? `<div class="dim small">${esc(m.explain.why)}</div>` : ''}</li>`).join('')}</ul></section>` : ''}
-      <div class="row" style="justify-content:center;margin-top:16px"><a class="btn" href="/trials" data-link>Back to trials</a><a class="btn primary" href="/" data-link>Return to the sect</a></div></div>`;
+      <div class="row" style="justify-content:center;margin-top:16px"><a class="btn" href="/trials" data-link>Back to trials</a><a class="btn primary" href="/" data-link>${homeLabel()}</a></div></div>`;
     window.scrollTo(0, 0); refresh();
   };
   draw();
@@ -1060,7 +1302,7 @@ async function renderProgress() {
   const max = Math.max(1, ...s.forecast);
   const first = new Date(`${s.days[0].day}T12:00:00`); const pad = (first.getDay() + 6) % 7;
   const heat = `${'<i style="visibility:hidden"></i>'.repeat(pad)}${s.days.map((d) => `<i class="${d.answers >= 40 ? 'l3' : d.answers >= 15 ? 'l2' : d.answers ? 'l1' : ''}" title="${esc(d.day)}: ${d.answers} answers"></i>`).join('')}`;
-  const mine = OV.courses.filter((c) => c.enrolled);
+  const mine = studyLines();
   view.innerHTML = `<h1 style="margin-bottom:14px">Progress</h1>
     <div class="stats">
       <div class="stat"><b class="num">${s.cards}</b><span>items learned</span></div>
@@ -1072,11 +1314,12 @@ async function renderProgress() {
     <section class="panel"><h2>Reviews coming due</h2><p class="dim small">How many items your memory will need you to revisit over the next two weeks.</p>
       <div class="cols" style="margin-top:22px">${s.forecast.map((n, i) => `<div class="${i ? '' : 'today'}" style="height:${Math.round(100 * n / max)}%" title="${i ? `In ${i} day${i > 1 ? 's' : ''}` : 'Today'}: ${n}"><span>${n || ''}</span></div>`).join('')}</div>
       <div class="row small dim" style="justify-content:space-between;margin-top:4px"><span>Today</span><span>In 2 weeks</span></div></section>
-    <section class="panel"><h2>Arts</h2>${mine.map((c) => `<div style="margin-top:12px"><div class="row small"><span class="grow"><b>${esc(c.title)}</b></span><span class="dim num">${c.seen}/${c.total} learned, ${c.mastered} mastered</span></div>
-      <div class="bar jade" style="margin-top:4px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div></div>`).join('')}</section>
+    <section class="panel"><h2>Arts</h2>${mine.map((c) => `<div style="margin-top:12px"><div class="row small"><span class="grow"><b>${esc(c.label)}</b></span><span class="dim num">${num(c.seen)}/${num(c.total)} learned, ${num(c.mastered)} mastered</span></div>
+      <div class="bar jade" style="margin-top:4px"><i style="width:${Math.round(100 * num(c.seen) / Math.max(num(c.total), 1))}%"></i></div>
+      ${c.track ? `<div class="small dim levels-line">${c.track.stages.map((x) => `<span class="${x.current ? 'now' : ''}">${esc(x.level)} ${num(x.pct)}%</span>`).join(' ▸ ')}</div>` : ''}</div>`).join('')}</section>
     <section class="panel" id="mistakes-panel" hidden></section>
     <section class="panel"><h2>Settings</h2>
-      <div class="setting"><div class="grow"><b>New items a day, per art</b><span>More items now means more reviews later. 8 is a steady pace.</span></div><input type="number" id="set-new" min="0" max="40" value="${set.new_per_day}"></div>
+      <div class="setting"><div class="grow"><b>New items a day, per art</b><span>A language counts as one art, whatever its level. More items now means more reviews later. 8 is a steady pace.</span></div><input type="number" id="set-new" min="0" max="40" value="${set.new_per_day}"></div>
       <div class="setting"><div class="grow"><b>Session length</b><span>The number of exercises in one session.</span></div><input type="number" id="set-size" min="5" max="60" value="${set.session_size}"></div>
       <div class="setting"><div class="grow"><b>Target recall</b><span>How sure you want to be of remembering an item when it comes back. Higher means more reviews.</span></div>
         <select class="in" id="set-ret" style="width:110px">${[0.85, 0.9, 0.93].map((r) => `<option value="${r}" ${Math.abs(set.retention - r) < 0.005 ? 'selected' : ''}>${Math.round(r * 100)}%</option>`).join('')}</select></div>
@@ -1084,11 +1327,20 @@ async function renderProgress() {
         <input type="checkbox" id="set-audio" style="width:24px;height:24px;accent-color:var(--jade)" ${set.audio ? 'checked' : ''}></div>
       <div class="setting"><div class="grow"><b>Handwriting</b><span>Known characters are sometimes asked written, stroke by stroke, on a writing pad. Turn it off if you only type.</span></div>
         <input type="checkbox" id="set-hand" style="width:24px;height:24px;accent-color:var(--jade)" ${set.handwriting !== false ? 'checked' : ''}></div>
-      <div class="setting"><div class="grow"><b>Seclusion</b><span>Holiday mode: freezes your study streak and the sect until you return.</span></div>
-        <button class="btn" id="set-sec">${g.seclusion ? 'Reopen the gates' : 'Enter seclusion'}</button></div>
-      <div class="setting"><div class="grow"><b>Storyteller</b><span>How often trouble finds the sect.</span></div>
-        <select class="in" id="set-tell" style="width:190px">${g.storytellers.map((t) => `<option value="${esc(t.id)}" ${t.id === g.storyteller ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></div>
-      <div class="setting"><div class="grow"><b>Backup</b><span>Download everything (progress and sect) as one file, or restore from one.</span></div>
+      <div class="setting" id="sect-row"><div class="grow"><b>The sect</b><span>${sectOn()
+          ? 'A cultivation sim that runs beside your study. Turn it off to just study: it is paused, and nothing is deleted.'
+          : g.founded ? 'Off: you just study. Your sect is paused where you left it; turn it on to reopen it.'
+            : 'Off: you just study. Turn it on to found a sect whose disciples grow with your study.'}</span>
+          <div class="sect-found" id="sect-found" hidden>
+            <label class="field"><span>Name of the sect</span><input type="text" id="sf-name" maxlength="40" autocomplete="off" value="${esc(set.sect_name || '')}" placeholder="${esc(sectName())}"></label>
+            <label class="field"><span>Your name as Sect Master</span><input type="text" id="sf-master" maxlength="30" autocomplete="off" value="${esc(set.sect_master || '')}" placeholder="Master Jay"></label>
+            <div class="row"><button class="btn quiet" id="sf-cancel">Not now</button><button class="btn primary" id="sf-go">Found the sect</button></div></div></div>
+        <input type="checkbox" id="set-sect" aria-label="The sect" style="width:24px;height:24px;accent-color:var(--jade)" ${sectOn() ? 'checked' : ''}></div>
+      <div class="setting"><div class="grow"><b>${sectOn() ? 'Seclusion' : 'Holiday mode'}</b><span>${sectOn() ? 'Holiday mode: freezes your study streak and the sect until you return.' : 'Freezes your study streak until you return.'}</span></div>
+        <button class="btn" id="set-sec">${g.seclusion ? (sectOn() ? 'Reopen the gates' : 'End the holiday') : (sectOn() ? 'Enter seclusion' : 'Start a holiday')}</button></div>
+      ${sectOn() ? `<div class="setting"><div class="grow"><b>Storyteller</b><span>How often trouble finds the sect.</span></div>
+        <select class="in" id="set-tell" style="width:190px">${g.storytellers.map((t) => `<option value="${esc(t.id)}" ${t.id === g.storyteller ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></div>` : ''}
+      <div class="setting"><div class="grow"><b>Backup</b><span>Download everything (progress${sectOn() || g.founded ? ' and sect' : ''}) as one file, or restore from one.</span></div>
         <button class="btn" id="set-exp">Download backup</button><label class="btn">Restore<input type="file" id="set-imp" accept="application/json" hidden></label></div>
     </section>
     <p class="dim small" style="margin-top:18px">Everything runs on this device: no account, no internet, nothing sent anywhere.</p>`;
@@ -1108,7 +1360,21 @@ async function renderProgress() {
   $('#set-audio').onchange = (e) => save({ audio: e.target.checked });
   $('#set-hand').onchange = (e) => save({ handwriting: e.target.checked });
   $('#set-sec').onclick = async () => { await api('/api/sect/seclusion', { on: !g.seclusion }); go('/progress', false); };
-  $('#set-tell').onchange = async (e) => { await api('/api/sect/storyteller', { storyteller: e.target.value }); toast('Saved.'); };
+  if ($('#set-tell')) $('#set-tell').onchange = async (e) => { await api('/api/sect/storyteller', { storyteller: e.target.value }); toast('Saved.'); };
+  // The sect on or off. On, when it was never founded, asks for its name first (prefilled with the one kept at setup).
+  const sectMode = async (body) => {
+    const r = await api('/api/sect-mode', body);
+    if (r.ok === false) { toast(r.error); $('#set-sect').checked = sectOn(); return; }
+    toast(body.on ? (g.founded ? 'The sect is open again. Its clock starts from now.' : 'Your sect is founded.') : 'The sect is paused. Nothing is lost.');
+    if (body.on && !g.founded) go('/'); else go('/progress', false);
+  };
+  $('#set-sect').onchange = (e) => {
+    if (!e.target.checked) { sectMode({ on: false }); return; }
+    if (g.founded) { sectMode({ on: true }); return; }
+    $('#sect-found').hidden = false; $('#sf-name').focus();
+  };
+  $('#sf-cancel').onclick = () => { $('#sect-found').hidden = true; $('#set-sect').checked = false; };
+  $('#sf-go').onclick = () => sectMode({ on: true, name: $('#sf-name').value || $('#sf-name').placeholder, master: $('#sf-master').value });
   $('#set-exp').onclick = async () => {
     const data = await api('/api/export'); if (data.ok === false) { toast(data.error); return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));

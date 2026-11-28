@@ -85,8 +85,10 @@ reference. The six disciple faces are nearly identical today; make them clearly
 different people (men and women, different ages, hair, robes and colours) while
 keeping the chibi style, face centred, head and shoulders, dark background.
 
-**`hq` must keep its layout.** The game places clickable rooms over it at fixed
-percentages (`SITES` and `VAULT` in `sect_academy/static/art.js`). After
+**`hq` is retired** (sect overhaul stage 5): the home map is now `hq_grid.webp` with a
+`room_<type>.webp` tile per room, laid on the alcove borders in `cellRect`
+(`sect_academy/static/art.js`); a repainted grid must keep those borders. The
+rest of this paragraph is how the old single painting was checked. After
 generating, draw those rectangles over each variant (scale the percentages to the
 image size) and show the owner; reject any variant where a room has moved out of
 its box. Lower the denoise if they drift.
@@ -266,3 +268,122 @@ python scripts/pin_preview.py --all             # every picture
 Pin ids never change (they are the keys of the learner's progress); only `x` and
 `y` move. Commit each delivered painting as "Art: picture <id>"; the lesson opens
 on the next start of the app.
+
+## Round 4: the sect overhaul (rooms you can merge, the courtyard, raids)
+
+The sect is being rebuilt in stages (`docs/SECT_OVERHAUL_PLAN.md`). Stages 5 to 8
+need new paintings. Same look, same opening and closing prompt lines, 3 variants
+each with a contact sheet, owner picks. Commit each batch on its own
+("Art: round 4 <batch>").
+
+### Batch A: the room grid (stage 5) and the map's place emblems (needed first)
+
+The home map becomes a grid: **5 floors of 6 alcoves** cut into the mountain.
+Each room fills 1, 2 or 3 alcoves side by side (merged rooms), so a room is
+painted as **one alcove-wide tile** whose left and right edges are plain rock-cut
+pillars that line up with any neighbour.
+
+| File | Size (final) | Generate at | Subject |
+|---|---|---|---|
+| `hq_grid` | 1620x971 | 1616x976 | the cut-away mountain like `hq`, but **every alcove empty**: 5 floors x 6 equal arched alcoves, dark carved rock, a lantern between each pair, beams and stairs between floors. Use `hq` as the style reference at denoise ~0.75; the alcoves must be the same size and evenly spaced (draw the 6x5 grid over each variant and reject drifting ones). |
+| `room_<type>` (11) | 400x300 | 800x608 | one alcove, front on, filled with that room; plain rock pillars on both edges, floor line at the same height in every tile, a lantern-lit interior, no figures (the game draws disciples on top) |
+
+The 11 types and their subjects (reuse the room-by-room prompts above):
+`dormitory`, `fields` (rice terraces and a spirit tree), `market`,
+`storehouse`, `library`, `ward` (a glowing protective array, not a sickroom),
+`alchemy`, `training`, `vault`, `spirit_vein`, `meditation`. The Main Hall keeps
+its own wider painting: crop the patriarch statue box from `hq` and repaint it
+as `room_main_hall` at 800x300 (two alcoves wide).
+
+**Check before delivering**: put three copies of one tile side by side; the
+seams must read as one long hall. Reject tiles whose floor or ceiling line jumps.
+
+### Batch A, second pass: the owner rejected the first room tiles
+
+The first `room_<type>` tiles and `hq_grid` were delivered and judged **"AI-ish
+and ugly"**: the rooms themselves, not the idea of a grid. Compared with the old
+cut-away (`docs/art_ref/hq_old.webp`, the room-by-room repaint the owner chose),
+the first tiles are sparse (a bare back wall with two or three props), soft and
+smooth where the old rooms are dense and crisp, and all lit the same orange.
+Redo them like this:
+
+- **Start from the old rooms, not from text.** Crop each room from
+  `docs/art_ref/hq_old.webp` (the boxes in the table under "Do `hq` room by
+  room"), upscale the crop 2x, and repaint it image-to-image at **denoise
+  0.40-0.50** so it keeps the old room's density, pixel grain and layout. For
+  `market` and the two wide bottom rooms, crop the most characteristic
+  alcove-wide part.
+- **Fill the tile.** Props floor to ceiling and edge to edge, as in the old
+  rooms: shelves to the beams, things hanging, things on the floor, depth. No
+  empty back wall. No figures.
+- **A light of its own per room**, so the grid is not thirty orange boxes: blue
+  array glow in the library, green furnace light in alchemy, violet qi in
+  meditation, pink blossom and moonlight on the terraces, cold blue crystal in
+  the spirit vein, gold in the vault, red banners in training, warm rice-straw
+  in the storehouse. Lanterns stay, but small.
+- **Deliver at 800x600** (the Main Hall at 1600x600); the page scales them down,
+  and they stay crisp on large screens. Keep the edge pillars and the floor line
+  at the same height, and the three-in-a-row seam check.
+- **`hq_grid`, repainted**: the same 6x5 alcove positions (the game has them
+  measured; draw the old grid's alcove boxes over each variant and reject any
+  that drift), but a mountain, not a shelf: rough rock between alcoves, roots
+  and moss, worn steps and ladders between floors, alcoves that differ a little
+  (a cracked lintel, a hanging charm, a carved beast head), **unlit** except for
+  a few scattered lanterns. Empty alcoves should look like dark rooms waiting,
+  not like framed boxes.
+- Make **3 variants of each and show the owner a contact sheet next to the old
+  cut-away** before pushing. They pick; nothing goes in unpicked.
+
+**Place emblems for the World map (required, part of Batch A).** The map's
+markers are painted emblems; the page draws none itself. Until an emblem's file
+exists that place shows only its name banner hanging from a point of lantern
+light, so each emblem appears on the next start of the app once its file is in
+`static/art/` (the server lists the ones that exist: `colony.PLACE_ART`).
+
+12 emblems, `place_<kind>.webp`, **128x128, transparent ground**, each **one tiny
+painted object** in the lantern-night style, centred, filling most of the square.
+They are shown at 44px on the map and **28px in the list, so each must read at
+28px**: one bold shape, warm rim light, **clearly different silhouettes** from
+one another (shrink the twelve to 28px side by side on a dark ground and reject
+any two that could be confused). **No text, no characters, no frame or disc
+behind the object.**
+
+| File | Subject |
+|---|---|
+| `place_home` | your pagoda hall with a gold lantern hanging at its door |
+| `place_sect` | a pagoda roof (another sect, neither friend nor foe) |
+| `place_ally` | a pagoda roof flying a jade-green banner |
+| `place_rival` | a pagoda roof flying a crimson war banner |
+| `place_demonic` | a black hall with a red lantern and bone charms |
+| `place_village` | a thatched hut |
+| `place_wilds` | a pine with a beast's eyes glowing under it |
+| `place_valley` | a herb basket on green terraces |
+| `place_ruins` | a broken pillar |
+| `place_marsh` | a pool in mist with a glowing rift above it (the secret realm) |
+| `place_lord` | a walled keep with a pennant |
+| `place_branch` | a small hall (a branch of your own sect: smaller and plainer than `place_home`) |
+
+Generate each on a plain **mid-grey** background at 512x512 or larger, cut it
+out (rembg or by hand), scale to 128x128 and deliver as **WebP with alpha**. Check
+the cut-out on the dark map: no grey fringe.
+
+### Batch B: the courtyard and its pieces (stage 6)
+
+| File | Size | Subject |
+|---|---|---|
+| `courtyard` | 1600x1000 | the sect's gate courtyard from above at three-quarters: flagstones in a faint 8x5 grid, the great gate at the bottom, three approaches (the gate road at the bottom, a stone stair on the west, a cliff path on the east), the inner hall's steps at the top; empty of people and defences |
+| `courtyard_righteous`, `courtyard_demonic`, `courtyard_neutral` | 1600x1000 | the same layout recoloured for rival sects: jade and white stone; crimson lacquer and black stone with bone charms; ochre and weathered wood |
+| `piece_<name>` (9) | 256x256, transparent | small three-quarter sprites, one object each, centred, soft shadow: `ward_pillar`, `ward_pillar_grand`, `sword_tower`, `talisman_snare`, `wall_1`, `wall_2`, `wall_3` (wood palisade, stone wall, jade-capped wall), `guard_post`; plus raider tokens `raider_righteous`, `raider_demonic`, `raider_bandit` (a small figure in each faction's colours) |
+
+Generate pieces on a plain mid-grey background and cut them out (rembg or by
+hand); deliver as WebP with alpha.
+
+### Batch C: scenes and crests (stages 4, 7 and 8)
+
+| File | Size | Subject |
+|---|---|---|
+| `scene_incident` | 1152x768 | an alchemy furnace bursting into flame at night, disciples throwing water and sand, smoke and sparks (stage 4 already uses it when it exists) |
+| `scene_hall` | 1152x768 | the Main Hall newly raised: fresh red pillars and gold roof, disciples gathered on the steps, fireworks |
+| `scene_assault` | 1152x768 | your war party at a rival sect's gate: cultivators with swords and talismans charging up stone steps, the enemy formation barrier flaring |
+| `scene_season` | 1152x768 | a ranking ceremony: sect banners in rows before a great stone stele, an elder announcing, crowds |
+| `crest_<league>` (5) | 192x192 | painted round emblems on dark ground: `crest_bronze` (bronze bell), `crest_silver` (silver crane), `crest_gold` (gold sun), `crest_jade` (jade dragon), `crest_heaven` (white phoenix over clouds) |

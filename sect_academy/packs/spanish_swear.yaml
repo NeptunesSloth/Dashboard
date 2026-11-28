@@ -1,0 +1,199 @@
+id: spanish-swear
+title: "Spanish — Swearing & slang"
+kind: language
+language: Spanish
+lang: es-ES
+track: spanish
+addon: swear
+hall: tongues_south
+blurb: "Opt-in, for understanding: the swearing, insults and rude slang you hear in films, on the street and in games, with how strong each word is and where it is said (Spain, Mexico, Argentina, Chile and more)."
+
+# An opt-in add-on: the aim is to understand real speech and judge how strong a word is,
+# not to encourage anyone to use it. Every note gives: literal meaning, real meaning,
+# strength (mild / strong / very strong) and who says it where.
+# Excluded on purpose: slurs aimed at race, ethnicity, religion, disability, sexuality or
+# gender identity (e.g. no maricón, no marica, no subnormal).
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: es-sw-01
+    title: "Mild: the stubbed-toe words"
+    goal: "I can recognise the mild exclamations that people of any age say on TV and at home, and know which country they belong to."
+    notes: |
+      Most everyday "swearing" is mild. Many mild words are **disguised** strong ones: you start the bad word and swerve into a harmless one, the way English says *shoot* for *shit*.
+
+      - Spain: **¡Jolín!** (from *joder*), **¡Ostras!** (from *hostias*), **¡Mecachis!** (from *me cago*).
+      - Everywhere: **¡Caramba!** (from *carajo*), **¡Miércoles!** (from *mierda*).
+      - Mexico: **¡Híjole!** and **¡Chale!**. South America (Chile, Peru, Argentina and more): **¡Pucha!** (from *puta*).
+
+      All of these are safe in front of children and grandparents. The strength scale used in this course is **mild** (fine almost anywhere), **strong** (crude: friends yes, work and elders no) and **very strong** (insulting or fighting words).
+    items:
+      - {id: es-sw-01-jolin, type: vocab, l2: "¡Jolín!", l1: "Gosh! / Darn it! (Spain, the softened 'joder')", alt: ["¡Jo!", "¡Jolines!"],
+         ex: "¡Jolín, he perdido las llaves otra vez!", ex_l1: "Darn it, I've lost my keys again!",
+         note: "Literal: no meaning of its own, a disguised joder. Real meaning: annoyance or surprise. Strength: mild; children say it. Heard: Spain; Jo! alone is just as common."}
+      - {id: es-sw-01-ostras, type: vocab, l2: "¡Ostras!", l1: "Wow! / Blimey! (Spain; literally 'oysters')",
+         note: "Literal: 'oysters', a disguised hostias. Real meaning: surprise, good or bad. Strength: mild, fine with family. Heard: Spain; rare in Latin America."}
+      - {id: es-sw-01-mecachis, type: vocab, l2: "¡Mecachis!", l1: "Drat! (Spain, a childish softening of 'me cago')",
+         note: "Literal: nothing, a disguised me cago ('I shit'). Real meaning: mild annoyance. Strength: mild, a little old-fashioned or jokey. Heard: Spain."}
+      - {id: es-sw-01-caramba, type: vocab, l2: "¡Caramba!", l1: "Good heavens! / Gosh! (everywhere, a bit old-fashioned)", alt: ["¡Caray!"],
+         note: "Literal: nothing, a disguised carajo. Real meaning: surprise or mild annoyance. Strength: mild. Heard: everywhere Spanish is spoken; sounds a little dated. ¡Caray! is the same."}
+      - {id: es-sw-01-miercoles, type: vocab, l2: "¡Miércoles!", l1: "Shoot! (literally 'Wednesday')",
+         note: "Literal: 'Wednesday', chosen because it starts like mierda. Real meaning: shit! said politely. Strength: mild and jokey. Heard: Spain and Latin America."}
+      - {id: es-sw-01-hijole, type: vocab, l2: "¡Híjole!", l1: "Oh man! / Yikes! (Mexico)",
+         ex: "¡Híjole, ya es tardísimo!", ex_l1: "Oh man, it's really late already!",
+         note: "Literal: no clear literal sense today. Real meaning: surprise, dismay or 'that's tricky'. Strength: mild, fine with anyone. Heard: Mexico and Central America."}
+      - {id: es-sw-01-chale, type: vocab, l2: "¡Chale!", l1: "Bummer! / No way! (Mexico, slang)",
+         note: "Literal: no literal sense. Real meaning: disappointment or disbelief. Strength: mild, casual slang. Heard: Mexico, mostly younger people."}
+      - {id: es-sw-01-pucha, type: vocab, l2: "¡Pucha!", l1: "Darn! (South America; the softened 'puta')",
+         note: "Literal: nothing, a disguised puta ('whore'). Real meaning: annoyance or regret. Strength: mild. Heard: South America: Chile, Peru, Argentina, Uruguay, Bolivia and more; rare in Spain and Mexico."}
+      - {id: es-sw-01-diablos, type: vocab, l2: "¡Diablos!", l1: "Damn! / Heck! (literally 'devils')",
+         note: "Literal: 'devils'. Real meaning: annoyance or surprise. Strength: mild. Heard: Latin America, and very often in Latin American dubs of films and cartoons, where it stands for English 'damn'."}
+
+  # ---------------------------------------------------------------- 2
+  - id: es-sw-02
+    title: "Strong: the real swearwords"
+    goal: "I can recognise the common strong swearwords and know where each one is everyday and where it shocks."
+    notes: |
+      Strength depends on the country more than on the word.
+
+      - **Spain** swears freely: *¡joder!*, *¡hostia!*, *¡coño!* are heard in offices and on TV dramas, far more than their English equivalents would be. They are still **strong**: not in a job interview.
+      - **Mexico** builds on **chingar** and **madre**: *¡chingada madre!*, *¡puta madre!*. Anything with *madre* can be dangerous (see unit 5).
+      - **Joder** in Latin America is usually *to annoy*: *¡No jodas!* = "Don't mess with me / No way!".
+      - **Mierda** works everywhere.
+
+      A word about *hostia*: it is the communion wafer, so religious people may be offended.
+    items:
+      - {id: es-sw-02-mierda, type: vocab, l2: "¡Mierda!", l1: "Shit! (everywhere)",
+         ex: "¡Mierda, se me ha olvidado el móvil!", ex_l1: "Shit, I've forgotten my phone!",
+         note: "Literal: 'shit, excrement'. Real meaning: anger or frustration; es una mierda = it's crap. Strength: strong, but heard every day. Heard: every Spanish-speaking country."}
+      - {id: es-sw-02-joder, type: vocab, l2: "¡Joder!", l1: "Fuck! / Bloody hell! (Spain, verb 'to fuck')",
+         note: "Literal: 'to fuck'. Real meaning: the all-purpose exclamation of anger or surprise. Strength: strong, though in Spain it is heard constantly. Heard: Spain. In Latin America joder mostly means 'to annoy': ¡No jodas! = 'No way! / Don't mess with me'."}
+      - {id: es-sw-02-cono, type: vocab, l2: "¡Coño!", l1: "Damn it! / Bloody hell! (Spain and the Caribbean; a crude word for the vulva)",
+         note: "Literal: a crude word for the female genitals. Real meaning: surprise or anger, far weaker than English 'cunt'. Strength: strong. Heard: Spain, Venezuela, Cuba, the Dominican Republic, Puerto Rico; elsewhere in Latin America it is rarer and sounds more shocking."}
+      - {id: es-sw-02-hostia, type: vocab, l2: "¡Hostia!", l1: "Holy shit! / Bloody hell! (Spain; literally 'the communion wafer')", alt: ["¡Hostias!"],
+         note: "Literal: 'the host' (the communion wafer). Real meaning: big surprise or anger. Strength: strong, and blasphemous to believers. Heard: Spain. Also una hostia = a hard smack, and a toda hostia = flat out."}
+      - {id: es-sw-02-carajo, type: vocab, l2: "¡Carajo!", l1: "Damn it! / Hell! (Latin America; an old word for penis)",
+         note: "Literal: an old word for the penis. Real meaning: anger or emphasis; ¡Vete al carajo! = go to hell. Strength: strong. Heard: across Latin America (Venezuela, Colombia, Cuba, Argentina and more); in Spain it is used too, less often than joder, mostly in set phrases (¡vete al carajo!, me importa un carajo)."}
+      - {id: es-sw-02-me-cago-leche, type: phrase, l2: "¡Me cago en la leche!", l1: "Bloody hell! (Spain; literally 'I shit in the milk')",
+         note: "Literal: 'I shit in the milk'. Real meaning: frustration. Strength: strong but common and not aimed at anyone. Heard: Spain. Me cago en… + something is a Spanish pattern; aimed at a person's family or God it becomes very strong (unit 5)."}
+      - {id: es-sw-02-puta-madre, type: phrase, l2: "¡Puta madre!", l1: "Fuck! (frustration, Latin America; literally 'whore mother')",
+         note: "Literal: 'whore mother'. Real meaning: anger or frustration, said to nobody in particular. Strength: strong. Heard: across Latin America, very often in Mexico and Peru. Careful: de puta madre in Spain means 'brilliant' (unit 4)."}
+      - {id: es-sw-02-chingada, type: phrase, l2: "¡Chingada madre!", l1: "Fucking hell! (Mexico)",
+         note: "Literal: 'fucked mother'. Real meaning: anger, a disaster. Strength: very strong as an exclamation. Heard: Mexico. ¡Vete a la chingada! = 'fuck off'."}
+      - {id: es-sw-02-chingar, type: vocab, l2: "chingar", l1: "to fuck; to screw over; to pester (Mexico)",
+         note: "Literal: 'to have sex' (crude). Real meaning: to damage, ruin, cheat or bother: ya se chingó = it's broken. Strength: strong; many forms (chingón, chingadera) carry it. Heard: Mexico, and parts of Central America; in Spain it is not used this way."}
+
+  # ---------------------------------------------------------------- 3
+  - id: es-sw-03
+    title: "Insults: from 'silly' to fighting words"
+    goal: "I can understand what someone is being called, and how bad it is in that country."
+    notes: |
+      Insults travel badly. The same word can be an insult in one country and a greeting between friends in another.
+
+      - **Spain**: *gilipollas*, *capullo*, *imbécil*.
+      - **Mexico**: *pendejo* (but in Argentina a *pendejo* is just a kid).
+      - **Argentina / Uruguay**: *boludo* is what friends call each other, *pelotudo* is the real insult.
+      - **Chile**: *huevón* (*weón*) is used constantly between friends, and also as an insult.
+
+      Tone and relationship decide: *¡Qué cabrón eres!* can be admiration from a friend in Mexico and an insult from a stranger in Spain.
+    items:
+      - {id: es-sw-03-gilipollas, type: vocab, l2: "gilipollas", l1: "dickhead / moron (Spain)",
+         ex: "No seas gilipollas.", ex_l1: "Don't be a dickhead.",
+         note: "Literal: built from gilí ('fool') + pollas ('dicks'). Real meaning: idiot, jerk. Strength: strong. Heard: Spain, all the time; hardly used in Latin America. The same for men and women."}
+      - {id: es-sw-03-capullo, type: vocab, l2: "capullo", l1: "jerk / git (Spain; literally 'cocoon, flower bud')",
+         note: "Literal: 'cocoon' or 'flower bud' (and, crudely, the head of the penis). Real meaning: a jerk, someone who behaves badly. Strength: strong, a bit milder than gilipollas. Heard: Spain."}
+      - {id: es-sw-03-imbecil, type: vocab, l2: "imbécil", l1: "imbecile / idiot (everywhere)", alt: ["idiota"],
+         note: "Literal: 'feeble, foolish'. Real meaning: idiot. Strength: strong as a personal insult, but not vulgar; it can be said on TV. Heard: everywhere. Idiota is the same strength."}
+      - {id: es-sw-03-pendejo, type: vocab, l2: "pendejo", l1: "dumbass / idiot (Mexico); a mere kid (Argentina)",
+         note: "Literal: 'pubic hair'. Real meaning: idiot, coward; but in Argentina and Uruguay, a youngster or teenager. Strength: strong as 'idiot', only mildly cheeky as 'kid'. Heard: as 'idiot' in Mexico, Central America, Colombia, Venezuela and among US Spanish speakers; as 'kid' in Argentina and Uruguay."}
+      - {id: es-sw-03-boludo, type: vocab, l2: "boludo", l1: "dude; or idiot (Argentina, Uruguay)", alt: ["boluda"],
+         ex: "¿Qué hacés, boludo?", ex_l1: "What's up, dude?",
+         note: "Literal: 'big-balled'. Real meaning: between friends, 'dude, mate'; said angrily, 'idiot'. Strength: mild among friends, strong as an insult. Heard: Argentina and Uruguay, constantly."}
+      - {id: es-sw-03-pelotudo, type: vocab, l2: "pelotudo", l1: "fucking idiot (Argentina, Uruguay)",
+         note: "Literal: 'big-balled' (pelotas = balls). Real meaning: a real idiot; not used to friends the way boludo is. Strength: strong. Heard: Argentina and Uruguay."}
+      - {id: es-sw-03-cabron, type: vocab, l2: "cabrón", l1: "bastard (Spain); also dude / badass (Mexico)",
+         note: "Literal: 'big billy goat' (once: a man whose wife cheats on him). Real meaning: in Spain, bastard, a nasty man (strong). In Mexico it can also mean 'dude' between friends or 'really good / really hard': está cabrón = it's tough. Strength: strong; friendly use only between friends. Heard: Spain and Mexico above all."}
+      - {id: es-sw-03-hijo-de-puta, type: vocab, l2: "hijo de puta", l1: "son of a bitch (everywhere; literally 'son of a whore')", alt: ["hijoputa"],
+         note: "Literal: 'son of a whore'. Real meaning: bastard, the classic heavy insult. Strength: very strong. Heard: everywhere; in Spain also hijoputa. Mexico often says hijo de la chingada."}
+      - {id: es-sw-03-huevon, type: vocab, l2: "huevón", l1: "dude; or idiot (Chile, Peru)", alt: ["weón", "huevona"],
+         note: "Literal: 'big-egged' (huevos = balls). Real meaning: in Chile and Peru, 'dude' between friends and 'idiot' in anger. Strength: mild to strong by tone. Heard: Chile (often written weón, said 'weón'), Peru, Ecuador; in Venezuela guevón means idiot or lazy."}
+      - {id: es-sw-03-mamon, type: vocab, l2: "mamón", l1: "jerk (Spain); stuck-up show-off (Mexico)",
+         note: "Literal: 'one who sucks' (a suckling). Real meaning: in Spain, a jerk, a bastard; in Mexico, an arrogant, stuck-up person. Strength: strong. Heard: Spain and Mexico, with these different senses."}
+      - {id: es-sw-03-cagon, type: vocab, l2: "cagón", l1: "chicken / coward (literally 'shitter')", alt: ["cagona"],
+         note: "Literal: 'someone who shits a lot'. Real meaning: a coward, a scaredy-cat. Strength: strong in form but often teasing. Heard: Spain and Latin America."}
+
+  # ---------------------------------------------------------------- 4
+  - id: es-sw-04
+    title: "Rude but everyday: slang you hear all day"
+    goal: "I can follow the crude everyday slang of friends talking, including the rude words that mean something good."
+    notes: |
+      A lot of vulgar Spanish is not angry at all. Rude words often mean **great**:
+
+      - Spain: *de puta madre* and *cojonudo* = brilliant.
+      - Mexico: *chingón* = awesome; *¿qué pedo?* = what's up?
+
+      And many fixed phrases use them for "I don't care" or "I'm fed up": *me importa una mierda*, *me vale madre*, *estoy hasta los cojones*. These are **strong**: normal between friends, wrong with your boss or your partner's grandmother.
+    items:
+      - {id: es-sw-04-de-puta-madre, type: phrase, l2: "de puta madre", l1: "fucking brilliant / awesome (Spain)",
+         ex: "La fiesta estuvo de puta madre.", ex_l1: "The party was fucking brilliant.",
+         note: "Literal: 'of whore mother'. Real meaning: excellent. Strength: strong in form, positive in meaning. Heard: Spain. In Mexico the positive form is de poca madre or a toda madre; ¡Qué poca madre! there means 'how shameless!'."}
+      - {id: es-sw-04-cojonudo, type: vocab, l2: "cojonudo", l1: "bloody brilliant (Spain; from 'cojones', balls)",
+         note: "Literal: 'ballsy' (cojones = balls). Real meaning: great, excellent. Strength: strong. Heard: Spain."}
+      - {id: es-sw-04-chingon, type: vocab, l2: "chingón", l1: "fucking awesome; a badass (Mexico)",
+         ex: "¡Qué chingón!", ex_l1: "That's fucking awesome!",
+         note: "Literal: from chingar ('to fuck'). Real meaning: excellent, or a person who is very good at something. Strength: strong. Heard: Mexico."}
+      - {id: es-sw-04-importa-mierda, type: phrase, l2: "Me importa una mierda.", l1: "I don't give a shit.", alt: ["Me importa un carajo."],
+         note: "Literal: 'it matters a shit to me'. Real meaning: I don't care at all. Strength: strong. Heard: everywhere; un carajo instead of una mierda is the same."}
+      - {id: es-sw-04-vale-madre, type: phrase, l2: "Me vale madre.", l1: "I don't give a damn. (Mexico)", alt: ["Me vale madres.", "Me vale."],
+         note: "Literal: 'it's worth mother to me'. Real meaning: I don't care. Strength: strong; the short Me vale is milder. Heard: Mexico."}
+      - {id: es-sw-04-hasta-cojones, type: phrase, l2: "Estoy hasta los cojones.", l1: "I'm fed up to the back teeth. (Spain, crude)", alt: ["Estoy hasta los huevos."],
+         note: "Literal: 'I'm (filled) up to the balls'. Real meaning: I've had enough. Strength: strong. Heard: Spain. Milder: Estoy harto/a."}
+      - {id: es-sw-04-la-cague, type: phrase, l2: "La cagué.", l1: "I screwed up. (crude)", alt: ["La he cagado."],
+         ex: "Lo siento, la cagué.", ex_l1: "Sorry, I screwed up.",
+         note: "Literal: 'I shat it'. Real meaning: I made a mess of it. Strength: strong in form but extremely common. Heard: everywhere; Spain says La he cagado."}
+      - {id: es-sw-04-que-pedo, type: phrase, l2: "¿Qué pedo?", l1: "What's up? / What the hell? (Mexico; literally 'what fart?')",
+         note: "Literal: 'what fart?'. Real meaning: 'what's up?' to friends, or 'what's your problem?'. Strength: strong-ish slang; not for elders. Heard: Mexico. Also estar pedo = to be drunk, no hay pedo = no problem."}
+      - {id: es-sw-04-guey, type: vocab, l2: "güey", l1: "dude / mate (Mexico)", alt: ["wey", "buey"],
+         ex: "¿Qué onda, güey?", ex_l1: "What's up, dude?",
+         note: "Literal: from buey, 'ox', once 'dimwit'. Real meaning: the Mexican word for 'dude', said constantly between friends; it can still mean 'idiot' when said angrily. Strength: mild among friends. Heard: Mexico."}
+      - {id: es-sw-04-culo, type: vocab, l2: "el culo", l1: "arse / ass (everywhere)",
+         note: "Literal: 'arse, backside'. Real meaning: the same, plus many idioms: en el culo del mundo = at the back of beyond. Strength: strong-ish; milder than in English but not polite. Heard: everywhere."}
+      - {id: es-sw-04-conazo, type: vocab, l2: "un coñazo", l1: "a pain / a total drag (Spain)",
+         ex: "Esta reunión es un coñazo.", ex_l1: "This meeting is a total drag.",
+         note: "Literal: from coño (a crude word for the vulva). Real meaning: something boring or annoying. Strength: strong. Heard: Spain."}
+
+  # ---------------------------------------------------------------- 5
+  - id: es-sw-05
+    title: "How strong is it? Fighting words and traps"
+    goal: "I can tell a softened phrase from fighting words, and avoid the everyday words that are rude in another country."
+    notes: |
+      **The softened pairs.** Many strong phrases have a polite twin: *¡No mames!* → **¡No manches!**, *joder* → *jolín*.
+
+      **Fighting words.** Telling someone where to go is strong; bringing in their **mother** is very strong. In Mexico even *¡tu madre!* alone can start a fight.
+
+      **Traps** (innocent in one country, rude in another):
+      - **coger**: 'to take' in Spain, 'to have sex' in Mexico, Argentina and much of Latin America.
+      - **concha**: 'shell' in most places, vulgar in Argentina, Uruguay, Chile and Peru.
+      - **pinche**: 'kitchen hand' in Spain, 'lousy, damn' in Mexico.
+    items:
+      - {id: es-sw-05-no-manches, type: phrase, l2: "¡No manches!", l1: "No way! / You're kidding! (Mexico, the polite version)",
+         note: "Literal: 'don't stain'. Real meaning: disbelief, the softened twin of ¡No mames!. Strength: mild; fine with family. Heard: Mexico."}
+      - {id: es-sw-05-no-mames, type: phrase, l2: "¡No mames!", l1: "No fucking way! (Mexico, crude; literally 'don't suck')",
+         note: "Literal: 'don't suck'. Real meaning: no way, you're kidding, are you serious. Strength: strong; friends say it constantly, but not to elders or at work. Heard: Mexico."}
+      - {id: es-sw-05-vete-mierda, type: phrase, l2: "¡Vete a la mierda!", l1: "Go to hell! / Piss off! (literally 'go to the shit')",
+         note: "Literal: 'go to the shit'. Real meaning: get lost, I'm done with you. Strength: strong, aimed at a person. Heard: everywhere."}
+      - {id: es-sw-05-vete-carajo, type: phrase, l2: "¡Vete al carajo!", l1: "Go to hell! (Latin America; literally 'go to the [old word for penis]')",
+         note: "Literal: 'go to the carajo' (an old word for the penis; the popular story that a carajo was a ship's masthead lookout is unproven folk etymology). Real meaning: get lost. Strength: strong. Heard: across Latin America, and in Spain."}
+      - {id: es-sw-05-que-te-den, type: phrase, l2: "¡Que te den!", l1: "Screw you! / Get stuffed! (Spain)",
+         note: "Literal: 'may they give it to you' (short for que te den por culo, 'may you get it up the arse'). Real meaning: screw you. Strength: strong; the full version is very strong. Heard: Spain."}
+      - {id: es-sw-05-chinga-tu-madre, type: phrase, l2: "¡Chinga tu madre!", l1: "Fuck you! (Mexico, fighting words; 'your mother')",
+         note: "Literal: 'fuck your mother'. Real meaning: the heaviest everyday Mexican insult. Strength: very strong; can start a fight. Heard: Mexico. Often clipped to ¡Chinga tu…! or just ¡Tu madre!, which are still very strong."}
+      - {id: es-sw-05-me-cago-tu-madre, type: phrase, l2: "¡Me cago en tu madre!", l1: "Fuck you! (Spain, fighting words; 'I shit on your mother')",
+         note: "Literal: 'I shit on your mother'. Real meaning: an insult to the listener and their family. Strength: very strong; fighting words when said to someone. Heard: Spain."}
+      - {id: es-sw-05-pinche, type: vocab, l2: "pinche", l1: "damn / lousy (Mexico, before a noun); a kitchen hand (Spain)",
+         ex: "Este pinche tráfico…", ex_l1: "This damn traffic…",
+         note: "Literal: in Spain, a kitchen assistant. Real meaning in Mexico: an adjective for anything annoying or worthless: pinche coche = lousy car. Strength: strong (crude) in Mexico. Heard: Mexico; in Spain only the kitchen sense."}
+      - {id: es-sw-05-coger, type: vocab, l2: "coger", l1: "to take (Spain); to have sex, crude (Mexico, Argentina)",
+         note: "Literal: 'to take, to catch'. Real meaning: in Spain, harmless (coger el autobús); in much of Latin America, the crude 'to fuck'. Strength: strong in that sense. Heard: the crude sense in Mexico, Argentina, Uruguay, Venezuela and much of Latin America, where people say tomar or agarrar el autobús."}
+      - {id: es-sw-05-concha, type: vocab, l2: "la concha", l1: "a shell; a crude word for the vulva (Argentina, Uruguay, Chile, Peru)",
+         note: "Literal: 'shell'. Real meaning: a crude word for the vulva; ¡la concha de tu madre! is a very strong insult. Strength: strong, and very strong in that insult. Heard: the crude sense in Argentina, Uruguay, Chile and Peru; elsewhere it is a shell, and in Mexico also a sweet bread."}

@@ -86,21 +86,176 @@ SURNAMES = ["Lin", "Zhao", "Mo", "Yun", "Feng", "Bai", "Xiao", "Shen", "Luo", "H
 GIVEN = ["Wei", "Yan", "Chen", "Xue", "Ling", "Hao", "Mei", "Rou", "Jin", "Tian", "Qing", "Yu", "An", "Zhi", "Lan", "Shuo",
          "Feiyan", "Wuji", "Ruoxi", "Changge", "Yichen", "Suyin"]
 
-# Rooms. cost(level) = base * 1.8**level, plus spirit stones from the third level.
+# Rooms. cost(level) = base * COST_CURVE**level, plus spirit stones from the fourth level (room_cost). Tuned by tests/balance.py.
 ROOMS = {
-    "main_hall":   {"name": "Main Hall", "wood": 40, "stone": 30, "max": 5,
-                    "effect": "The heart of the sect. Other rooms can be at most one level above it, and each level houses the fame that draws wanderers."},
-    "dormitory":   {"name": "Dormitory", "wood": 30, "stone": 10, "max": 5, "effect": "Three beds per level. Disciples without a bed sleep badly."},
-    "fields":      {"name": "Rice Terraces", "wood": 20, "stone": 10, "max": 5, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
-    "storehouse":  {"name": "Storehouse", "wood": 30, "stone": 20, "max": 5, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
-    "library":     {"name": "Scripture Pavilion", "wood": 35, "stone": 20, "max": 5, "effect": "Lets disciples research. Faster per level."},
-    "meditation":  {"name": "Meditation Chamber", "wood": 25, "stone": 25, "max": 5, "effect": "+15% qi from meditation per level."},
-    "alchemy":     {"name": "Alchemy Hall", "wood": 25, "stone": 30, "max": 5, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
-    "training":    {"name": "Training Grounds", "wood": 30, "stone": 15, "max": 5, "effect": "Lets disciples train for combat. Faster per level."},
-    "ward":        {"name": "Ward Formation", "wood": 15, "stone": 45, "max": 5, "effect": "Defends the sect on its own. Stronger per level."},
-    "spirit_vein": {"name": "Spirit Vein", "wood": 20, "stone": 40, "max": 5, "effect": "Quarrying also yields spirit stones, and meditation gains +5% per level."},
-    "market":      {"name": "Trade Post", "wood": 35, "stone": 15, "max": 3, "effect": "Merchants visit more often and pay better."},
+    "main_hall":   {"name": "Main Hall", "wood": 15, "stone": 11, "max": 10,
+                    "effect": "The heart of the sect. Each level opens rooms and room levels, and houses more disciples and the fame that draws wanderers."},
+    "dormitory":   {"name": "Dormitory", "wood": 14, "stone": 5, "max": 8, "effect": "Three beds per level. Disciples without a bed sleep badly."},
+    "fields":      {"name": "Rice Terraces", "wood": 9, "stone": 5, "max": 8, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
+    "storehouse":  {"name": "Storehouse", "wood": 14, "stone": 9, "max": 8, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
+    "library":     {"name": "Scripture Pavilion", "wood": 16, "stone": 9, "max": 8, "effect": "Lets disciples research. Faster per level."},
+    "meditation":  {"name": "Meditation Chamber", "wood": 11, "stone": 11, "max": 8, "effect": "+15% qi from meditation per level."},
+    "alchemy":     {"name": "Alchemy Hall", "wood": 11, "stone": 14, "max": 8, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
+    "training":    {"name": "Training Grounds", "wood": 14, "stone": 7, "max": 8, "effect": "Lets disciples train for combat. Faster per level."},
+    "ward":        {"name": "Ward Formation", "wood": 7, "stone": 20, "max": 8, "effect": "Defends the sect on its own. Stronger per level."},
+    "spirit_vein": {"name": "Spirit Vein", "wood": 9, "stone": 18, "max": 8, "effect": "Quarrying also yields spirit stones, and meditation gains +5% per level."},
+    "market":      {"name": "Trade Post", "wood": 16, "stone": 7, "max": 3, "effect": "Merchants visit more often and pay better."},
 }
+# The Main Hall ladder (SECT_OVERHAUL_PLAN 3.2): the rooms each level opens, and the highest level any other room
+# may reach while the Hall stands there (never more than one above the Hall). Builders come at BUILDER_HALLS.
+HALL_LADDER = {
+    1: {"rooms": ("dormitory", "fields", "storehouse", "ward"), "cap": 2},
+    2: {"rooms": ("library", "training", "meditation"), "cap": 3},
+    3: {"rooms": ("alchemy",), "cap": 3},
+    4: {"rooms": ("spirit_vein",), "cap": 4, "more": ("Branch sects, with eight disciples and 100 spirit stones",)},
+    5: {"rooms": ("market",), "cap": 5, "more": ("The first line of the Great Work “A Great Sect”",)},
+    6: {"cap": 6},
+    7: {"cap": 6},
+    8: {"cap": 7},
+    9: {"cap": 7},
+    10: {"cap": 8, "more": ("The summit: the tallest hall in the valley",)},
+}
+HALL_ROOMS_NEEDED = 3              # to raise the Hall to n+1, this many other rooms must stand at level n or higher
+COST_CURVE = 1.6                   # each level of a room costs this many times the one before
+STONES_PER_LEVEL = 5               # spirit stones a level from the fourth on: 5 for level 4, 10 for level 5, ...
+
+
+def room_opens_at(room: str) -> int:
+    """The Main Hall level a room can first be built at."""
+    return next((h for h, x in HALL_LADDER.items() if room in x.get("rooms", ())), 1)
+
+
+# The grid (SECT_OVERHAUL_PLAN 3.6 (4)): the sect is 5 floors of 6 alcoves. c["plots"] says where each room stands
+# ({room: {"f": floor from the ground, "s": first alcove, "w": alcoves wide}}); its level stays in c["rooms"], one
+# room of each kind. A wing built in the next alcove merges into the room: more places and a better yield.
+GRID_FLOORS, GRID_SLOTS = 5, 6
+FLOOR_HALL = (1, 1, 2, 3, 5)       # the Main Hall level that opens each floor, from the ground up
+WIDE_HALL = {2: 3, 3: 5}           # the Main Hall level that lets a room stand two, then three alcoves wide
+WIDE_X = {1: 1.0, 2: 1.1, 3: 1.2}        # what a merged room's yield is multiplied by
+WIDE_COST = {1: 1.0, 2: 1.5, 3: 1.5}     # the cost of each later level (two single rooms would pay x2, three x3)
+WIDE_TIME = {1: 1.0, 2: 1.25, 3: 1.5}    # and its time (never over the longest timer)
+WIDE_WORD = {1: "one alcove", 2: "two alcoves wide", 3: "three alcoves wide"}
+FIXED_W = {"main_hall": 2, "vault": 1}   # the Hall is always two alcoves, the Treasure Vault one; neither merges
+DEFAULT_CELL = {"main_hall": (0, 2), "fields": (0, 0), "dormitory": (0, 4), "storehouse": (1, 0), "ward": (1, 3), "vault": (1, 5),
+                "library": (2, 0), "training": (2, 2), "meditation": (2, 4), "alchemy": (3, 0), "spirit_vein": (3, 3), "market": (4, 0)}
+WIDE_YIELD = {"fields": "Rice per farmer-hour", "storehouse": "What the Storehouse adds to the stores", "library": "Research",
+              "training": "Combat skill from training", "meditation": "Qi from meditation", "alchemy": "Pill brewing",
+              "spirit_vein": "Spirit stones from quarrying", "ward": "Ward strength", "market": "The merchants' better prices"}
+
+
+def _w(c: dict, room: str) -> int:
+    """How many alcoves wide a room's work counts as (the Hall and the vault never count as merged)."""
+    p = c.get("plots", {}).get(room)
+    return max(1, min(3, int(p["w"]))) if isinstance(p, dict) and room not in FIXED_W else 1
+
+
+def wide_x(c: dict, room: str) -> float:
+    return WIDE_X[_w(c, room)]
+
+
+def _queued(c: dict, room: str) -> int:
+    """Levels of `room` waiting in the build list (a wing is not a level)."""
+    return sum(1 for b in c["builds"] if b["room"] == room and not b.get("wing"))
+
+
+def floors_open(c: dict) -> int:
+    hall = max(1, _lvl(c, "main_hall"))
+    return sum(1 for h in FLOOR_HALL if h <= hall)
+
+
+def wide_max(c: dict) -> int:
+    hall = _lvl(c, "main_hall")
+    return max([1] + [w for w, h in WIDE_HALL.items() if hall >= h])
+
+
+def _cells(plot: dict) -> list[tuple[int, int]]:
+    return [(int(plot["f"]), int(plot["s"]) + i) for i in range(int(plot["w"]))]
+
+
+def _taken(c: dict, skip: str = "") -> dict:
+    """{(floor, alcove): room} for every alcove in use, wings being built included."""
+    out = {}
+    for k, p in c["plots"].items():
+        if k != skip:
+            for cell in _cells(p):
+                out[cell] = k
+    for b in c["builds"]:
+        if b.get("wing") and b["room"] != skip:
+            out[(int(b["wing"][0]), int(b["wing"][1]))] = b["room"]
+    return out
+
+
+def _layout(c: dict) -> None:
+    """Keep c["plots"] true to the rooms: every room that stands (or is being built), the Hall and the vault has its
+    alcoves, nothing overlaps, nothing else is there. A room without a place (an old save, a new room) takes its
+    DEFAULT_CELL, or the first empty alcove from the ground up. Deterministic, and safe to run at any time."""
+    old = c.get("plots") if isinstance(c.get("plots"), dict) else {}
+    want = ["main_hall", "vault"] + [k for k in ROOMS if k != "main_hall" and (_lvl(c, k) or any(b["room"] == k for b in c["builds"]))]
+    plots, used = {}, set()
+
+    def fits(f, s, w):
+        return 0 <= f < GRID_FLOORS and 0 <= s and s + w <= GRID_SLOTS and not any((f, s + i) in used for i in range(w))
+
+    def width(k):
+        p = old.get(k)
+        return int(p["w"]) if isinstance(p, dict) and isinstance(p.get("w"), int) else 0
+
+    for k in sorted(want, key=lambda k: -width(k)):       # where two overlap, the wider (merged) room keeps its place
+        p = old.get(k)
+        try:
+            f, s, w = int(p["f"]), int(p["s"]), int(p["w"])
+        except (TypeError, KeyError, ValueError):
+            continue
+        w = FIXED_W.get(k, max(1, min(3, w)))
+        if fits(f, s, w):
+            plots[k] = {"f": f, "s": s, "w": w}
+            used.update((f, s + i) for i in range(w))
+    for k in want:
+        if k in plots:
+            continue
+        w = FIXED_W.get(k, 1)
+        spots = [DEFAULT_CELL[k]] + [(f, s) for f in range(GRID_FLOORS) for s in range(GRID_SLOTS)]
+        spot = next(((f, s) for f, s in spots if fits(f, s, w)), None)
+        if spot:
+            plots[k] = {"f": spot[0], "s": spot[1], "w": w}
+            used.update((spot[0], spot[1] + i) for i in range(w))
+    c["plots"] = plots
+    for b in list(c["builds"]):
+        if not b.get("wing"):
+            continue
+        p = plots.get(b["room"])
+        try:
+            f, s = int(b["wing"][0]), int(b["wing"][1])
+        except (TypeError, IndexError, ValueError):
+            f, s = -1, -1
+        ok = bool(p) and b["room"] not in FIXED_W and p["w"] < 3 and f == p["f"] and s in (p["s"] - 1, p["s"] + p["w"]) \
+            and 0 <= s < GRID_SLOTS and (f, s) not in used
+        if ok:
+            b["wing"] = [f, s]
+            used.add((f, s))
+        else:                                             # a wing with nowhere to stand: the materials come back
+            c["builds"].remove(b)
+            for res, v in b.get("cost", {}).items():
+                if res in c["res"]:
+                    c["res"][res] += float(v)
+
+
+def room_cap(c: dict) -> int:
+    """The highest level other rooms may reach under the Hall as it stands."""
+    return HALL_LADDER[max(1, min(10, _lvl(c, "main_hall")))]["cap"]
+
+
+def hall_rooms_check(c: dict, target: int) -> list[tuple[str, int, bool]]:
+    """The anti-rush checklist for raising the Hall to `target`: the other rooms at level target-1 or higher
+    (best first), padded to HALL_ROOMS_NEEDED with the next best. [(room name, level, ok)]."""
+    need = target - 1
+    best = sorted(((_lvl(c, k), ROOMS[k]["name"]) for k in ROOMS if k != "main_hall" and _lvl(c, k)), key=lambda x: (-x[0], x[1]))
+    rows = [(name, lv, lv >= need) for lv, name in best[:HALL_ROOMS_NEEDED]]
+    while len(rows) < HALL_ROOMS_NEEDED:
+        rows.append(("", 0, False))
+    return rows
+
+
 RESEARCH = {
     "irrigation": {"name": "Terraced irrigation", "cost": 150, "effect": "+25% rice from farming."},
     "masonry":    {"name": "Stone masonry", "cost": 180, "effect": "Rooms cost 20% less stone."},
@@ -132,6 +287,16 @@ WORK_QI = 0.12                     # an hour of work gathers this share of an ho
 STALL_DAYS = 5                     # days without meditation before the sect says so
 LOW_STORE_DAYS = 4.0               # a store under this many days of use is genuinely low: its chore wins a tie
 STORE_OF = {"farm": "rice", "wood": "wood", "mine": "stone", "forage": "herbs"}
+# Builders (SECT_OVERHAUL_PLAN 3.1): each slot runs one job on its own clock, helped or not. Sim hours.
+BUILDERS = 2                       # builder slots a sect starts with
+BUILDER_HALLS = (3, 6, 9)          # one more builder at each of these Main Hall levels
+HELPER_X = 0.25                    # each disciple on Build adds this share of a builder's speed, times their Construction
+HELPERS_PER_SITE = 2
+ROOM_HOURS = {1: 3, 2: 6, 3: 10, 4: 14, 5: 18, 6: 24, 7: 30, 8: 36}       # sim hours to reach a room level (tuned by tests/balance.py)
+HALL_HOURS = {2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 7: 28, 8: 32, 9: 34, 10: 36}   # and a Main Hall level
+BLUEPRINT_CUT = 0.25               # a Master's Blueprint takes this share off the time left on one running job
+BLUEPRINT_BANK = 3                 # blueprints kept at most (one is drawn per real day of counted study)
+MASTER_BUILDER_HOURS = 24          # meeting the weekly study goal lends the Master as a builder this long
 
 
 # ---------------------------------------------------------------------------
@@ -189,7 +354,7 @@ def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> d
     return pawn
 
 
-PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False, "sat_at": -1, "work": ""}
+PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False, "sat_at": -1, "work": "", "post": ""}
 
 
 def new_colony(now: float) -> dict:
@@ -197,7 +362,13 @@ def new_colony(now: float) -> dict:
         "name": "", "seed": random.randrange(1 << 30), "hour": 6, "storyteller": "balanced", "paused": False,
         "res": {"rice": 36.0, "wood": 45.0, "stone": 25.0, "herbs": 4.0, "pills": 1.0, "stones": 0.0},
         "rooms": {"main_hall": 1, "dormitory": 1, "fields": 1},
-        "builds": [],                # [{room, need (work hours), done}]
+        "plots": {},                 # where each room stands on the grid (_layout fills and repairs it)
+        "builds": [],                # [{room, need (sim hours of a builder), done, cost, at, crew}]: the first builders(c) are worked
+        "blueprints": {"n": 0, "day": ""},   # Master's Blueprints in hand, and the real day the last was drawn
+        "master_builds_until": 0,    # the sect hour the Master stops lending a hand as a builder
+        HELD_SECS: 0.0,
+        "tray_seen": {}, "inspected": {},   # per room: the hour the Master last looked at its tray, the day it cheered the crew
+        "rushes": [], "room_idle": {},      # rushes in the last two days ({k: room or "build", h}); rooms idle after an incident
         "pawns": [], "next_pawn": 0, "graves": 0,
         "research": {"done": [], "current": "", "progress": 0.0, "banked": {}},
         # the wider world
@@ -242,9 +413,11 @@ def _c(st: dict, now: float) -> dict:
     if not isinstance(c, dict) or "hour" not in c:
         c = new_colony(now)
         st["colony"] = c
+        _layout(c)
     else:
         for k, v in new_colony(now).items():
             c.setdefault(k, v)
+        _layout(c)
         for pw in c["pawns"]:
             for k, v in PAWN_EXTRA.items():
                 pw.setdefault(k, copy.deepcopy(v))
@@ -295,10 +468,14 @@ def _letter(c: dict, kind: str, title: str, text: str) -> dict:
 # ---------------------------------------------------------------------------
 # result scenes: a big outcome is shown as a framed card, not just a log line
 # ---------------------------------------------------------------------------
-SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "breakthrough", "realm", "sickness", "blight", "infiltrator", "theft",
+SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "breakthrough", "realm", "sickness", "blight", "infiltrator", "theft", "incident",
                "festival_spring", "festival_moon", "festival_ghost", "festival_winter")
 SCENE_CAP = 5                       # unseen scenes kept; older ones drop off (the chronicle still has them)
 SCENE_ART = frozenset(k for k in SCENE_KINDS if (Path(__file__).parent / "static" / "art" / f"scene_{k}.webp").is_file())
+# World map markers are painted emblems (static/art/place_<kind>.webp). The view lists the ones that exist
+# (`place_art`), so a missing one is never requested; until it is painted the map shows the name banner alone.
+PLACE_KINDS = ("home", "sect", "ally", "rival", "demonic", "village", "wilds", "valley", "ruins", "marsh", "lord", "branch")
+PLACE_ART = frozenset(k for k in PLACE_KINDS if (Path(__file__).parent / "static" / "art" / f"place_{k}.webp").is_file())
 # Disciple faces: the six originals first (so existing disciples keep their face
 # until more are added), then any extra static/art/p_<name>.webp, sorted.
 _FACE_BASE = ("disciple", "analyst", "architect", "engineer", "researcher", "trader")
@@ -432,7 +609,7 @@ def _has(c: dict, tech: str) -> bool:
 
 
 def _cap(c: dict) -> float:
-    return (150 + 120 * _lvl(c, "storehouse")) * (1.5 if _has(c, "granary") else 1.0) * (1.3 if "pouch" in c["treasures"] else 1.0)
+    return (150 + 120 * _lvl(c, "storehouse") * wide_x(c, "storehouse")) * (1.5 if _has(c, "granary") else 1.0) * (1.3 if "pouch" in c["treasures"] else 1.0)
 
 
 def rank_of(p: dict) -> int:
@@ -486,6 +663,8 @@ def qi_rate(c: dict, p: dict) -> list[tuple[str, float]]:
         rows.append((label, tilt))
     if _lvl(c, "meditation"):
         rows.append(("Meditation Chamber", 1 + 0.15 * _lvl(c, "meditation")))
+        if _w(c, "meditation") > 1:
+            rows.append((f"The Chamber is {WIDE_WORD[_w(c, 'meditation')]}", wide_x(c, "meditation")))
     if _lvl(c, "spirit_vein"):
         rows.append(("Spirit Vein", 1 + 0.05 * _lvl(c, "spirit_vein")))
     if _has(c, "qi_array"):
@@ -536,20 +715,211 @@ def realm_label(step: int) -> str:
 
 def room_cost(c: dict, room: str, level: int) -> dict:
     r = ROOMS[room]
-    k = 1.8 ** level
+    k = COST_CURVE ** level * (WIDE_COST[_w(c, room)] if level else 1.0)
     cost = {"wood": int(round(r["wood"] * k / 5.0)) * 5,
             "stone": int(round(r["stone"] * k * (0.8 if _has(c, "masonry") else 1.0) / 5.0)) * 5}
-    if level >= 2:
-        cost["stones"] = 8 * (level - 1)
+    if level >= 3:
+        cost["stones"] = STONES_PER_LEVEL * (level - 2)
     return cost
 
 
-def build_hours(level: int) -> float:
-    return 16.0 * (level + 1)
+def build_hours(room: str, level: int, width: int = 1) -> float:
+    """Sim hours one builder takes to bring `room` to `level` (helpers make it quicker). A merged room takes
+    WIDE_TIME longer, never past the longest timer."""
+    table = HALL_HOURS if room == "main_hall" else ROOM_HOURS
+    return min(float(max(table.values())), float(table.get(int(level), max(table.values()))) * WIDE_TIME.get(int(width), 1.0))
+
+
+def wing_cost(c: dict, room: str) -> dict:
+    """A wing is a second hall of the room raised to the same level: every level's single-room cost, added up."""
+    r, cost = ROOMS[room], {}
+    stone_x = 0.8 if _has(c, "masonry") else 1.0
+    for lv in range(max(1, _lvl(c, room))):
+        k = COST_CURVE ** lv
+        cost["wood"] = cost.get("wood", 0) + int(round(r["wood"] * k / 5.0)) * 5
+        cost["stone"] = cost.get("stone", 0) + int(round(r["stone"] * k * stone_x / 5.0)) * 5
+        if lv >= 3:
+            cost["stones"] = cost.get("stones", 0) + STONES_PER_LEVEL * (lv - 2)
+    return cost
+
+
+def wing_cells(c: dict, room: str) -> list[tuple[int, int]]:
+    """The empty alcoves a wing of `room` could take: beside it, on its own floor."""
+    p = c["plots"].get(room)
+    if not p:
+        return []
+    used = _taken(c)
+    return [(p["f"], s) for s in (p["s"] + p["w"], p["s"] - 1) if 0 <= s < GRID_SLOTS and (p["f"], s) not in used]
+
+
+def free_cells(c: dict) -> list[tuple[int, int]]:
+    """Empty alcoves on the floors that are open, from the ground up."""
+    used = _taken(c)
+    return [(f, s) for f in range(floors_open(c)) for s in range(GRID_SLOTS) if (f, s) not in used]
+
+
+def wing_block(c: dict, room: str) -> str:
+    """Why `room` cannot be widened now ("" when it can). Builders and materials are checked by the caller."""
+    if room not in ROOMS or room in FIXED_W:
+        return "This room does not merge."
+    if not _lvl(c, room):
+        return "Build the room first."
+    if any(b["room"] == room for b in c["builds"]):
+        return "Wait for the work on this room to finish: a wing must match its level."
+    w, top = _w(c, room), wide_max(c)
+    if w >= 3:
+        return "Three alcoves is as wide as a room goes."
+    if w >= top:
+        return f"Rooms merge {'two' if w == 1 else 'three'} wide from Main Hall level {WIDE_HALL[w + 1]}."
+    if not wing_cells(c, room):
+        return "No empty alcove beside it. Move the room, or the one next to it."
+    unbuilt = sum(1 for k in ROOMS if k not in c["plots"])
+    if len(free_cells(c)) - 1 < unbuilt:
+        return f"Keep an alcove for each room not built yet ({unbuilt})."
+    return ""
+
+
+def merge_rows(c: dict, room: str) -> list[tuple[str, str, str]]:
+    """What a wing changes, as a ledger: (label, now, merged)."""
+    w = _w(c, room)
+    if w >= 3 or room in FIXED_W:
+        return []
+    n, lv = w + 1, _lvl(c, room)
+    rows = []
+    if room == "dormitory":
+        rows.append(("Beds", str(3 * lv * w), str(3 * lv * n)))
+    elif room in POSTS:
+        slots = room_slots(c, room)
+        rows.append(("Places for posted disciples", str(slots), str(slots // w * n)))
+    if room in WIDE_YIELD:
+        rows.append((WIDE_YIELD[room], f"×{WIDE_X[w]:g}", f"×{WIDE_X[n]:g}"))
+    rows.append(("Cost of each later level", f"×{WIDE_COST[w]:g}", f"×{WIDE_COST[n]:g}"))
+    rows.append(("Time of each later level", f"×{WIDE_TIME[w]:g}", f"×{WIDE_TIME[n]:g}"))
+    return rows
+
+
+def hall_for_level(room_level: int) -> int:
+    """The lowest Main Hall level that lets other rooms reach `room_level`."""
+    return next((h for h, x in HALL_LADDER.items() if x["cap"] >= room_level), 10)
+
+
+def build_block_short(c: dict, room: str, level: int) -> str:
+    """build_block in a few words, for a tile."""
+    if room == "main_hall":
+        short = sum(1 for x in hall_rooms_check(c, level + 1) if not x[2])
+        return f"Needs {_n(short, 'more room', 'more rooms')} at level {level}" if short else ""
+    if level == 0 and _lvl(c, "main_hall") < room_opens_at(room):
+        return f"Opens at Main Hall {room_opens_at(room)}"
+    return f"Waits on Main Hall {hall_for_level(level + 1)}" if level + 1 > room_cap(c) else ""
+
+
+def build_block(c: dict, room: str, level: int) -> str:
+    """Why `room` cannot go from `level` to level+1 under the Main Hall ladder ("" when it can). Builders and
+    materials are checked by the caller."""
+    hall = _lvl(c, "main_hall")
+    if room == "main_hall":
+        short = [x for x in hall_rooms_check(c, level + 1) if not x[2]]
+        if short:
+            return (f"Raising the Main Hall to level {level + 1} needs {HALL_ROOMS_NEEDED} other rooms at level {level} or higher "
+                    f"({_n(len(short), 'more room', 'more rooms')}).")
+        return ""
+    opens = room_opens_at(room)
+    if level == 0 and hall < opens:
+        return f"Opens at Main Hall level {opens}."
+    if level + 1 > room_cap(c):
+        return f"Raise the Main Hall to level {hall_for_level(level + 1)} first (rooms up to level {room_cap(c)} for now)."
+    return ""
+
+
+def builder_rows(c: dict) -> list[tuple[str, int]]:
+    """Where the sect's builder slots come from (a ledger: it adds up to builders(c))."""
+    rows = [("Builders every sect has", BUILDERS)]
+    hall = _lvl(c, "main_hall")
+    rows += [(f"Main Hall level {h}", 1) for h in BUILDER_HALLS if hall >= h]
+    left = int(c.get("master_builds_until", 0)) - c["hour"]
+    if left > 0:
+        rows.append((f"The Master, lent by a week of study ({_n(left, 'hour')} left)", 1))
+    return rows
+
+
+def builders(c: dict) -> int:
+    return sum(n for _, n in builder_rows(c))
+
+
+def _running(c: dict) -> list[dict]:
+    """The jobs a builder is on: the first builders(c) of the list (the rest wait for a builder to come free)."""
+    return c["builds"][:builders(c)]
+
+
+def build_rate_rows(c: dict, b: dict) -> list[tuple[str, float]]:
+    """A job's speed last hour, in builder-hours an hour: the builder, then each helper."""
+    return [("The builder", 1.0)] + [(f"{name} helping (Construction {lv})", float(x)) for name, lv, x in b.get("crew", [])]
+
+
+def build_left(c: dict, b: dict) -> float:
+    """Sim hours left on a job at last hour's speed."""
+    rate = sum(x for _, x in build_rate_rows(c, b)) if b in _running(c) else 1.0
+    return max(0.0, b["need"] - b["done"]) / max(rate, 1.0)
+
+
+def _finish_build(c: dict, b: dict) -> None:
+    c["builds"].remove(b)
+    if b.get("wing"):
+        p = c["plots"].get(b["room"])
+        if p and p["w"] < 3:
+            p["s"], p["w"] = min(p["s"], int(b["wing"][1])), p["w"] + 1
+        name = ROOMS[b["room"]]["name"]
+        _letter(c, "good", f"{name} merged: {WIDE_WORD[_w(c, b['room'])]}", "The wall between came down, and the two halls are one.")
+        if isinstance(c.get("built_away"), list):
+            c["built_away"].append(f"{name} widened")
+        return
+    c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
+    lv = c["rooms"][b["room"]]
+    if b["room"] == "main_hall":
+        _fame(c, 4)                       # the valley sees the sect's hall rise
+    name = ROOMS[b["room"]]["name"]
+    crew = sorted({x[0] for x in b.get("crew_all", [])})
+    _letter(c, "good", f"{name} {'built' if lv == 1 else f'raised to level {lv}'}",
+            "The builder set the last stone" + (f", with {_and(crew)} helping." if crew else "."))
+    if isinstance(c.get("built_away"), list):
+        c["built_away"].append(f"{name} {'built' if lv == 1 else f'to level {lv}'}")
+
+
+def _tick_builds(c: dict, helped: bool = True) -> None:
+    """One sim hour for every builder: each running job moves by one hour, plus what its helpers added this hour."""
+    for b in list(_running(c)):
+        boost = b.pop("boost", 0.0) if helped else 0.0
+        b["crew"] = b.pop("crew_now", []) if helped else []
+        if b["crew"]:
+            b["crew_all"] = (b.get("crew_all", []) + [[x[0]] for x in b["crew"]])[-12:]
+        b["done"] += 1.0 + boost
+        if b["done"] >= b["need"] - 1e-9:
+            _finish_build(c, b)
+    for b in c["builds"][builders(c):]:
+        b.pop("boost", None), b.pop("crew_now", None)
+        b["crew"] = []
+
+
+HELD_SECS = "held_secs"            # real seconds banked for the builders while an event waits for your answer
+
+
+def _builders_wait(c: dict, now: float) -> int:
+    """While an event waits for your answer, only the builders keep working, at the away rate (decided by the owner:
+    building can only help). Returns the builder hours run."""
+    if not c["pending"] or c["seclusion"] or not c["builds"]:
+        c[HELD_SECS] = 0.0
+        return 0
+    c[HELD_SECS] = min(float(c.get(HELD_SECS, 0.0)) + max(0.0, now - float(c["last_real"])), MAX_OFFLINE_HOURS * SECS_PER_HOUR_OFFLINE)
+    n = 0
+    while c[HELD_SECS] >= SECS_PER_HOUR_OFFLINE and c["builds"]:
+        c[HELD_SECS] -= SECS_PER_HOUR_OFFLINE
+        _tick_builds(c, helped=False)
+        n += 1
+    return n
 
 
 def beds(c: dict) -> int:
-    return 3 * _lvl(c, "dormitory")
+    return 3 * _lvl(c, "dormitory") * _w(c, "dormitory")
 
 
 def pawn_cap(c: dict) -> int:
@@ -604,7 +974,7 @@ def combat_power(c: dict, p: dict) -> float:
 
 
 def ward_power(c: dict) -> float:
-    return 18 * _lvl(c, "ward") * (1.5 if _has(c, "ward_ii") else 1.0) * (1.4 if "array_flag" in c["treasures"] else 1.0)
+    return 18 * _lvl(c, "ward") * wide_x(c, "ward") * (1.5 if _has(c, "ward_ii") else 1.0) * (1.4 if "array_flag" in c["treasures"] else 1.0)
 
 
 def beast_power(c: dict) -> float:
@@ -619,13 +989,19 @@ def defense(c: dict) -> float:
 # ---------------------------------------------------------------------------
 # one hour of one disciple
 # ---------------------------------------------------------------------------
+def _idle_room(c: dict, room: str) -> bool:
+    return int(c.get("room_idle", {}).get(room, 0)) > c["hour"]
+
+
 def _job_open(c: dict, job: str, taken: dict) -> bool:
+    if job in ("wood", "mine", "forage") and _idle_room(c, "storehouse"):
+        return False
     if job == "farm":
-        return _lvl(c, "fields") > 0 and _season(c) != 3 and taken.get("farm", 0) < 2 * _lvl(c, "fields")
+        return _lvl(c, "fields") > 0 and _season(c) != 3 and not _idle_room(c, "fields") and taken.get("farm", 0) < 2 * _lvl(c, "fields") * _w(c, "fields")
     if job == "build":
-        return bool(c["builds"])
+        return taken.get("build", 0) < HELPERS_PER_SITE * len(_running(c))
     if job == "craft":
-        return _lvl(c, "alchemy") > 0 and c["res"]["herbs"] >= (2 if _has(c, "refinement") else 3)
+        return _lvl(c, "alchemy") > 0 and not _idle_room(c, "alchemy") and c["res"]["herbs"] >= (2 if _has(c, "refinement") else 3)
     if job == "research":
         return _lvl(c, "library") > 0 and bool(c["research"]["current"])
     if job == "train":
@@ -706,37 +1082,33 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     hour = c["hour"]
     skill = JOBS[job][1]
     out = _skill_mult(p, skill) * _work_mult(p, hour)
-    _xp(p, skill, 1.0 * (2.0 if job == "train" and "Sword-mad" in p["traits"] else 1.0))
+    _xp(p, skill, (wide_x(c, "training") if job == "train" else 1.0) * (2.0 if job == "train" and "Sword-mad" in p["traits"] else 1.0))
     if job == "farm":
         _add(c, "rice", out * math.prod(m for _, m in farm_rows(c)) * (1.25 if "Green thumb" in p["traits"] else 1.0))
     elif job == "wood":
         _add(c, "wood", out * GATHER["wood"])
     elif job == "mine":
         _add(c, "stone", out * GATHER["stone"])
-        if _lvl(c, "spirit_vein"):
-            _add(c, "stones", out * 0.1 * _lvl(c, "spirit_vein"))
+        if _lvl(c, "spirit_vein") and not _idle_room(c, "spirit_vein"):
+            _add(c, "stones", out * 0.1 * _lvl(c, "spirit_vein") * wide_x(c, "spirit_vein"))
     elif job == "forage":
         _add(c, "herbs", out * GATHER["herbs"] * (0.3 if _season(c) == 3 else 1.0) * STORYTELLERS[c["storyteller"]]["yield"])
     elif job == "build":
-        b = c["builds"][0]
-        b["done"] += out
-        b["moved"] = hour
-        if b["done"] >= b["need"]:
-            c["builds"].pop(0)
-            c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
-            lv = c["rooms"][b["room"]]
-            if b["room"] == "main_hall":
-                _fame(c, 4)                       # the valley sees the sect's hall rise
-            _letter(c, "good", f"{ROOMS[b['room']]['name']} {'built' if lv == 1 else f'raised to level {lv}'}",
-                    f"{p['name']} set the last stone.")
+        # a helper: up to HELPERS_PER_SITE at each running job, in order; the builder's hour is added in _tick_builds
+        sites = [x for x in _running(c) if len(x.get("crew_now", [])) < HELPERS_PER_SITE]
+        if sites:
+            b = sites[0]
+            x = HELPER_X * out
+            b["boost"] = b.get("boost", 0.0) + x
+            b.setdefault("crew_now", []).append([p["name"], int(p["skills"]["build"]["lv"]), x])
     elif job == "craft":
-        c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * (1 + _manual(c, p, "alchemy")[0]) \
+        c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * wide_x(c, "alchemy") * (1 + _manual(c, p, "alchemy")[0]) \
             * (1.3 if "pill_furnace" in c["treasures"] else 1.0)
         if c["craft"] >= 6.0:
             c["craft"] -= 6.0
             dao.brew(c, p)
     elif job == "research":
-        _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * (1.25 if "Bookworm" in p["traits"] else 1.0)
+        _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * wide_x(c, "library") * (1.25 if "Bookworm" in p["traits"] else 1.0)
                   * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c))
         if "Bookworm" in p["traits"]:
             p["joy"] = min(100.0, p["joy"] + 3)
@@ -754,6 +1126,8 @@ def farm_rows(c: dict) -> list[tuple[str, float]]:
     rows = [("A farmer-hour on the terraces", FARM_YIELD)]
     if _lvl(c, "fields") > 1:
         rows.append((f"Rice Terraces level {_lvl(c, 'fields')}", 1 + 0.15 * (_lvl(c, "fields") - 1)))
+    if _w(c, "fields") > 1:
+        rows.append((f"The Terraces are {WIDE_WORD[_w(c, 'fields')]}", wide_x(c, "fields")))
     if _has(c, "irrigation"):
         rows.append(("Terraced irrigation", 1.25))
     if _season(c) == 2:
@@ -780,7 +1154,7 @@ READ_HOUR = 21                     # when the evening reading happens
 def _library_x(c: dict) -> float:
     """What the Pavilion, the jade slip and the sect's scholarship multiply research by."""
     lv = max(1, _lvl(c, "library"))
-    return (1 + 0.2 * (lv - 1)) * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c)
+    return (1 + 0.2 * (lv - 1)) * wide_x(c, "library") * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c)
 
 
 def _readers(c: dict) -> list[dict]:
@@ -798,6 +1172,8 @@ def research_rows(c: dict) -> list[tuple[str, str]]:
     rows = [(f"Evening reading: {_n(n, 'disciple')} at home × {_f(PAVILION_READ)}", f"{round(n * PAVILION_READ, 1):g} a day")]
     if lv > 1:
         rows.append((f"Scripture Pavilion level {lv}", f"×{_f(1 + 0.2 * (lv - 1), 2)}"))
+    if _w(c, "library") > 1:
+        rows.append((f"The Pavilion is {WIDE_WORD[_w(c, 'library')]}", f"×{wide_x(c, 'library'):g}"))
     if "jade_slip" in c["treasures"]:
         rows.append((lore.TREASURES["jade_slip"]["name"], "×1.25"))
     if dao.research_x(c) != 1.0:
@@ -1710,7 +2086,7 @@ def _daily_event(c: dict) -> None:
              f"{' and '.join(cand['traits']).lower()}; best at {SKILL_NAMES[best].lower()} ({cand['skills'][best]['lv']}). "
              "Another mouth, another pair of hands.", [("accept", "Welcome them"), ("decline", "Turn them away")], cand=cand)
     elif kind == "merchant":
-        rate = 1.0 + 0.25 * _lvl(c, "market")
+        rate = 1.0 + 0.25 * _lvl(c, "market") * wide_x(c, "market")
         opts = []
         if c["res"]["rice"] >= 40:
             opts.append(("sell_rice", f"Sell 25 rice for {int(6 * rate)} spirit stones"))
@@ -2504,7 +2880,7 @@ def renown(fame: float) -> str:
 # ---------------------------------------------------------------------------
 GUIDE = [
     ("prio", "Open Work and change one disciple's priority. Set someone's Farm to 1 and they tend the fields before anything else.", lambda c: bool(c["flags"].get("prio"))),
-    ("library", "Queue a Scripture Pavilion in Build. Disciples with Build as a priority will raise it.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
+    ("library", "Raise the Main Hall to level 2 (it needs three rooms first: build a Storehouse or a Ward Formation), then queue a Scripture Pavilion in Build. Builders raise them; disciples with Build as a priority help.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
     ("research", "Choose something to research. Terraced irrigation pays for itself.", lambda c: bool(c["research"]["current"] or c["research"]["done"])),
     ("rice", "Store 70 rice. Nothing grows in winter, and everyone eats.", lambda c: c["res"]["rice"] >= 70),
     ("defend", "Build Training Grounds or a Ward Formation before something comes up the mountain.", lambda c: _lvl(c, "training") + _lvl(c, "ward") > 0),
@@ -3438,6 +3814,7 @@ def _hour(c: dict, quiet: bool) -> None:
     taken: dict = {}
     for p in list(c["pawns"]):
         _tick_pawn(c, p, taken, quiet)
+    _tick_builds(c)
     _socialise(c, quiet)
     dao.hourly(c, quiet)
     if c["hour"] % 24 == 5:
@@ -3482,6 +3859,7 @@ def advance(st: dict, hours: int, now: float) -> dict:
             break                        # time waits for your answer, and behind sealed gates
         _hour(c, quiet=False)
         n += 1
+    _builders_wait(c, now)               # ...all but the builders, who work on at the away rate while an event waits
     c["last_real"] = now
     return {"ok": True, "hours": n}
 
@@ -3490,16 +3868,24 @@ def catch_up(st: dict, now: float) -> int:
     """Quiet progress for time spent away. Returns the sim hours advanced."""
     c = _c(st, now)
     if not c["name"] or c["seclusion"] or c["pending"]:
+        c["built_away"] = []
+        built = _builders_wait(c, now) if c["name"] else 0     # an event waiting: only the builders work on
+        if built and c["built_away"]:
+            _letter(c, "info", "The builders worked on", f"While the sect waited for your answer, the builders finished: {_and(c['built_away'])}.")
+        c.pop("built_away", None)
         c["last_real"] = now             # sealed gates, or someone waiting for your answer: time waits
         return 0
     hours = int(min(max(0.0, now - c["last_real"]) / SECS_PER_HOUR_OFFLINE, MAX_OFFLINE_HOURS))
     if hours < 1:
         return 0
+    c["built_away"] = []
     for _ in range(hours):
         _hour(c, quiet=True)
     c["last_real"] = now
-    if hours >= 6:
-        _letter(c, "info", "While you were away", f"The sect carried on quietly for {_n(hours, 'hour')}. No one came to harm.")
+    built = c.pop("built_away", [])
+    if hours >= 6 or built:
+        _letter(c, "info", "While you were away", f"The sect carried on quietly for {_n(hours, 'hour')}. No one came to harm."
+                + (f" The builders finished: {_and(built)}." if built else ""))
     return hours
 
 
@@ -3512,29 +3898,133 @@ def set_priority(st: dict, pawn_id: str, job: str, level: int, now: float) -> di
     if not p or job not in JOBS:
         return {"ok": False, "error": "Unknown disciple or job."}
     p["prio"][job] = int(min(max(int(level), 0), 4))
+    if p["prio"][job] != 1 and job in POSTS.get(p.get("post", ""), ()):
+        p["post"] = ""                                # moved off their post's work in the detailed grid
     c["flags"]["prio"] = 1
     _guide(c)
     return {"ok": True}
 
 
-def queue_build(st: dict, room: str, now: float) -> dict:
+def _cell(cell) -> tuple[int, int] | None:
+    """A (floor, alcove) from the page, or None."""
+    try:
+        f, s = int(cell[0]), int(cell[1])
+    except (TypeError, IndexError, ValueError, KeyError):
+        return None
+    return (f, s) if 0 <= f < GRID_FLOORS and 0 <= s < GRID_SLOTS and len(cell) == 2 else None
+
+
+def _busy_builders(c: dict) -> str:
+    n = builders(c)
+    return f"{'Both' if n == 2 else f'All {n}'} builders are busy. One comes free when a job finishes." if len(c["builds"]) >= n else ""
+
+
+def _pay(c: dict, cost: dict) -> str:
+    """Take `cost` from the stores, or say what is missing (and take nothing)."""
+    short = [f"{math.ceil(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
+    if short:
+        return "Needs " + " and ".join(short) + "."
+    for k, v in cost.items():
+        c["res"][k] -= v
+    return ""
+
+
+def queue_build(st: dict, room: str, now: float, cell=None) -> dict:
+    """Queue the next level of a room. A new room takes the empty alcove `cell` (floor, alcove) on an open floor;
+    with none given it takes its usual place, or the first empty alcove from the ground up."""
     c = _c(st, now)
     if room not in ROOMS:
         return {"ok": False, "error": "Unknown room."}
-    level = _lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+    level = _lvl(c, room) + _queued(c, room)
     if level >= ROOMS[room]["max"]:
         return {"ok": False, "error": "Already at its highest level."}
-    if room != "main_hall" and level > _lvl(c, "main_hall"):
-        return {"ok": False, "error": f"Raise the Main Hall to level {level} first."}
-    if len(c["builds"]) >= 4:
-        return {"ok": False, "error": "The builders already have four jobs queued."}
+    if any(b["room"] == room and b.get("wing") for b in c["builds"]):
+        return {"ok": False, "error": "Its wing is still being built: the two halls must match."}
+    why = build_block(c, room, level) or _busy_builders(c)
+    if why:
+        return {"ok": False, "error": why}
+    spot = None
+    if room not in c["plots"]:
+        free = free_cells(c)
+        spot = _cell(cell) if cell is not None else next((x for x in [DEFAULT_CELL[room]] + free if x in free), None)
+        if cell is not None and spot is None:
+            return {"ok": False, "error": "No such alcove."}
+        if spot is None:
+            return {"ok": False, "error": "No empty alcove on the open floors."}
+        if spot[0] >= floors_open(c):
+            return {"ok": False, "error": f"That floor opens at Main Hall level {FLOOR_HALL[spot[0]]}."}
+        if spot not in free:
+            return {"ok": False, "error": "That alcove is taken."}
     cost = room_cost(c, room, level)
-    short = [f"{math.ceil(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
-    if short:
-        return {"ok": False, "error": "Needs " + " and ".join(short) + "."}
-    for k, v in cost.items():
-        c["res"][k] -= v
-    c["builds"].append({"room": room, "need": build_hours(level), "done": 0.0, "cost": cost, "at": c["hour"]})
+    why = _pay(c, cost)
+    if why:
+        return {"ok": False, "error": why}
+    if spot:
+        c["plots"][room] = {"f": spot[0], "s": spot[1], "w": 1}
+    c["builds"].append({"room": room, "need": build_hours(room, level + 1, _w(c, room)), "done": 0.0, "cost": cost, "at": c["hour"], "crew": [], "slotted": 1})
+    return {"ok": True}
+
+
+def widen(st: dict, room: str, now: float, cell=None) -> dict:
+    """Build a wing of `room` in the empty alcove beside it (`cell`, or the first of wing_cells): when it is done the
+    two merge into one room, a hall wider (merge_rows says what that gives)."""
+    c = _c(st, now)
+    why = wing_block(c, room) or _busy_builders(c)
+    if why:
+        return {"ok": False, "error": why}
+    spots = wing_cells(c, room)
+    spot = _cell(cell) if cell is not None else spots[0]
+    if spot not in spots:
+        return {"ok": False, "error": "A wing goes in an empty alcove right beside the room."}
+    if spot[0] >= floors_open(c):
+        return {"ok": False, "error": f"That floor opens at Main Hall level {FLOOR_HALL[spot[0]]}."}
+    cost = wing_cost(c, room)
+    why = _pay(c, cost)
+    if why:
+        return {"ok": False, "error": why}
+    c["builds"].append({"room": room, "wing": [spot[0], spot[1]], "need": build_hours(room, max(1, _lvl(c, room))), "done": 0.0, "cost": cost,
+                        "at": c["hour"], "crew": [], "slotted": 1})
+    return {"ok": True}
+
+
+def move_room(st: dict, room: str, cell, now: float) -> dict:
+    """Move a room (or the Treasure Vault) to empty alcoves on an open floor: `cell` is where its first alcove goes.
+    Free and at once: where a room stands changes only what it can merge with."""
+    c = _c(st, now)
+    p = c["plots"].get(room)
+    spot = _cell(cell)
+    if not p or spot is None:
+        return {"ok": False, "error": "Nothing to move there."}
+    if any(b["room"] == room for b in c["builds"]):
+        return {"ok": False, "error": "The builders are at work on it. Move it when they are done."}
+    if spot[0] >= floors_open(c):
+        return {"ok": False, "error": f"That floor opens at Main Hall level {FLOOR_HALL[spot[0]]}."}
+    used = _taken(c, skip=room)
+    # the alcove picked may be any of the ones the room will stand in: slide left until it fits
+    start = next((s for s in range(spot[1], spot[1] - p["w"], -1)
+                  if 0 <= s and s + p["w"] <= GRID_SLOTS and not any((spot[0], s + i) in used for i in range(p["w"]))), None)
+    if start is None:
+        return {"ok": False, "error": f"It needs {_n(p['w'], 'empty alcove')} side by side there."}
+    p["f"], p["s"] = spot[0], start
+    return {"ok": True}
+
+
+def use_blueprint(st: dict, index: int, now: float) -> dict:
+    """Spend a Master's Blueprint (drawn from a day's study) on one running job: BLUEPRINT_CUT off the time it has left."""
+    c = _c(st, now)
+    run = _running(c)
+    if not 0 <= int(index) < len(run):
+        return {"ok": False, "error": "No builder is on that job."}
+    bp = c["blueprints"]
+    if bp["n"] < 1:
+        return {"ok": False, "error": "No blueprint in hand. The Master draws one on a day you study."}
+    b = run[int(index)]
+    cut = BLUEPRINT_CUT * max(0.0, b["need"] - b["done"])
+    b["done"] += cut
+    b["blue"] = float(b.get("blue", 0.0)) + cut
+    bp["n"] -= 1
+    if b["done"] >= b["need"] - 1e-9:
+        _finish_build(c, b)
     return {"ok": True}
 
 
@@ -3639,8 +4129,8 @@ def _master(c: dict) -> dict | None:
 def on_answer(st: dict, course: str, *, correct: bool, is_new: bool, practice: bool, typed: bool, now: float) -> dict:
     """A graded answer: qi for the Sect Master, insight for the sect's research."""
     c = _c(st, now)
-    if practice:
-        return {"qi": 0, "insight": 0, "events": []}
+    if practice or not enabled(st):
+        return {"qi": 0, "insight": 0, "events": []}       # study only: qi and insight do not accrue
     # A day's study is worth a few days of the Master's meditation: the faster road, never the only one.
     qi = 1 if correct else 0
     qi += 1 if typed and correct else 0
@@ -3657,7 +4147,8 @@ def _mark_study_day(st: dict, c: dict, now: float) -> list[dict]:
     events = []
     if c["seclusion"]:
         set_seclusion(st, False, now)
-        events.append({"kind": "info", "text": "You studied, so the gates are open again. Your streak was kept."})
+        events.append({"kind": "info", "text": "You studied, so the gates are open again. Your streak was kept." if enabled(st)
+                       else "You studied, so your holiday is over. Your streak was kept."})
     today = _today(st, now)
     if c["last_study_day"] and c["last_study_day"] >= today:
         return events
@@ -3696,7 +4187,8 @@ def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left:
     c = _c(st, now)
     events: list[dict] = []
     if counted:
-        events += _mark_study_day(st, c, now)
+        events += _mark_study_day(st, c, now)              # the streak is study's own, sect or not
+    if counted and enabled(st):
         good = answers >= 8 and correct / max(answers, 1) >= 0.8
         for p in c["pawns"]:
             _think(p, "lecture", "The Master lectured brilliantly" if good else "The Master lectured", 10 if good else 6, 24, c["hour"])
@@ -3706,13 +4198,36 @@ def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left:
                 _bond(c, m, p, 2)                    # teaching binds master and disciple
         if c["pawns"]:
             events.append({"kind": "good", "text": "Your disciples gathered to hear what you learned. Their mood lifts for a day."})
+        events += _study_builds(st, c, now)
     return {"stones": 0, "events": events, "streak": c["streak"]}
+
+
+def _study_builds(st: dict, c: dict, now: float) -> list[dict]:
+    """Study helps the builders and never gates them: a counted session draws a Master's Blueprint (one per real day,
+    up to BLUEPRINT_BANK kept), and meeting the weekly goal lends the Master as one more builder for a day."""
+    out = []
+    today = _today(st, now)
+    bp = c["blueprints"]
+    if bp["day"] != today:
+        bp["day"] = today
+        if bp["n"] < BLUEPRINT_BANK:
+            bp["n"] += 1
+            out.append({"kind": "good", "text": f"The Master drew a blueprint from today's study: {int(BLUEPRINT_CUT * 100)}% off the time left "
+                                                f"on one build ({_n(bp['n'], 'blueprint')} in hand)."})
+    wk = c["week"]
+    if wk["id"] and len(wk["days"]) >= WEEK_GOAL and wk.get("lent") != wk["id"]:
+        wk["lent"] = wk["id"]
+        c["master_builds_until"] = c["hour"] + MASTER_BUILDER_HOURS
+        out.append({"kind": "good", "text": f"A week of study: the Master joins the builders for {MASTER_BUILDER_HOURS} sect hours."})
+    return out
 
 
 def on_trial(st: dict, course: str, *, passed: bool, pct: int, now: float) -> dict:
     c = _c(st, now)
     events: list[dict] = []
-    if passed:
+    if passed and not enabled(st):
+        events.append({"kind": "good", "text": f"Trial passed with {pct}%."})
+    elif passed:
         for p in c["pawns"]:
             _gain_qi(c, p, step_need(p["step"]) * 0.15)
             _think(p, "trial", "The Master passed a trial", 8, 48, c["hour"])
@@ -3722,7 +4237,30 @@ def on_trial(st: dict, course: str, *, passed: bool, pct: int, now: float) -> di
     return {"stones": 0, "events": events}
 
 
+def enabled(st: dict) -> bool:
+    """The sect is optional (settings.sect_enabled). Off = study only: the sim does not tick, study pays it nothing."""
+    return (st.get("settings") or {}).get("sect_enabled", True) is not False
+
+
+def set_enabled(st: dict, on: bool, now: float, name: str = "", master: str = "") -> dict:
+    """Turn the sect on or off. Off pauses it (nothing is deleted). On founds it first if founding was
+    skipped, and restarts its clock from now, so the paused weeks never come back as a catch-up."""
+    c = _c(st, now)
+    s = st["settings"]
+    if on:
+        if not c["name"]:
+            setup(st, name or s.get("sect_name", ""), master or s.get("sect_master", ""), now)
+        s["sect_enabled"] = True
+    else:
+        s["sect_enabled"] = False
+    c["last_real"] = now
+    return {"ok": True, "sect_enabled": s["sect_enabled"], "founded": bool(c["name"])}
+
+
 def ensure(st: dict, now: float, ctx: dict | None = None) -> list[dict]:
+    if not enabled(st):
+        _c(st, now)["last_real"] = now       # paused: the sect's clock stands still with it
+        return []
     hours = catch_up(st, now)
     return [{"kind": "info", "text": f"The sect carried on for {hours} hours while you were away."}] if hours >= 6 else []
 
@@ -3796,6 +4334,332 @@ def _made(c: dict, hours: int = MADE_HOURS) -> tuple[dict, int]:
     return out, span
 
 
+# Room play (SECT_OVERHAUL_PLAN 3.6, stage 4): posts by drag, trays to tap, rushes at a shown risk.
+# A tray shows what a room's work made since dawn, or since the Master last looked. It is already in the stores
+# (nothing waits in a tray, so nothing is lost by never tapping); tapping is the Master's inspection, which cheers
+# the crew once a room a day (decided by the owner: +3 mood, nothing else).
+TRAY_OF = {"fields": (("farm", "rice"),), "alchemy": (("craft", "pills"),), "spirit_vein": (("mine", "stones"),),
+           "storehouse": (("wood", "wood"), ("mine", "stone"), ("forage", "herbs"))}
+TRAY_DAWN = 6                       # the hour a tray's count starts again
+TRAY_FULL_HOURS = 8                 # a tray this many hours in the making reads as full on the map
+INSPECT_MOOD, INSPECT_HOURS = 3, 12  # the crew's thought when the Master inspects a tray (once a room a day)
+POSTS = {"fields": ("farm",), "storehouse": ("wood", "mine", "forage"), "library": ("research",), "training": ("train",),
+         "meditation": ("meditate",), "alchemy": ("craft",), "spirit_vein": ("mine",), "main_hall": ("build",)}
+RUSH_BASE, RUSH_STEP, RUSH_DECAY, RUSH_WINDOW = 10, 15, 0.15, 48   # incident %: base, +15 a recent rush (less 15% a day), for 2 days
+RUSH_CAP = 70                       # the riskiest a rush can be
+RUSH_HOURS = 6                      # a rushed room delivers this many hours of its work now
+RUSH_IDLE = 6                       # a room whose rush went wrong stands idle this many hours
+RUSH_WOUND = (5, 15)                # health each of the crew loses when an incident is not contained (never a death)
+RUSH_BUILD_BACK, RUSH_BUILD_LOSS = 2.0, 0.10   # a failed build rush: 2 hours more work, and a tenth of its materials gone
+
+
+def _last_dawn(c: dict) -> int:
+    return c["hour"] - ((c["hour"] - TRAY_DAWN) % 24)
+
+
+def _tray_since(c: dict, room: str) -> int:
+    return max(_last_dawn(c), int(c["tray_seen"].get(room, -1)))
+
+
+def _room_made(c: dict, room: str, since: int) -> tuple[dict, set]:
+    """What a room's jobs made after hour `since`: ({res: amount}, {pawn ids who worked there})."""
+    pairs = TRAY_OF.get(room, ())
+    jobs = {job for job, _ in pairs} | set(POSTS.get(room, ()))
+    got: dict = {}
+    who: set = set()
+    for h, b in c["made"].items():
+        if since < int(h) <= c["hour"]:
+            for k, v in b.items():
+                kind, job, pid = k.split("|")
+                if (job, kind) in pairs:
+                    got[kind] = got.get(kind, 0.0) + v
+                if kind == "h" and job in jobs:
+                    who.add(pid)
+    return got, who
+
+
+def trays(c: dict) -> dict:
+    """{room: [(res, amount), ...]} made by that room's work since dawn (or the last inspection), largest first,
+    whole units only."""
+    out = {}
+    for room, pairs in TRAY_OF.items():
+        if not _lvl(c, room):
+            continue
+        got, _ = _room_made(c, room, _tray_since(c, room))
+        rows = sorted(((res, got.get(res, 0.0)) for _, res in pairs), key=lambda x: -x[1])
+        rows = [(res, n) for res, n in rows if n >= 1]
+        if rows:
+            out[room] = rows
+    return out
+
+
+def tray_full(c: dict, room: str) -> bool:
+    return c["hour"] - _tray_since(c, room) >= TRAY_FULL_HOURS
+
+
+def inspect_tray(st: dict, room: str, now: float) -> dict:
+    """Tap a tray: the Master looks over what the room made. The count starts again; the crew who made it take heart
+    (+INSPECT_MOOD for INSPECT_HOURS), once a room a day. Nothing is added to the stores: it is there already."""
+    c = _c(st, now)
+    t = trays(c).get(room)
+    if not t:
+        return {"ok": False, "error": "Nothing made here since the last look."}
+    since = _tray_since(c, room)
+    _, who = _room_made(c, room, since)
+    crew = [p for p in c["pawns"] if p["id"] in who]
+    c["tray_seen"][room] = c["hour"]
+    day = _day(c)
+    cheered = []
+    if c["inspected"].get(room) != day and crew:
+        c["inspected"][room] = day
+        for p in crew:
+            _think(p, "inspect_" + room, "The Master inspected our work", INSPECT_MOOD, INSPECT_HOURS, c["hour"])
+        cheered = [p["name"] for p in crew]
+    made = ", ".join(f"{_whole(n)} {RES_NAMES[res].lower()}" for res, n in t)
+    who_txt = _and(cheered) if len(cheered) <= 3 else f"The crew of {len(cheered)}"
+    text = (f"{who_txt} {_be(len(cheered), 'is', 'are')} pleased the Master came to look (+{INSPECT_MOOD} mood for {INSPECT_HOURS} h)."
+            if cheered else "The crew already showed you their work today.")
+    return {"ok": True, "made": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in t],
+            "event": {"kind": "good", "title": f"{ROOMS[room]['name']}: {made} since {'dawn' if since == _last_dawn(c) else 'your last look'}. {text}"}}
+
+
+def room_slots(c: dict, room: str) -> int:
+    """How many disciples a room takes as their post."""
+    lv = _lvl(c, room)
+    if not lv or room not in POSTS:
+        return 0
+    if room == "fields":
+        return 2 * lv * _w(c, room)                    # the farmers the terraces hold (_job_open)
+    if room == "main_hall":
+        return HELPERS_PER_SITE * builders(c)          # helpers, two to a builder
+    return (2 + lv) * _w(c, room)
+
+
+def posted(c: dict, room: str) -> list[dict]:
+    return [p for p in c["pawns"] if p.get("post") == room]
+
+
+def post_fit(c: dict, p: dict, room: str) -> str:
+    """How well a disciple suits a room, for the glow while dragging: "good", "fair" or "poor"."""
+    if room == "meditation":
+        return "good" if p.get("root_mult", 1.0) >= 1.2 else "fair"
+    skill = JOBS[POSTS[room][0]][1]
+    sk = p["skills"][skill]
+    return "good" if sk["lv"] >= 7 or (sk["passion"] and sk["lv"] >= 4) else "fair" if sk["lv"] >= 3 or sk["passion"] else "poor"
+
+
+def set_post(st: dict, pawn_id: str, room: str, now: float) -> dict:
+    """Drop a disciple on a room: that room's work becomes their first priority (their old post's falls to second),
+    the rest of their priorities unchanged. An empty room clears the post."""
+    c = _c(st, now)
+    p = _p(c, pawn_id)
+    if not p:
+        return {"ok": False, "error": "Unknown disciple."}
+    if not room:
+        p["post"] = ""
+        return {"ok": True}
+    if room not in POSTS or not _lvl(c, room):
+        return {"ok": False, "error": "No one can be posted there."}
+    if p.get("post") == room:
+        return {"ok": True}
+    n = room_slots(c, room)
+    if len(posted(c, room)) >= n:
+        return {"ok": False, "error": f"The {ROOMS[room]['name']} is full ({n} of {n})."}
+    old = p.get("post")
+    for j in POSTS.get(old, ()):
+        if p["prio"].get(j) == 1 and j not in POSTS[room]:
+            p["prio"][j] = 2
+    for j in POSTS[room]:
+        p["prio"][j] = 1
+    p["post"] = room
+    c["flags"]["prio"] = 1
+    _guide(c)
+    jobs = _and([JOBS[j][0] for j in POSTS[room]])
+    return {"ok": True, "event": {"kind": "good", "title": f"{p['name']} now works at the {ROOMS[room]['name']} ({jobs} first)."}}
+
+
+def rush_crew(c: dict, target: str) -> list[dict]:
+    """Who a rush leans on: the room's posted disciples at home, else whoever worked there today. For a build, the
+    disciples with Build as a first or second priority."""
+    home = [p for p in c["pawns"] if p["away_until"] <= c["hour"]]
+    if target == "build":
+        return [p for p in home if p["prio"].get("build") in (1, 2)]
+    crew = [p for p in home if p.get("post") == target]
+    if not crew:
+        _, who = _room_made(c, target, c["hour"] - 24)
+        crew = [p for p in home if p["id"] in who]
+    return crew
+
+
+def _crew_skill(c: dict, target: str, crew: list[dict]) -> float:
+    skill = "build" if target == "build" else JOBS[POSTS[target][0]][1]
+    return sum(p["skills"][skill]["lv"] for p in crew) / len(crew) if crew else 7.0
+
+
+def rush_rows(c: dict, target: str) -> list[tuple[str, int]]:
+    """The chance of an incident if `target` (a room, or "build") is rushed now, as a ledger of percentage points."""
+    rows = [("Any rush risks an incident", RUSH_BASE)]
+    for r in c["rushes"]:
+        ago = c["hour"] - int(r["h"])
+        if r["k"] == target and 0 <= ago < RUSH_WINDOW:
+            rows.append((f"Rushed {_n(ago, 'hour')} ago", int(round(RUSH_STEP * (1 - RUSH_DECAY * ago / 24.0)))))
+    crew = rush_crew(c, target)
+    above = _crew_skill(c, target, crew) - 7
+    if crew and above >= 1:
+        rows.append((f"A skilled crew (skill {_f(above + 7)})", -int(above)))
+    total = sum(v for _, v in rows)
+    if total > RUSH_CAP:
+        rows.append(("The risk goes no higher", RUSH_CAP - total))
+    elif total < 0:
+        rows.append(("Never below nothing", -total))
+    return rows
+
+
+def rush_chance(c: dict, target: str) -> int:
+    return int(sum(v for _, v in rush_rows(c, target)))
+
+
+def contain_rows(c: dict, target: str) -> list[tuple[str, int]]:
+    """If an incident comes, the chance the crew contain it (the rush then pays, and they are proud of it)."""
+    crew = rush_crew(c, target)
+    rows = [("A crew keeps its head", 40)]
+    if crew:
+        rows.append((f"{_n(len(crew), 'pair of hands', 'pairs of hands')}", 5 * min(len(crew), 4)))
+        d = int(round(4 * (_crew_skill(c, target, crew) - 7)))
+        if d:
+            rows.append((f"Their skill ({_f(_crew_skill(c, target, crew))})", d))
+    total = sum(v for _, v in rows)
+    if total > 90:
+        rows.append(("Nothing is certain", 90 - total))
+    elif total < 10:
+        rows.append(("Someone always tries", 10 - total))
+    return rows
+
+
+def contain_chance(c: dict, target: str) -> int:
+    return int(sum(v for _, v in contain_rows(c, target)))
+
+
+def rush_output(c: dict, room: str) -> dict:
+    """What a rushed room delivers now: RUSH_HOURS of what its work made an hour over the last day."""
+    got, _ = _room_made(c, room, c["hour"] - MADE_HOURS)
+    _, span = _made(c)
+    return {res: v * RUSH_HOURS / max(span, 1) for res, v in got.items() if v > 0}
+
+
+INCIDENTS = {"fields": ("A beast in the terraces", "boar"), "alchemy": ("A pill-furnace fire", "fire"),
+             "spirit_vein": ("A qi deviation at the vein", "qi"), "storehouse": ("A stack gives way in the yard", "stack"),
+             "build": ("The scaffolding gives way", "scaffold")}
+
+
+def rush(st: dict, room: str, now: float, index: int = -1) -> dict:
+    """Rush a room (RUSH_HOURS of its work now) or a running build (index >= 0: finished now), at the odds shown by
+    rush_rows and contain_rows: the same rolls are made here. A player action only, so never while away."""
+    c = _c(st, now)
+    if c["seclusion"]:
+        return {"ok": False, "error": "The gates are sealed."}
+    if index >= 0:
+        run = _running(c)
+        if not 0 <= index < len(run):
+            return {"ok": False, "error": "No builder is on that job."}
+        b, target = run[index], "build"
+        out: dict = {}
+    else:
+        if room not in TRAY_OF or not _lvl(c, room):
+            return {"ok": False, "error": "That room cannot be rushed."}
+        if int(c["room_idle"].get(room, 0)) > c["hour"]:
+            return {"ok": False, "error": f"The {ROOMS[room]['name']} is still putting things right."}
+        out = rush_output(c, room)
+        if not out:
+            return {"ok": False, "error": "No one has worked here today: there is nothing to hurry."}
+        b, target = None, room
+    chance, keep = rush_chance(c, target), contain_chance(c, target)
+    crew = rush_crew(c, target)
+    r = _rng(c, "rush", c["hour"], target, len(c["rushes"]))
+    incident = r.random() * 100 < chance
+    contained = incident and r.random() * 100 < keep
+    c["rushes"] = [x for x in c["rushes"] if c["hour"] - int(x["h"]) < RUSH_WINDOW][-20:] + [{"k": target, "h": c["hour"]}]
+    name, _ = INCIDENTS[target]
+    what = ROOMS[b["room"]]["name"] if b else ROOMS[room]["name"]
+    snap = _snap(c)
+    if not incident or contained:
+        if b:
+            b["done"] = b["need"]
+            _finish_build(c, b)
+        for res, v in out.items():
+            _add(c, res, v)
+        if contained:
+            for p in crew:
+                _xp(p, "build" if b else JOBS[POSTS[room][0]][1], 6.0)
+                _think(p, "proud", "Proud of the work", 4, 24, c["hour"])
+            _scene(c, "incident", True, f"{name}, and the crew held", f"The {what} was rushed. {name}, but the crew kept their heads and saw it through.",
+                   verdict="Contained", party=crew, snap=snap)
+            return {"ok": True, "incident": True, "contained": True}
+        got = ", ".join(f"{_whole(v)} {RES_NAMES[k].lower()}" for k, v in out.items())
+        return {"ok": True, "incident": False, "event": {"kind": "good", "title": f"{what} rushed" + (f": {got}" if got else ": finished")}}
+    # the incident was not contained
+    if b:
+        b["need"] = min(100.0, b["need"] + RUSH_BUILD_BACK)
+        b["cost"] = {k: v * (1 - RUSH_BUILD_LOSS) for k, v in b.get("cost", {}).items()}
+        text = f"The {what} loses ground: {_n(int(RUSH_BUILD_BACK), 'hour')} more work, and a tenth of its materials are spoiled."
+    else:
+        c["room_idle"][room] = c["hour"] + RUSH_IDLE
+        text = f"The rushed work is lost and the {what} stands idle for {RUSH_IDLE} hours."
+    for p in crew:
+        p["health"] = max(min(p["health"], 5.0), p["health"] - r.uniform(*RUSH_WOUND) * hurt_mult(p, c))
+    if crew:
+        text += f" {_and([p['name'] for p in crew])} {_be(len(crew), 'was', 'were')} hurt. No one died."
+    _scene(c, "incident", False, name, text, verdict="An incident", party=crew, snap=snap)
+    _letter(c, "bad", name, text)
+    return {"ok": True, "incident": True, "contained": False}
+
+
+def hall_opens(c: dict, target: int) -> list[str]:
+    """What raising the Main Hall to `target` opens, from HALL_LADDER (and the builders and beds that come with it)."""
+    x = HALL_LADDER[target]
+    opens = [f"Room for {_n(2, 'more disciple', 'more disciples')}: {3 + 2 * target} in all, from {3 + 2 * (target - 1)}"]
+    if x.get("rooms"):
+        opens.append("New rooms: " + _and([ROOMS[k]["name"] for k in x["rooms"]]))
+    if target in BUILDER_HALLS:
+        opens.append(f"A builder more: {BUILDERS + sum(1 for h in BUILDER_HALLS if h <= target)} in all")
+    was = HALL_LADDER[target - 1]["cap"]
+    if x["cap"] > was:
+        held = [ROOMS[k]["name"] for k in ROOMS
+                if k != "main_hall" and _lvl(c, k) + _queued(c, k) >= was and was < ROOMS[k]["max"]]
+        opens.append(f"Other rooms up to level {x['cap']}" + (f" ({_and(held)} {_be(len(held))} waiting on it)" if held else ""))
+    if target in FLOOR_HALL:
+        opens.append(f"A new floor: {GRID_SLOTS} more alcoves to build in")
+    for w, h in WIDE_HALL.items():
+        if h == target:
+            opens.append(f"Rooms can be merged {'two' if w == 2 else 'three'} alcoves wide")
+    opens.extend(x.get("more", ()))
+    opens.append("+4 fame as the valley sees it rise")
+    return opens
+
+
+def hall_next(c: dict) -> dict:
+    """The next Main Hall level, what it opens and the three-rooms checklist, for the card on the home view. At the
+    top of the ladder the card says so ("top") and lists what the Hall gave."""
+    lvl = _lvl(c, "main_hall")
+    top = ROOMS["main_hall"]["max"]
+    if lvl >= top:
+        return {"level": top, "top": True, "opens": [f"{builders(c)} builders, room for {pawn_cap(c)} disciples, other rooms up to level {room_cap(c)}"],
+                "check": [], "cost": {}, "queued": False, "hours": 0, "left": 0.0, "free": False, "pct": 100.0, "affordable": False,
+                "short": {}, "ready": False}
+    queued = [b for b in c["builds"] if b["room"] == "main_hall"]
+    target = lvl + 1
+    check = [] if queued else hall_rooms_check(c, target)
+    ready = all(ok for _, _, ok in check)
+    cost = queued[0]["cost"] if queued else room_cost(c, "main_hall", lvl)
+    short = {k: v - c["res"][k] for k, v in cost.items() if c["res"][k] < v}
+    free = len(c["builds"]) < builders(c)
+    return {"level": target, "top": False, "opens": hall_opens(c, target), "check": check, "need_lv": target - 1, "ready": ready,
+            "cost": cost, "queued": bool(queued), "hours": build_hours("main_hall", target),
+            "left": build_left(c, queued[0]) if queued else 0.0, "free": free,
+            "pct": 100.0 * queued[0]["done"] / queued[0]["need"] if queued else 0.0,
+            "affordable": not queued and ready and not short and free, "short": short}
+
+
 def _id_names(c: dict, ids) -> str:
     known = [str((_p(c, i) or {}).get("name") or "") for i in ids]
     names = [n for n in known if n]
@@ -3825,59 +4689,6 @@ def res_rates(c: dict) -> dict:
     return out
 
 
-BUILD_STALL_HOURS = 12              # a queued build this long without an hour of work is stalled (a night's sleep is not)
-
-
-def build_stall(c: dict) -> str:
-    """Why a queued build has nobody on it, from the priorities and what the builders did instead ('' if it is moving).
-    Only a build that has waited BUILD_STALL_HOURS since it was queued (or last moved) counts: the hours before it
-    was queued say nothing about it."""
-    if not c["builds"] or not c["name"]:
-        return ""
-    if any(p["doing"] == JOBS["build"][0].lower() for p in c["pawns"]):
-        return ""
-    builders = [p for p in c["pawns"] if p["prio"].get("build", 0) and not p.get("direct")]
-    if not builders:
-        direct = " Direct disciples never build." if any(p.get("direct") for p in c["pawns"]) else ""
-        return f"Nobody is building: no disciple has Build in their work priorities. Set Build for someone in Work.{direct}"
-    home = [p for p in builders if p["away_until"] <= c["hour"]]
-    if not home:
-        return "Nobody is building: everyone with Build in their priorities is away from the sect."
-    b = c["builds"][0]
-    since = max((float(b[k]) for k in ("at", "moved") if isinstance(b.get(k), (int, float))), default=-1e9)
-    if c["hour"] - since < BUILD_STALL_HOURS:
-        return ""            # queued (or worked on) too recently to call it a stall
-    totals, span = _made(c, BUILD_STALL_HOURS)
-    if span < BUILD_STALL_HOURS or any(v for (kind, job, _), v in totals.items() if kind == "h" and job == "build"):
-        return ""            # too soon to tell, or someone built recently (the night is not a stall)
-    reasons, fix = [], []
-    for p in sorted(home, key=lambda p: p["prio"]["build"])[:3]:
-        # Meditation is not a chore: level with Build it takes a share of the hours (MED_SHARE) and leaves the rest to
-        # building, so it is never the reason and lowering it is never the advice.
-        worked = {job: v for (kind, job, pid), v in totals.items() if kind == "h" and pid == p["id"]}
-        did = {job: v for job, v in worked.items() if job != "meditate"}
-        name, bl = p["name"], p["prio"]["build"]
-        if not did:
-            reasons.append(f"{name} only meditated" if worked else f"{name} has not been fit to work (sleeping, sick or out of sorts)")
-            continue
-        job = max(did, key=did.get)
-        jl, jn = p["prio"].get(job, 0), JOBS[job][0]
-        if jl and jl < bl:
-            reasons.append(f"{name} has {jn} at priority {jl}, ahead of Build at {bl}")
-            fix.append(f"raise Build to {jl - 1} for {name}" if jl > 1 else f"raise Build to 1 and lower {jn} for {name}")
-        elif jl == bl and job in STORE_OF:
-            res = RES_NAMES[STORE_OF[job]].lower()
-            reasons.append(f"{name} has {jn} and Build both at priority {bl}, and {res} has been under {int(LOW_STORE_DAYS)} days of use: "
-                           "a short store comes before building on a tie")
-            fix.append(f"raise Build to {bl - 1} for {name}, or put more hands on {jn}" if bl > 1 else f"put more hands on {jn} until {res} is not short")
-        else:
-            reasons.append(f"{name} spent the day on {jn}")
-    text = "Nobody is building. " + "; ".join(reasons) + "."
-    if fix:
-        text += " To get it moving, " + fix[0] + "."
-    return text
-
-
 def _pawn_view(c: dict, p: dict) -> dict:
     hour = c["hour"]
     need = step_need(int(p["step"]))
@@ -3896,6 +4707,7 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "step": _f(p["step"]), "realm": REALMS[int(p["step"]) // 4], "stage": STAGES[int(p["step"]) % 4],
         "qi": _f(p["qi"]), "qi_need": _f(need), "qi_pct": _f(min(100.0, 100.0 * float(p["qi"]) / need)),
         "prio": {j: _f(p["prio"].get(j, 0)) for j in JOBS}, "doing": str(p["doing"]),
+        "post": str(p.get("post") or ""), "fit": {r: post_fit(c, p, r) for r in POSTS if _lvl(c, r)},
         "broken": p["break_until"] > hour, "inspired": p["inspired_until"] > hour, "sick": p["sick_until"] > hour,
         "power": _f(combat_power(c, p)),
         "rank": rank, "realm_rank": lore.RANKS[rank_of(p)], "title": str(p.get("title") or ""),
@@ -3995,17 +4807,33 @@ def view(st: dict, now: float) -> dict:
     today = _today(st, now)
     day = _day(c)
     rooms = []
+    tray = trays(c)
+    free = len(c["builds"]) < builders(c)
     for rid, r in ROOMS.items():
         level = _lvl(c, rid)
-        queued = sum(1 for b in c["builds"] if b["room"] == rid)
+        queued = _queued(c, rid)
         nxt = level + queued
         cost = room_cost(c, rid, nxt) if nxt < r["max"] else None
-        locked = ""
-        if cost and rid != "main_hall" and nxt > _lvl(c, "main_hall"):
-            locked = f"Needs Main Hall level {nxt}."
+        locked = build_block(c, rid, nxt) if cost else ""
+        plot = c["plots"].get(rid)
+        wing = next((b["wing"] for b in c["builds"] if b["room"] == rid and b.get("wing")), None)
+        if cost and not locked and wing:
+            locked = "Its wing is still being built: the two halls must match."
+        if cost and not locked and not plot and not free_cells(c):
+            locked = "No empty alcove on the open floors."
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
+                      "plot": {"f": int(plot["f"]), "s": int(plot["s"]), "w": int(plot["w"])} if plot else None,
+                      "wing": {"f": int(wing[0]), "s": int(wing[1])} if wing else None,
+                      "wide": _wide_view(c, rid, free),
+                      "hours": _f(build_hours(rid, nxt + 1, _w(c, rid))) if cost else 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
-                      "affordable": bool(cost) and not locked and all(c["res"][k] >= v for k, v in cost.items())})
+                      "lock_short": (build_block_short(c, rid, nxt) or ("Wing being built" if wing else "No empty alcove")) if locked else "",
+                      "affordable": bool(cost) and not locked and free and all(c["res"][k] >= v for k, v in cost.items()),
+                      "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])],
+                      "tray_full": bool(tray.get(rid)) and tray_full(c, rid),
+                      "slots": room_slots(c, rid), "posted": [str(p["id"]) for p in posted(c, rid)],
+                      "post_jobs": [JOBS[j][0] for j in POSTS.get(rid, ())] if level else [],
+                      "rush": _rush_view(c, rid) if rid in TRAY_OF and level else None})
     last = c["last_study_day"]
     gap = (_date(today) - _date(last)).days if last else 0
     lost = bool(last) and not c["seclusion"] and gap > 1 and c["grace"] < gap - 1
@@ -4059,8 +4887,13 @@ def view(st: dict, now: float) -> dict:
         "farm_yield": {"rows": [{"label": str(label), "x": _f(x, 2)} for label, x in farm_rows(c)],
                        "per_hour": _f(math.prod(x for _, x in farm_rows(c)), 2), "blight_days": _f(blight_left(c) / 24.0, 1)},
         "rooms": rooms,
-        "builds": [{"room": b["room"], "name": ROOMS[b["room"]]["name"], "pct": _f(100.0 * b["done"] / b["need"])} for b in c["builds"]],
-        "build_stall": build_stall(c),
+        "hall_next": _hall_view(hall_next(c)),
+        "grid": _grid_view(c),
+        "builds": [_build_view(c, i, b) for i, b in enumerate(c["builds"])],
+        "builders": {"n": builders(c), "busy": len(_running(c)), "rows": [{"label": str(a), "n": _f(b)} for a, b in builder_rows(c)],
+                     "next_hall": next((h for h in BUILDER_HALLS if h > _lvl(c, "main_hall")), 0),
+                     "master_hours": max(0, _f(c["master_builds_until"] - c["hour"])), "blueprints": _f(c["blueprints"]["n"]),
+                     "blueprint_cut": _f(BLUEPRINT_CUT * 100), "away_secs": _f(SECS_PER_HOUR_OFFLINE)},
         "pawns": [_pawn_view(c, p) for p in c["pawns"]],
         "jobs": [{"id": j, "name": v[0], "skill": SKILL_NAMES[v[1]]} for j, v in JOBS.items()],
         "research": {"current": str(cur), "progress": _f(c["research"]["progress"]),
@@ -4079,6 +4912,59 @@ def view(st: dict, now: float) -> dict:
         "week": {"days": len(c["week"]["days"]) if c["week"]["id"] else 0, "goal": WEEK_GOAL},
         "realm": REALMS[int(m["step"]) // 4] if m else REALMS[0], "stage": STAGES[int(m["step"]) % 4] if m else STAGES[0],
     }
+
+
+def _wide_view(c: dict, rid: str, free: bool) -> dict | None:
+    """A room's width and what a wing would cost and give (None for the Hall, which never merges)."""
+    if rid in FIXED_W:
+        return None
+    w = _w(c, rid)
+    why = wing_block(c, rid)
+    cost = wing_cost(c, rid) if _lvl(c, rid) and w < 3 else {}
+    return {"w": w, "x": _f(WIDE_X[w], 2), "max": wide_max(c), "why": str(why), "cells": [[int(f), int(s)] for f, s in wing_cells(c, rid)] if not why else [],
+            "cost": {k: _f(v) for k, v in cost.items()}, "hours": _f(build_hours(rid, max(1, _lvl(c, rid)))) if cost else 0,
+            "affordable": bool(cost) and not why and free and all(c["res"][k] >= v for k, v in cost.items()),
+            "rows": [{"label": str(a), "now": str(b), "then": str(d)} for a, b, d in merge_rows(c, rid)] if cost else [],
+            "yield": str(WIDE_YIELD.get(rid, "")), "word": WIDE_WORD[w]}
+
+
+def _grid_view(c: dict) -> dict:
+    v = c["plots"]["vault"] if "vault" in c["plots"] else None
+    n = floors_open(c)
+    return {"floors": GRID_FLOORS, "slots": GRID_SLOTS, "open": n, "next_floor": int(FLOOR_HALL[n]) if n < GRID_FLOORS else 0,
+            "vault": {"f": int(v["f"]), "s": int(v["s"]), "w": 1} if v else None,
+            "free": [[int(f), int(s)] for f, s in free_cells(c)], "wide_max": wide_max(c),
+            "wide_halls": {str(w): int(h) for w, h in WIDE_HALL.items()}}
+
+
+def _build_view(c: dict, i: int, b: dict) -> dict:
+    running = i < builders(c)
+    rows = build_rate_rows(c, b) if running else []
+    return {"room": b["room"], "name": ROOMS[b["room"]]["name"], "wing": bool(b.get("wing")),
+            "level": _lvl(c, b["room"]) if b.get("wing") else _lvl(c, b["room"]) + 1 + sum(1 for x in c["builds"][:i] if x["room"] == b["room"] and not x.get("wing")),
+            "pct": _f(100.0 * b["done"] / b["need"]), "need": _f(b["need"], 1), "done": _f(min(b["done"], b["need"]), 1),
+            "running": running, "left": _f(build_left(c, b), 1), "rate": _f(sum(x for _, x in rows), 2) if rows else 0,
+            "rows": [{"label": str(a), "x": _f(x, 2)} for a, x in rows], "blue": _f(b.get("blue", 0.0), 1),
+            "rush": _rush_view(c, "build") if running else None}
+
+
+def _rush_view(c: dict, target: str) -> dict:
+    out = rush_output(c, target) if target != "build" else {}
+    return {"chance": _f(rush_chance(c, target)), "rows": [{"label": str(a), "v": _f(v)} for a, v in rush_rows(c, target)],
+            "contain": _f(contain_chance(c, target)), "contain_rows": [{"label": str(a), "v": _f(v)} for a, v in contain_rows(c, target)],
+            "out": [{"res": k, "name": RES_NAMES[k].lower(), "n": _whole(v)} for k, v in out.items() if v >= 1],
+            "crew": [str(p["name"]) for p in rush_crew(c, target)],
+            "idle": max(0, _f(int(c["room_idle"].get(target, 0)) - c["hour"])) if target != "build" else 0,
+            "incident": INCIDENTS[target][0]}
+
+
+def _hall_view(h: dict) -> dict:
+    return {"level": _f(h["level"]), "top": bool(h["top"]), "opens": [str(x) for x in h["opens"]], "cost": {k: _f(v) for k, v in h["cost"].items()},
+            "check": [{"name": str(n), "lv": _f(lv), "ok": bool(ok)} for n, lv, ok in h["check"]], "need_lv": _f(h.get("need_lv", 0)),
+            "ready": bool(h["ready"]),
+            "queued": bool(h["queued"]), "pct": _f(h["pct"]), "affordable": bool(h["affordable"]), "hours": _f(h["hours"]),
+            "left": _f(h["left"], 1), "free": bool(h["free"]),
+            "short": {k: _f(math.ceil(v)) for k, v in h["short"].items()}}
 
 
 def sanitize(raw, now: float) -> dict:
@@ -4154,6 +5040,7 @@ def _repair(c: dict) -> None:
             p[k] = num(p.get(k), 0, 1e9)
         p["sat_at"] = int(num(p.get("sat_at"), -1, 1e9, -1))
         p["work"] = p.get("work") if p.get("work") in JOBS else ""
+        p["post"] = p.get("post") if p.get("post") in POSTS else ""
         p["root_mult"] = num(p.get("root_mult"), 0.3, 3.0, 1.0)
         p["prio"] = {j: int(num((p.get("prio") or {}).get(j), 0, 4)) for j in JOBS}
         p["thoughts"] = [t for t in p.get("thoughts", []) if isinstance(t, dict) and isinstance(t.get("k"), str)
@@ -4217,6 +5104,31 @@ def _repair(c: dict) -> None:
     c["rooms"] = {k: int(num(v, 0, ROOMS[k]["max"])) for k, v in c["rooms"].items() if k in ROOMS}
     c["builds"] = [x for x in c["builds"] if isinstance(x, dict) and x.get("room") in ROOMS
                    and isinstance(x.get("need"), (int, float)) and x["need"] > 0 and isinstance(x.get("done"), (int, float))][:20]
+    for i, x in enumerate(c["builds"]):
+        # a job from before builders (`need` in disciple work-hours) keeps the share it had done, on the builders' clock
+        lv = max(1, _lvl(c, x["room"])) if x.get("wing") else _lvl(c, x["room"]) + 1 + sum(1 for y in c["builds"][:i] if y["room"] == x["room"] and not y.get("wing"))
+        need = build_hours(x["room"], lv, 1 if x.get("wing") else _w(c, x["room"]))
+        if not x.get("slotted"):
+            x["done"] = need * max(0.0, min(1.0, float(x["done"]) / float(x["need"])))
+            x["need"], x["slotted"] = need, 1
+        x["need"] = num(x["need"], 0.5, 100.0, need)
+        x["done"] = num(x["done"], 0.0, x["need"])
+        x["blue"] = num(x.get("blue"), 0.0, 100.0)
+        x["crew"] = [[str(a[0]), int(num(a[1], 0, 20)), num(a[2], 0, 5)] for a in x.get("crew", []) if isinstance(a, list) and len(a) == 3][:6]
+        x["crew_all"] = [[str(a[0])] for a in x.get("crew_all", []) if isinstance(a, list) and a][:12]
+        x.pop("boost", None), x.pop("crew_now", None)
+        x["cost"] = {k: num(v, 0, 1e6) for k, v in x.get("cost", {}).items() if k in RES} if isinstance(x.get("cost"), dict) else {}
+    bp = c.get("blueprints") if isinstance(c.get("blueprints"), dict) else {}
+    c["blueprints"] = {"n": int(num(bp.get("n"), 0, BLUEPRINT_BANK)), "day": str(bp.get("day") or "")[:10]}
+    c["master_builds_until"] = int(num(c.get("master_builds_until"), 0, 1e9))
+    c[HELD_SECS] = num(c.get(HELD_SECS), 0, MAX_OFFLINE_HOURS * SECS_PER_HOUR_OFFLINE)
+    _layout(c)                                            # every room on the grid, nothing overlapping (old saves land here)
+    for k in ("tray_seen", "inspected", "room_idle"):
+        d = c.get(k) if isinstance(c.get(k), dict) else {}
+        c[k] = {r: int(num(v, -1, 1e9, -1)) for r, v in d.items() if r in ROOMS}
+    rushes = c.get("rushes") if isinstance(c.get("rushes"), list) else []
+    c["rushes"] = [{"k": str(x["k"]), "h": int(num(x.get("h"), 0, 1e9))} for x in rushes
+                   if isinstance(x, dict) and (x.get("k") in ROOMS or x.get("k") == "build")][-20:]
     c["res"] = {k: num(c["res"].get(k), 0, 1e7) for k in RES}
 
 

@@ -1,0 +1,178 @@
+id: korean-swear
+title: "Korean — Swearing & slang"
+kind: language
+language: Korean
+lang: ko-KR
+track: korean
+addon: swear
+hall: tongues_west
+blurb: "Opt-in, for understanding: the swearing (욕), insults and rude slang you hear in dramas, films, games and on the street, with how strong each word is and who says it."
+
+# An opt-in add-on: the aim is to understand real speech and judge how strong a word is,
+# not to encourage anyone to use it. Every note gives: literal meaning, real meaning,
+# strength (mild / strong / very strong) and who says it where.
+# rom is Revised Romanization as in korean-a1 and korean-a2, written word by word.
+# Excluded on purpose: slurs aimed at race, ethnicity, religion, disability, sexuality or
+# gender identity. That rules out two very common words built on disability: 병신 (originally
+# 'disabled person') and 지랄 (originally 'epileptic fit').
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: ko-sw-01
+    title: "Mild: oh dear, what, I'm doomed"
+    goal: "I can recognise the mild exclamations people say when something goes wrong or surprises them."
+    notes: |
+      Everyday Korean exclamations are mild and heard from everyone:
+
+      - **아이고**: oh dear (older people especially).
+      - **헐**, **대박**: what?!, no way, wow (young people).
+      - **짜증나**, **미치겠다**, **어이없어**: annoyance and disbelief.
+      - **젠장**: damn, the word subtitles use for English *damn*.
+
+      Rudeness in Korean is also a matter of **speech level**: using 반말 (plain, intimate speech) to a stranger or an older person is itself rude (unit 5).
+
+      The strength scale used in this course is **mild** (fine almost anywhere), **strong** (crude: friends yes, work and elders no) and **very strong** (insulting or fighting words).
+    items:
+      - {id: ko-sw-01-aigo, type: vocab, l2: "아이고", rom: "aigo", l1: "Oh dear! / Oh my! (sighing, surprise)", alt: ["아이구", "aigu"],
+         note: "Literal: no literal sense, an exclamation. Real meaning: oh dear, ouch, oh my. Strength: mild. Heard: everyone, especially older people."}
+      - {id: ko-sw-01-heol, type: vocab, l2: "헐", rom: "heol", l1: "What?! / OMG (young slang)",
+         note: "Literal: no literal sense. Real meaning: shock or disbelief. Strength: mild, casual slang; not to elders. Heard: young people, online, dramas."}
+      - {id: ko-sw-01-daebak, type: vocab, l2: "대박", rom: "daebak", l1: "Awesome! / No way! (literally 'big win')",
+         note: "Literal: 'a big hit, a jackpot'. Real meaning: wow, amazing (or, ironically, 'great, just great'). Strength: mild, casual. Heard: everywhere, younger people especially."}
+      - {id: ko-sw-01-jenjang, type: vocab, l2: "젠장", rom: "jenjang", l1: "Damn! / Damn it!", alt: ["제기랄", "jegiral"],
+         note: "Literal: an old curse whose original sense is no longer felt. Real meaning: damn it. Strength: mild to strong; sounds a bit old or bookish, and is the usual subtitle for 'damn'. Heard: films, dramas, older men; 제기랄 is similar."}
+      - {id: ko-sw-01-jjajeungna, type: vocab, l2: "짜증나", rom: "jjajeungna", l1: "So annoying! / Ugh! (literally 'irritation comes out')", alt: ["짜증 나", "jjajeung na", "짜증나요", "jjajeungnayo"],
+         note: "Literal: 'irritation arises'. Real meaning: this is so annoying. Strength: mild; rude only if aimed at a person. Heard: everyone, constantly."}
+      - {id: ko-sw-01-manghaetda, type: vocab, l2: "망했다", rom: "manghaetda", l1: "I'm screwed! / It's ruined! (literally 'it has collapsed')", alt: ["망했어", "manghaesseo"],
+         note: "Literal: 'it has gone to ruin' (of a business, a country). Real meaning: I'm doomed, I blew it (an exam, a game). Strength: mild. Heard: everyone, especially students and gamers."}
+      - {id: ko-sw-01-eoieopseo, type: vocab, l2: "어이없어", rom: "eoieopseo", l1: "Unbelievable! / That's ridiculous!", alt: ["어이없다", "eoieopda", "어이가 없네", "eoiga eomne"],
+         note: "Literal: 'there is no 어이 (sense, grounds)'. Real meaning: I'm speechless, absurd. Strength: mild. Heard: everyone, informal."}
+      - {id: ko-sw-01-michigetda, type: vocab, l2: "미치겠다", rom: "michigetda", l1: "It's driving me crazy! (literally 'I'm going to go mad')", alt: ["미치겠네", "michigenne", "미치겠어", "michigesseo"],
+         note: "Literal: 'I'm going to go mad'. Real meaning: I can't stand it (or, happily, 'this is too good'). Strength: mild. Heard: everyone, informal."}
+
+  # ---------------------------------------------------------------- 2
+  - id: ko-sw-02
+    title: "Strong: the real swearwords"
+    goal: "I can recognise the strong Korean swearwords and the threats that come with them."
+    notes: |
+      **씨발** is the core Korean swearword, roughly *fuck*. It is clipped to **씨** or **아 씨** in muttering, written **시발** or **ㅅㅂ** online, and bleeped on TV.
+
+      - **개-** (dog) makes insults: **개새끼** (literally 'dog's pup') is a heavy one.
+      - **좆** (a crude word for the penis) is in **좆같다** (fucking shitty) and, worn down, in **존나** (unit 4).
+      - **꺼져**, **닥쳐** are short, rough commands in 반말.
+
+      These are **strong to very strong**: they are said between close friends, especially young men, but never to elders or at work.
+    items:
+      - {id: ko-sw-02-ssibal, type: vocab, l2: "씨발", rom: "ssibal", l1: "Fuck! (the core Korean swearword)", alt: ["시발", "sibal"],
+         note: "Literal: usually traced to 씹할, roughly 'fucking' (씹 is a crude word for the vulva and for sex). Real meaning: fuck!, or before a noun, 'fucking'. Strength: very strong. Heard: everywhere among young people, bleeped on TV; online ㅅㅂ."}
+      - {id: ko-sw-02-gaesaekki, type: vocab, l2: "개새끼", rom: "gaesaekki", l1: "son of a bitch / bastard (literally 'dog's pup')",
+         note: "Literal: 'puppy, dog's offspring'. Real meaning: bastard, son of a bitch. Strength: very strong. Heard: everywhere in anger, films, dramas (muted); 개새끼야! is the shout."}
+      - {id: ko-sw-02-jotgata, type: vocab, l2: "좆같아", rom: "jotgata", l1: "It's fucking shitty. / This is fucked.", alt: ["좆같다", "jotgatda", "좆 같아", "jot gata"],
+         note: "Literal: 'it's like a dick' (좆, a crude word for the penis). Real meaning: it's terrible, I hate this. Strength: very strong. Heard: young men, films; the milder version is 엿 같아 (unit 4)."}
+      - {id: ko-sw-02-yeot-meogeo, type: phrase, l2: "엿 먹어", rom: "yeot meogeo", l1: "Screw you! (literally 'eat taffy')", alt: ["엿 먹어라", "yeot meogeora", "yeon meogeo"],
+         note: "Literal: 'eat 엿' (a sticky rice taffy); how it became an insult is disputed. Real meaning: screw you, up yours. Strength: strong, but milder than 씨발. Heard: everywhere; often with a rude hand gesture."}
+      - {id: ko-sw-02-kkeojyeo, type: vocab, l2: "꺼져", rom: "kkeojyeo", l1: "Get lost! / Piss off! (literally 'go out', like a light)", alt: ["꺼져라", "kkeojyeora"],
+         note: "Literal: 'be extinguished' (꺼지다, of a fire or light). Real meaning: get out of here. Strength: strong. Heard: dramas, films, arguments."}
+      - {id: ko-sw-02-dakchyeo, type: vocab, l2: "닥쳐", rom: "dakchyeo", l1: "Shut up! (rough)", alt: ["입 닥쳐", "ip dakchyeo"],
+         note: "Literal: from 닥치다, 'to close (one's mouth)'. Real meaning: shut up. Strength: strong; 입 닥쳐 (shut your mouth) is stronger. Heard: dramas, films, arguments."}
+      - {id: ko-sw-02-jugeullae, type: phrase, l2: "죽을래?", rom: "jugeullae", l1: "Do you want to die? (a threat, often half-joking)", alt: ["죽을래", "죽고 싶어?", "jukgo sipeo"],
+         note: "Literal: 'do you want to die?'. Real meaning: you're asking for it. Strength: strong; among friends and siblings it is often a jokey 'watch it'. Heard: everywhere, dramas especially."}
+
+  # ---------------------------------------------------------------- 3
+  - id: ko-sw-03
+    title: "Insults: from 'silly' to scum"
+    goal: "I can understand what someone is being called, and how bad it is."
+    notes: |
+      Insults often end in **-놈** (guy, bastard) or **-새끼** (pup, bastard): *미친놈*, *나쁜 놈*, *이 새끼*.
+
+      - **Mild, often affectionate**: 바보, 멍청이.
+      - **Strong**: 미친놈, 또라이, 찌질이, 양아치, 쓰레기, 싸가지 없다.
+      - Social insults: **꼰대** (a preachy, bossy older person) is one of the most-heard words in Korean today.
+
+      **새끼** shows how much depends on tone: to a stranger it is an insult, but parents say *우리 새끼* ('my little one') to their children.
+    items:
+      - {id: ko-sw-03-babo, type: vocab, l2: "바보", rom: "babo", l1: "fool / silly (often affectionate)",
+         note: "Literal: 'fool'. Real meaning: silly, dummy; between couples it is affectionate. Strength: mild. Heard: everyone."}
+      - {id: ko-sw-03-meongcheongi, type: vocab, l2: "멍청이", rom: "meongcheongi", l1: "idiot / dummy", alt: ["멍청아", "meongcheonga"],
+         note: "Literal: from 멍청하다, 'to be dim, absent-minded'. Real meaning: idiot. Strength: mild to strong. Heard: everyone, informal."}
+      - {id: ko-sw-03-michinnom, type: vocab, l2: "미친놈", rom: "michinnom", l1: "crazy bastard / lunatic (literally 'crazy guy')", alt: ["미친 놈", "michin nom"],
+         note: "Literal: 'mad fellow'. Real meaning: an everyday 'nutter', 'crazy bastard', not about real illness; 미친 alone before a noun is 'fucking' (미친 날씨 = insane weather). Strength: strong. Heard: everywhere, films and dramas."}
+      - {id: ko-sw-03-saekki, type: vocab, l2: "새끼", rom: "saekki", l1: "bastard (to a man); also 'little one' (of young animals, children)", alt: ["이 새끼", "i saekki"],
+         note: "Literal: 'the young of an animal'. Real meaning: an insult to a man (bastard), or between close male friends a rough 'mate'; 우리 새끼 = my little one, said lovingly by parents. Strength: strong as an insult. Heard: everywhere."}
+      - {id: ko-sw-03-ttorai, type: vocab, l2: "또라이", rom: "ttorai", l1: "nutjob / psycho / weirdo", alt: ["돌아이", "dorai"],
+         note: "Literal: from 돌다, 'to turn (in the head)', i.e. a person whose head has turned. Real meaning: an eccentric, a nutter (an everyday insult, not about real illness). Strength: strong; can be teasing between friends. Heard: everywhere, informal."}
+      - {id: ko-sw-03-jjijiri, type: vocab, l2: "찌질이", rom: "jjijiri", l1: "loser / pathetic creep",
+         note: "Literal: from 찌질하다, 'to be pathetic, petty'. Real meaning: a loser, someone pitiful or petty. Strength: strong. Heard: young people, online, dramas."}
+      - {id: ko-sw-03-kkondae, type: vocab, l2: "꼰대", rom: "kkondae", l1: "condescending old fogey / bossy know-it-all (older person)",
+         note: "Literal: old slang for a father or a teacher. Real meaning: an older person (or boss) who lectures and pulls rank. Strength: mild to strong, a social insult; 꼰대질 = acting like one. Heard: everywhere, very current."}
+      - {id: ko-sw-03-yangachi, type: vocab, l2: "양아치", rom: "yangachi", l1: "thug / lowlife / punk",
+         note: "Literal: from an old word for a beggar or rag-picker. Real meaning: a petty thug, a sleazy person with no principles. Strength: strong. Heard: everywhere, films and dramas."}
+      - {id: ko-sw-03-sseuregi, type: vocab, l2: "쓰레기", rom: "sseuregi", l1: "scum (literally 'rubbish, trash')",
+         note: "Literal: 'rubbish'. Real meaning: a worthless or vile person. Strength: strong. Heard: everywhere; 인간 쓰레기 = human garbage, stronger."}
+      - {id: ko-sw-03-ssagaji, type: phrase, l2: "싸가지 없어", rom: "ssagaji eopseo", l1: "(You're) rude / You have no manners! (to someone younger)", alt: ["싸가지 없다", "ssagaji eopda", "싸가지 없네", "ssagaji eomne"],
+         note: "Literal: 'has no 싸가지' (dialect for 'sprout': no promise, no manners). Real meaning: rude, disrespectful, usually said of someone younger. Strength: strong. Heard: everywhere; spelt 싹수 없다 in standard Korean."}
+      - {id: ko-sw-03-jaesu-eopseo, type: phrase, l2: "재수 없어", rom: "jaesu eopseo", l1: "(You're) obnoxious / What a jinx! (literally 'no luck')", alt: ["재수 없다", "jaesu eopda", "재수없어"],
+         note: "Literal: 'there is no luck'. Real meaning: of a person, obnoxious, smug, irritating; of a day, rotten luck. Strength: strong when aimed at a person. Heard: everywhere."}
+
+  # ---------------------------------------------------------------- 4
+  - id: ko-sw-04
+    title: "Rude but everyday: slang you hear all day"
+    goal: "I can follow the crude everyday slang of young people talking, posting and gaming."
+    notes: |
+      Young Korean slang turns rude words into **intensifiers**:
+
+      - **존나** (from 좆 + 나다) = fucking, very: *존나 좋아* = fucking great. Softer spelling: **졸라** (unit 5).
+      - **개-** (dog): *개좋아* = awesome, *개짜증* = so annoying, *개판* = a total mess.
+      - **존맛** (존나 맛있다) = fucking delicious.
+
+      Other common ones: **빡치다** (to get pissed off), **쩔다** (to be awesome), **쪽팔리다** (to be embarrassing), **열받다** (to get angry).
+
+      These are **mild to strong**: normal among friends and online, wrong with parents, teachers and bosses.
+    items:
+      - {id: ko-sw-04-jonna, type: vocab, l2: "존나", rom: "jonna", l1: "fucking / really (intensifier)",
+         ex: "존나 추워.", ex_rom: "jonna chuwo.", ex_l1: "It's fucking cold.",
+         note: "Literal: usually traced to 좆나 ('dick comes out'). Real meaning: very, fucking. Strength: strong; many young people say it without thinking, but elders hear it as filthy. Heard: young people, online (ㅈㄴ)."}
+      - {id: ko-sw-04-gaejoa, type: vocab, l2: "개좋아", rom: "gaejoa", l1: "awesome / so damn good (개- as intensifier)", alt: ["개 좋아", "gae joa"],
+         note: "Literal: 'dog-good'. Real meaning: really good; 개- before adjectives means 'very' (개웃겨 = hilarious). Strength: mild to strong; youth slang. Heard: young people, online."}
+      - {id: ko-sw-04-ppakchyeo, type: vocab, l2: "빡쳐", rom: "ppakchyeo", l1: "I'm pissed off. (slang)", alt: ["빡치다", "ppakchida", "빡치네", "ppakchine"],
+         note: "Literal: slang of unclear origin (빡 is the sound of a hard knock). Real meaning: to get really angry. Strength: strong-ish slang; not for elders. Heard: young people, online, gamers."}
+      - {id: ko-sw-04-jjeoreo, type: vocab, l2: "쩔어", rom: "jjeoreo", l1: "That's insane! / Amazing! (slang)", alt: ["쩐다", "jjeonda", "쩔다", "jjeolda"],
+         note: "Literal: origin unclear (often linked to 절다, 'to be soaked, pickled'). Real meaning: awesome, incredible (sometimes 'awful'). Strength: mild, casual slang. Heard: young people."}
+      - {id: ko-sw-04-gaepan, type: vocab, l2: "개판", rom: "gaepan", l1: "a total mess / a shambles (literally 'dog place')", alt: ["개판이야", "gaepaniya"],
+         note: "Literal: origin disputed: usually 개 'dog' + 판 'scene' (dogs running riot); a popular story links it instead to 開版, the call that food was about to be served in Korean War refugee camps. Real meaning: chaos, a disgrace: 방이 개판이야 = the room is a pigsty. Strength: mild to strong. Heard: everyone, informal."}
+      - {id: ko-sw-04-yeot-gata, type: phrase, l2: "엿 같아", rom: "yeot gata", l1: "It sucks. / It's crappy. (the milder 'fucked up')", alt: ["엿 같다", "yeot gatda", "엿같아"],
+         note: "Literal: 'it's like 엿 (taffy)'. Real meaning: it's lousy, the softer cousin of 좆같아. Strength: strong-ish; milder than 좆같아. Heard: everywhere, informal."}
+      - {id: ko-sw-04-jonmat, type: vocab, l2: "존맛", rom: "jonmat", l1: "fucking delicious (slang)", alt: ["존맛탱", "jonmattaeng", "JMT"],
+         note: "Literal: 존나 + 맛 ('taste'). Real meaning: incredibly tasty; 존맛탱 or JMT online. Strength: strong in origin, light in use among young people. Heard: young people, food posts online."}
+      - {id: ko-sw-04-jjokpallyeo, type: vocab, l2: "쪽팔려", rom: "jjokpallyeo", l1: "So embarrassing! (crude, literally 'face sold')", alt: ["쪽팔리다", "jjokpallida", "쪽팔리네", "jjokpalline"],
+         note: "Literal: 쪽 (slang for 'face') + 팔리다 ('to be sold'). Real meaning: humiliating, embarrassing. Strength: mild but rude; the polite word is 창피하다. Heard: everyone, informal."}
+      - {id: ko-sw-04-yeolbada, type: vocab, l2: "열받아", rom: "yeolbada", l1: "It makes me mad. / I'm fuming. (literally 'receive heat')", alt: ["열받다", "yeolbatda", "열 받아", "yeol bada"],
+         note: "Literal: 'to receive heat'. Real meaning: to get angry. Strength: mild; informal. Heard: everyone."}
+
+  # ---------------------------------------------------------------- 5
+  - id: ko-sw-05
+    title: "How strong is it? Speech levels, disguises and fighting words"
+    goal: "I can hear when a Korean exchange is turning into a fight, and recognise the disguised forms of swearwords."
+    notes: |
+      **반말 is a weapon.** Plain speech to a stranger or an older person is an insult in itself, and fights often start with an argument about age: **너 몇 살이야?** ("How old are you?") means "who do you think you're talking to?".
+
+      **Disguises:** *씨발* becomes **아 씨** (a clipped mutter), **십팔** (the number 18, a pun), or **ㅅㅂ** online. *존나* becomes **졸라**.
+
+      **The ladder for "be quiet":** *조용히 해* (be quiet, mild) → *닥쳐* (shut up, strong) → *입 닥쳐* (shut your mouth, stronger).
+    items:
+      - {id: ko-sw-05-jolla, type: vocab, l2: "졸라", rom: "jolla", l1: "really / bloody (the softened 존나)",
+         note: "Literal: a softened spelling of 존나. Real meaning: very. Strength: strong-ish; it still carries the crude origin, but sounds lighter. Heard: young people, online; most popular in the late 1990s and 2000s."}
+      - {id: ko-sw-05-sippal, type: vocab, l2: "십팔", rom: "sippal", l1: "eighteen (the number; also a pun on the worst swearword)", alt: ["18"],
+         note: "Literal: 'eighteen'. Real meaning: said or written 18 as a pun on 씨발. Strength: jokey, but people notice. Heard: everywhere; this is why some Koreans smirk at the number 18."}
+      - {id: ko-sw-05-a-ssi, type: phrase, l2: "아 씨", rom: "a ssi", l1: "Ah, shit… (clipped mutter)", alt: ["아씨", "아 씨발", "a ssibal"],
+         note: "Literal: 'ah' + the first syllable of 씨발. Real meaning: a muttered 'shit' or 'damn'. Strength: strong; often heard even in TV dramas, because it is cut off. Heard: everywhere."}
+      - {id: ko-sw-05-ya, type: vocab, l2: "야", rom: "ya", l1: "Hey! / Oi! (fine to friends, rude to strangers or elders)", alt: ["야!"],
+         note: "Literal: 'hey' (반말). Real meaning: calling a friend, or shouting at someone. Strength: mild between friends; rude, even aggressive, to a stranger or an older person. Heard: everywhere."}
+      - {id: ko-sw-05-myeot-sal, type: phrase, l2: "너 몇 살이야?", rom: "neo myeot sariya", l1: "How old are you? (in a fight: who do you think you are?)", alt: ["너 몇 살이야", "몇 살이야?", "myeot sariya"],
+         note: "Literal: 'how old are you?' in 반말. Real meaning: in a quarrel, 'how dare you talk to me like that'. Strength: strong; a challenge. Heard: arguments, dramas, street fights."}
+      - {id: ko-sw-05-joyonghi-hae, type: phrase, l2: "조용히 해", rom: "joyonghi hae", l1: "Be quiet. (informal, ordinary)", alt: ["조용히 해!", "조용히 좀 해", "joyonghi jom hae"],
+         note: "Literal: 'do (it) quietly'. Real meaning: be quiet. Strength: mild; normal 반말 to friends or children. Heard: everyone. Compare 닥쳐 (strong)."}
+      - {id: ko-sw-05-eojjeorago, type: phrase, l2: "어쩌라고", rom: "eojjeorago", l1: "So what? / What do you want me to do about it? (rude)", alt: ["어쩌라고?", "어쩌라고요", "eojjeoragoyo"],
+         note: "Literal: 'you're saying I should do what?'. Real meaning: so what, I don't care. Strength: strong; dismissive and rude, even with 요 added. Heard: young people, arguments, online."}
+      - {id: ko-sw-05-i-jasik, type: phrase, l2: "이 자식", rom: "i jasik", l1: "You rascal! / You bastard! (literally 'this child')", alt: ["이 자식아", "i jasiga", "이자식"],
+         note: "Literal: 'this offspring, this child'. Real meaning: you bastard, milder than 이 새끼; between friends it can be teasing. Strength: strong. Heard: everywhere, films and dramas."}
