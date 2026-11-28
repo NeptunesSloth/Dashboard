@@ -20,7 +20,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from . import colony, dao, drills, engine, hand, packs, reader, state
 
@@ -275,6 +275,7 @@ class SectIn(BaseModel):
     count: int = 0
     motto: str = ""
     on: bool = False
+    cell: list[int] = Field(default_factory=list, max_length=2)
 
 
 def _clip(a):
@@ -685,7 +686,11 @@ def sect(action: str, body: SectIn):
         elif action == "priority":
             res = colony.set_priority(st, body.pawn, body.job, body.level, now)
         elif action == "build":
-            res = colony.queue_build(st, body.room, now)
+            res = colony.queue_build(st, body.room, now, body.cell if body.cell else None)
+        elif action == "widen":
+            res = colony.widen(st, body.room, now, body.cell if body.cell else None)
+        elif action == "move-room":
+            res = colony.move_room(st, body.room, body.cell, now)
         elif action == "cancel-build":
             res = colony.cancel_build(st, body.index, now)
         elif action == "blueprint":

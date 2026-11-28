@@ -125,6 +125,117 @@ def room_opens_at(room: str) -> int:
     return next((h for h, x in HALL_LADDER.items() if room in x.get("rooms", ())), 1)
 
 
+# The grid (SECT_OVERHAUL_PLAN 3.6 (4)): the sect is 5 floors of 6 alcoves. c["plots"] says where each room stands
+# ({room: {"f": floor from the ground, "s": first alcove, "w": alcoves wide}}); its level stays in c["rooms"], one
+# room of each kind. A wing built in the next alcove merges into the room: more places and a better yield.
+GRID_FLOORS, GRID_SLOTS = 5, 6
+FLOOR_HALL = (1, 1, 2, 3, 5)       # the Main Hall level that opens each floor, from the ground up
+WIDE_HALL = {2: 3, 3: 5}           # the Main Hall level that lets a room stand two, then three alcoves wide
+WIDE_X = {1: 1.0, 2: 1.1, 3: 1.2}        # what a merged room's yield is multiplied by
+WIDE_COST = {1: 1.0, 2: 1.5, 3: 1.5}     # the cost of each later level (two single rooms would pay x2, three x3)
+WIDE_TIME = {1: 1.0, 2: 1.25, 3: 1.5}    # and its time (never over the longest timer)
+WIDE_WORD = {1: "one alcove", 2: "two alcoves wide", 3: "three alcoves wide"}
+FIXED_W = {"main_hall": 2, "vault": 1}   # the Hall is always two alcoves, the Treasure Vault one; neither merges
+DEFAULT_CELL = {"main_hall": (0, 2), "fields": (0, 0), "dormitory": (0, 4), "storehouse": (1, 0), "ward": (1, 3), "vault": (1, 5),
+                "library": (2, 0), "training": (2, 2), "meditation": (2, 4), "alchemy": (3, 0), "spirit_vein": (3, 3), "market": (4, 0)}
+WIDE_YIELD = {"fields": "Rice per farmer-hour", "storehouse": "What the Storehouse adds to the stores", "library": "Research",
+              "training": "Combat skill from training", "meditation": "Qi from meditation", "alchemy": "Pill brewing",
+              "spirit_vein": "Spirit stones from quarrying", "ward": "Ward strength", "market": "The merchants' better prices"}
+
+
+def _w(c: dict, room: str) -> int:
+    """How many alcoves wide a room's work counts as (the Hall and the vault never count as merged)."""
+    p = c.get("plots", {}).get(room)
+    return max(1, min(3, int(p["w"]))) if isinstance(p, dict) and room not in FIXED_W else 1
+
+
+def wide_x(c: dict, room: str) -> float:
+    return WIDE_X[_w(c, room)]
+
+
+def _queued(c: dict, room: str) -> int:
+    """Levels of `room` waiting in the build list (a wing is not a level)."""
+    return sum(1 for b in c["builds"] if b["room"] == room and not b.get("wing"))
+
+
+def floors_open(c: dict) -> int:
+    hall = max(1, _lvl(c, "main_hall"))
+    return sum(1 for h in FLOOR_HALL if h <= hall)
+
+
+def wide_max(c: dict) -> int:
+    hall = _lvl(c, "main_hall")
+    return max([1] + [w for w, h in WIDE_HALL.items() if hall >= h])
+
+
+def _cells(plot: dict) -> list[tuple[int, int]]:
+    return [(int(plot["f"]), int(plot["s"]) + i) for i in range(int(plot["w"]))]
+
+
+def _taken(c: dict, skip: str = "") -> dict:
+    """{(floor, alcove): room} for every alcove in use, wings being built included."""
+    out = {}
+    for k, p in c["plots"].items():
+        if k != skip:
+            for cell in _cells(p):
+                out[cell] = k
+    for b in c["builds"]:
+        if b.get("wing") and b["room"] != skip:
+            out[(int(b["wing"][0]), int(b["wing"][1]))] = b["room"]
+    return out
+
+
+def _layout(c: dict) -> None:
+    """Keep c["plots"] true to the rooms: every room that stands (or is being built), the Hall and the vault has its
+    alcoves, nothing overlaps, nothing else is there. A room without a place (an old save, a new room) takes its
+    DEFAULT_CELL, or the first empty alcove from the ground up. Deterministic, and safe to run at any time."""
+    old = c.get("plots") if isinstance(c.get("plots"), dict) else {}
+    want = ["main_hall", "vault"] + [k for k in ROOMS if k != "main_hall" and (_lvl(c, k) or any(b["room"] == k for b in c["builds"]))]
+    plots, used = {}, set()
+
+    def fits(f, s, w):
+        return 0 <= f < GRID_FLOORS and 0 <= s and s + w <= GRID_SLOTS and not any((f, s + i) in used for i in range(w))
+
+    for k in want:
+        p = old.get(k)
+        try:
+            f, s, w = int(p["f"]), int(p["s"]), int(p["w"])
+        except (TypeError, KeyError, ValueError):
+            continue
+        w = FIXED_W.get(k, max(1, min(3, w)))
+        if fits(f, s, w):
+            plots[k] = {"f": f, "s": s, "w": w}
+            used.update((f, s + i) for i in range(w))
+    for k in want:
+        if k in plots:
+            continue
+        w = FIXED_W.get(k, 1)
+        spots = [DEFAULT_CELL[k]] + [(f, s) for f in range(GRID_FLOORS) for s in range(GRID_SLOTS)]
+        spot = next(((f, s) for f, s in spots if fits(f, s, w)), None)
+        if spot:
+            plots[k] = {"f": spot[0], "s": spot[1], "w": w}
+            used.update((spot[0], spot[1] + i) for i in range(w))
+    c["plots"] = plots
+    for b in list(c["builds"]):
+        if not b.get("wing"):
+            continue
+        p = plots.get(b["room"])
+        try:
+            f, s = int(b["wing"][0]), int(b["wing"][1])
+        except (TypeError, IndexError, ValueError):
+            f, s = -1, -1
+        ok = bool(p) and b["room"] not in FIXED_W and p["w"] < 3 and f == p["f"] and s in (p["s"] - 1, p["s"] + p["w"]) \
+            and 0 <= s < GRID_SLOTS and (f, s) not in used
+        if ok:
+            b["wing"] = [f, s]
+            used.add((f, s))
+        else:                                             # a wing with nowhere to stand: the materials come back
+            c["builds"].remove(b)
+            for res, v in b.get("cost", {}).items():
+                if res in c["res"]:
+                    c["res"][res] += float(v)
+
+
 def room_cap(c: dict) -> int:
     """The highest level other rooms may reach under the Hall as it stands."""
     return HALL_LADDER[max(1, min(10, _lvl(c, "main_hall")))]["cap"]
@@ -247,6 +358,7 @@ def new_colony(now: float) -> dict:
         "name": "", "seed": random.randrange(1 << 30), "hour": 6, "storyteller": "balanced", "paused": False,
         "res": {"rice": 36.0, "wood": 45.0, "stone": 25.0, "herbs": 4.0, "pills": 1.0, "stones": 0.0},
         "rooms": {"main_hall": 1, "dormitory": 1, "fields": 1},
+        "plots": {},                 # where each room stands on the grid (_layout fills and repairs it)
         "builds": [],                # [{room, need (sim hours of a builder), done, cost, at, crew}]: the first builders(c) are worked
         "blueprints": {"n": 0, "day": ""},   # Master's Blueprints in hand, and the real day the last was drawn
         "master_builds_until": 0,    # the sect hour the Master stops lending a hand as a builder
@@ -297,9 +409,11 @@ def _c(st: dict, now: float) -> dict:
     if not isinstance(c, dict) or "hour" not in c:
         c = new_colony(now)
         st["colony"] = c
+        _layout(c)
     else:
         for k, v in new_colony(now).items():
             c.setdefault(k, v)
+        _layout(c)
         for pw in c["pawns"]:
             for k, v in PAWN_EXTRA.items():
                 pw.setdefault(k, copy.deepcopy(v))
@@ -491,7 +605,7 @@ def _has(c: dict, tech: str) -> bool:
 
 
 def _cap(c: dict) -> float:
-    return (150 + 120 * _lvl(c, "storehouse")) * (1.5 if _has(c, "granary") else 1.0) * (1.3 if "pouch" in c["treasures"] else 1.0)
+    return (150 + 120 * _lvl(c, "storehouse") * wide_x(c, "storehouse")) * (1.5 if _has(c, "granary") else 1.0) * (1.3 if "pouch" in c["treasures"] else 1.0)
 
 
 def rank_of(p: dict) -> int:
@@ -545,6 +659,8 @@ def qi_rate(c: dict, p: dict) -> list[tuple[str, float]]:
         rows.append((label, tilt))
     if _lvl(c, "meditation"):
         rows.append(("Meditation Chamber", 1 + 0.15 * _lvl(c, "meditation")))
+        if _w(c, "meditation") > 1:
+            rows.append((f"The Chamber is {WIDE_WORD[_w(c, 'meditation')]}", wide_x(c, "meditation")))
     if _lvl(c, "spirit_vein"):
         rows.append(("Spirit Vein", 1 + 0.05 * _lvl(c, "spirit_vein")))
     if _has(c, "qi_array"):
@@ -595,7 +711,7 @@ def realm_label(step: int) -> str:
 
 def room_cost(c: dict, room: str, level: int) -> dict:
     r = ROOMS[room]
-    k = COST_CURVE ** level
+    k = COST_CURVE ** level * (WIDE_COST[_w(c, room)] if level else 1.0)
     cost = {"wood": int(round(r["wood"] * k / 5.0)) * 5,
             "stone": int(round(r["stone"] * k * (0.8 if _has(c, "masonry") else 1.0) / 5.0)) * 5}
     if level >= 3:
@@ -603,10 +719,77 @@ def room_cost(c: dict, room: str, level: int) -> dict:
     return cost
 
 
-def build_hours(room: str, level: int) -> float:
-    """Sim hours one builder takes to bring `room` to `level` (helpers make it quicker)."""
+def build_hours(room: str, level: int, width: int = 1) -> float:
+    """Sim hours one builder takes to bring `room` to `level` (helpers make it quicker). A merged room takes
+    WIDE_TIME longer, never past the longest timer."""
     table = HALL_HOURS if room == "main_hall" else ROOM_HOURS
-    return float(table.get(int(level), max(table.values())))
+    return min(float(max(table.values())), float(table.get(int(level), max(table.values()))) * WIDE_TIME.get(int(width), 1.0))
+
+
+def wing_cost(c: dict, room: str) -> dict:
+    """A wing is a second hall of the room raised to the same level: every level's single-room cost, added up."""
+    r, cost = ROOMS[room], {}
+    stone_x = 0.8 if _has(c, "masonry") else 1.0
+    for lv in range(max(1, _lvl(c, room))):
+        k = COST_CURVE ** lv
+        cost["wood"] = cost.get("wood", 0) + int(round(r["wood"] * k / 5.0)) * 5
+        cost["stone"] = cost.get("stone", 0) + int(round(r["stone"] * k * stone_x / 5.0)) * 5
+        if lv >= 3:
+            cost["stones"] = cost.get("stones", 0) + STONES_PER_LEVEL * (lv - 2)
+    return cost
+
+
+def wing_cells(c: dict, room: str) -> list[tuple[int, int]]:
+    """The empty alcoves a wing of `room` could take: beside it, on its own floor."""
+    p = c["plots"].get(room)
+    if not p:
+        return []
+    used = _taken(c)
+    return [(p["f"], s) for s in (p["s"] + p["w"], p["s"] - 1) if 0 <= s < GRID_SLOTS and (p["f"], s) not in used]
+
+
+def free_cells(c: dict) -> list[tuple[int, int]]:
+    """Empty alcoves on the floors that are open, from the ground up."""
+    used = _taken(c)
+    return [(f, s) for f in range(floors_open(c)) for s in range(GRID_SLOTS) if (f, s) not in used]
+
+
+def wing_block(c: dict, room: str) -> str:
+    """Why `room` cannot be widened now ("" when it can). Builders and materials are checked by the caller."""
+    if room not in ROOMS or room in FIXED_W:
+        return "This room does not merge."
+    if not _lvl(c, room):
+        return "Build the room first."
+    if any(b["room"] == room for b in c["builds"]):
+        return "Wait for the work on this room to finish: a wing must match its level."
+    w, top = _w(c, room), wide_max(c)
+    if w >= 3:
+        return "Three alcoves is as wide as a room goes."
+    if w >= top:
+        return f"Rooms merge {'two' if w == 1 else 'three'} wide from Main Hall level {WIDE_HALL[w + 1]}."
+    if not wing_cells(c, room):
+        return "No empty alcove beside it. Move the room, or the one next to it."
+    unbuilt = sum(1 for k in ROOMS if k not in c["plots"])
+    if len(free_cells(c)) - 1 < unbuilt:
+        return f"Keep an alcove for each room not built yet ({unbuilt})."
+    return ""
+
+
+def merge_rows(c: dict, room: str) -> list[tuple[str, str, str]]:
+    """What a wing changes, as a ledger: (label, now, merged)."""
+    w = _w(c, room)
+    n, lv = w + 1, _lvl(c, room)
+    rows = []
+    if room == "dormitory":
+        rows.append(("Beds", str(3 * lv * w), str(3 * lv * n)))
+    elif room in POSTS:
+        slots = room_slots(c, room)
+        rows.append(("Places for posted disciples", str(slots), str(slots // w * n)))
+    if room in WIDE_YIELD:
+        rows.append((WIDE_YIELD[room], f"×{WIDE_X[w]:g}", f"×{WIDE_X[n]:g}"))
+    rows.append(("Cost of each later level", f"×{WIDE_COST[w]:g}", f"×{WIDE_COST[n]:g}"))
+    rows.append(("Time of each later level", f"×{WIDE_TIME[w]:g}", f"×{WIDE_TIME[n]:g}"))
+    return rows
 
 
 def hall_for_level(room_level: int) -> int:
@@ -675,6 +858,15 @@ def build_left(c: dict, b: dict) -> float:
 
 def _finish_build(c: dict, b: dict) -> None:
     c["builds"].remove(b)
+    if b.get("wing"):
+        p = c["plots"].get(b["room"])
+        if p and p["w"] < 3:
+            p["s"], p["w"] = min(p["s"], int(b["wing"][1])), p["w"] + 1
+        name = ROOMS[b["room"]]["name"]
+        _letter(c, "good", f"{name} merged: {WIDE_WORD[_w(c, b['room'])]}", "The wall between came down, and the two halls are one.")
+        if isinstance(c.get("built_away"), list):
+            c["built_away"].append(f"{name} widened")
+        return
     c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
     lv = c["rooms"][b["room"]]
     if b["room"] == "main_hall":
@@ -721,7 +913,7 @@ def _builders_wait(c: dict, now: float) -> int:
 
 
 def beds(c: dict) -> int:
-    return 3 * _lvl(c, "dormitory")
+    return 3 * _lvl(c, "dormitory") * _w(c, "dormitory")
 
 
 def pawn_cap(c: dict) -> int:
@@ -776,7 +968,7 @@ def combat_power(c: dict, p: dict) -> float:
 
 
 def ward_power(c: dict) -> float:
-    return 18 * _lvl(c, "ward") * (1.5 if _has(c, "ward_ii") else 1.0) * (1.4 if "array_flag" in c["treasures"] else 1.0)
+    return 18 * _lvl(c, "ward") * wide_x(c, "ward") * (1.5 if _has(c, "ward_ii") else 1.0) * (1.4 if "array_flag" in c["treasures"] else 1.0)
 
 
 def beast_power(c: dict) -> float:
@@ -799,7 +991,7 @@ def _job_open(c: dict, job: str, taken: dict) -> bool:
     if job in ("wood", "mine", "forage") and _idle_room(c, "storehouse"):
         return False
     if job == "farm":
-        return _lvl(c, "fields") > 0 and _season(c) != 3 and not _idle_room(c, "fields") and taken.get("farm", 0) < 2 * _lvl(c, "fields")
+        return _lvl(c, "fields") > 0 and _season(c) != 3 and not _idle_room(c, "fields") and taken.get("farm", 0) < 2 * _lvl(c, "fields") * _w(c, "fields")
     if job == "build":
         return taken.get("build", 0) < HELPERS_PER_SITE * len(_running(c))
     if job == "craft":
@@ -884,7 +1076,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     hour = c["hour"]
     skill = JOBS[job][1]
     out = _skill_mult(p, skill) * _work_mult(p, hour)
-    _xp(p, skill, 1.0 * (2.0 if job == "train" and "Sword-mad" in p["traits"] else 1.0))
+    _xp(p, skill, (wide_x(c, "training") if job == "train" else 1.0) * (2.0 if job == "train" and "Sword-mad" in p["traits"] else 1.0))
     if job == "farm":
         _add(c, "rice", out * math.prod(m for _, m in farm_rows(c)) * (1.25 if "Green thumb" in p["traits"] else 1.0))
     elif job == "wood":
@@ -892,7 +1084,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     elif job == "mine":
         _add(c, "stone", out * GATHER["stone"])
         if _lvl(c, "spirit_vein") and not _idle_room(c, "spirit_vein"):
-            _add(c, "stones", out * 0.1 * _lvl(c, "spirit_vein"))
+            _add(c, "stones", out * 0.1 * _lvl(c, "spirit_vein") * wide_x(c, "spirit_vein"))
     elif job == "forage":
         _add(c, "herbs", out * GATHER["herbs"] * (0.3 if _season(c) == 3 else 1.0) * STORYTELLERS[c["storyteller"]]["yield"])
     elif job == "build":
@@ -904,13 +1096,13 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
             b["boost"] = b.get("boost", 0.0) + x
             b.setdefault("crew_now", []).append([p["name"], int(p["skills"]["build"]["lv"]), x])
     elif job == "craft":
-        c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * (1 + _manual(c, p, "alchemy")[0]) \
+        c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * wide_x(c, "alchemy") * (1 + _manual(c, p, "alchemy")[0]) \
             * (1.3 if "pill_furnace" in c["treasures"] else 1.0)
         if c["craft"] >= 6.0:
             c["craft"] -= 6.0
             dao.brew(c, p)
     elif job == "research":
-        _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * (1.25 if "Bookworm" in p["traits"] else 1.0)
+        _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * wide_x(c, "library") * (1.25 if "Bookworm" in p["traits"] else 1.0)
                   * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c))
         if "Bookworm" in p["traits"]:
             p["joy"] = min(100.0, p["joy"] + 3)
@@ -928,6 +1120,8 @@ def farm_rows(c: dict) -> list[tuple[str, float]]:
     rows = [("A farmer-hour on the terraces", FARM_YIELD)]
     if _lvl(c, "fields") > 1:
         rows.append((f"Rice Terraces level {_lvl(c, 'fields')}", 1 + 0.15 * (_lvl(c, "fields") - 1)))
+    if _w(c, "fields") > 1:
+        rows.append((f"The Terraces are {WIDE_WORD[_w(c, 'fields')]}", wide_x(c, "fields")))
     if _has(c, "irrigation"):
         rows.append(("Terraced irrigation", 1.25))
     if _season(c) == 2:
@@ -954,7 +1148,7 @@ READ_HOUR = 21                     # when the evening reading happens
 def _library_x(c: dict) -> float:
     """What the Pavilion, the jade slip and the sect's scholarship multiply research by."""
     lv = max(1, _lvl(c, "library"))
-    return (1 + 0.2 * (lv - 1)) * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c)
+    return (1 + 0.2 * (lv - 1)) * wide_x(c, "library") * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c)
 
 
 def _readers(c: dict) -> list[dict]:
@@ -972,6 +1166,8 @@ def research_rows(c: dict) -> list[tuple[str, str]]:
     rows = [(f"Evening reading: {_n(n, 'disciple')} at home × {_f(PAVILION_READ)}", f"{round(n * PAVILION_READ, 1):g} a day")]
     if lv > 1:
         rows.append((f"Scripture Pavilion level {lv}", f"×{_f(1 + 0.2 * (lv - 1), 2)}"))
+    if _w(c, "library") > 1:
+        rows.append((f"The Pavilion is {WIDE_WORD[_w(c, 'library')]}", f"×{wide_x(c, 'library'):g}"))
     if "jade_slip" in c["treasures"]:
         rows.append((lore.TREASURES["jade_slip"]["name"], "×1.25"))
     if dao.research_x(c) != 1.0:
@@ -1884,7 +2080,7 @@ def _daily_event(c: dict) -> None:
              f"{' and '.join(cand['traits']).lower()}; best at {SKILL_NAMES[best].lower()} ({cand['skills'][best]['lv']}). "
              "Another mouth, another pair of hands.", [("accept", "Welcome them"), ("decline", "Turn them away")], cand=cand)
     elif kind == "merchant":
-        rate = 1.0 + 0.25 * _lvl(c, "market")
+        rate = 1.0 + 0.25 * _lvl(c, "market") * wide_x(c, "market")
         opts = []
         if c["res"]["rice"] >= 40:
             opts.append(("sell_rice", f"Sell 25 rice for {int(6 * rate)} spirit stones"))
@@ -3703,26 +3899,107 @@ def set_priority(st: dict, pawn_id: str, job: str, level: int, now: float) -> di
     return {"ok": True}
 
 
-def queue_build(st: dict, room: str, now: float) -> dict:
+def _cell(cell) -> tuple[int, int] | None:
+    """A (floor, alcove) from the page, or None."""
+    try:
+        f, s = int(cell[0]), int(cell[1])
+    except (TypeError, IndexError, ValueError, KeyError):
+        return None
+    return (f, s) if 0 <= f < GRID_FLOORS and 0 <= s < GRID_SLOTS and len(cell) == 2 else None
+
+
+def _busy_builders(c: dict) -> str:
+    n = builders(c)
+    return f"{'Both' if n == 2 else f'All {n}'} builders are busy. One comes free when a job finishes." if len(c["builds"]) >= n else ""
+
+
+def _pay(c: dict, cost: dict) -> str:
+    """Take `cost` from the stores, or say what is missing (and take nothing)."""
+    short = [f"{math.ceil(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
+    if short:
+        return "Needs " + " and ".join(short) + "."
+    for k, v in cost.items():
+        c["res"][k] -= v
+    return ""
+
+
+def queue_build(st: dict, room: str, now: float, cell=None) -> dict:
+    """Queue the next level of a room. A new room takes the empty alcove `cell` (floor, alcove) on an open floor;
+    with none given it takes its usual place, or the first empty alcove from the ground up."""
     c = _c(st, now)
     if room not in ROOMS:
         return {"ok": False, "error": "Unknown room."}
-    level = _lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+    level = _lvl(c, room) + _queued(c, room)
     if level >= ROOMS[room]["max"]:
         return {"ok": False, "error": "Already at its highest level."}
-    why = build_block(c, room, level)
+    if any(b["room"] == room and b.get("wing") for b in c["builds"]):
+        return {"ok": False, "error": "Its wing is still being built: the two halls must match."}
+    why = build_block(c, room, level) or _busy_builders(c)
     if why:
         return {"ok": False, "error": why}
-    if len(c["builds"]) >= builders(c):
-        n = builders(c)
-        return {"ok": False, "error": f"{'Both' if n == 2 else f'All {n}'} builders are busy. One comes free when a job finishes."}
+    spot = None
+    if room not in c["plots"]:
+        free = free_cells(c)
+        spot = _cell(cell) if cell is not None else next((x for x in [DEFAULT_CELL[room]] + free if x in free), None)
+        if cell is not None and spot is None:
+            return {"ok": False, "error": "No such alcove."}
+        if spot is None:
+            return {"ok": False, "error": "No empty alcove on the open floors."}
+        if spot[0] >= floors_open(c):
+            return {"ok": False, "error": f"That floor opens at Main Hall level {FLOOR_HALL[spot[0]]}."}
+        if spot not in free:
+            return {"ok": False, "error": "That alcove is taken."}
     cost = room_cost(c, room, level)
-    short = [f"{math.ceil(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
-    if short:
-        return {"ok": False, "error": "Needs " + " and ".join(short) + "."}
-    for k, v in cost.items():
-        c["res"][k] -= v
-    c["builds"].append({"room": room, "need": build_hours(room, level + 1), "done": 0.0, "cost": cost, "at": c["hour"], "crew": [], "slotted": 1})
+    why = _pay(c, cost)
+    if why:
+        return {"ok": False, "error": why}
+    if spot:
+        c["plots"][room] = {"f": spot[0], "s": spot[1], "w": 1}
+    c["builds"].append({"room": room, "need": build_hours(room, level + 1, _w(c, room)), "done": 0.0, "cost": cost, "at": c["hour"], "crew": [], "slotted": 1})
+    return {"ok": True}
+
+
+def widen(st: dict, room: str, now: float, cell=None) -> dict:
+    """Build a wing of `room` in the empty alcove beside it (`cell`, or the first of wing_cells): when it is done the
+    two merge into one room, a hall wider (merge_rows says what that gives)."""
+    c = _c(st, now)
+    why = wing_block(c, room) or _busy_builders(c)
+    if why:
+        return {"ok": False, "error": why}
+    spots = wing_cells(c, room)
+    spot = _cell(cell) if cell is not None else spots[0]
+    if spot not in spots:
+        return {"ok": False, "error": "A wing goes in an empty alcove right beside the room."}
+    if spot[0] >= floors_open(c):
+        return {"ok": False, "error": f"That floor opens at Main Hall level {FLOOR_HALL[spot[0]]}."}
+    cost = wing_cost(c, room)
+    why = _pay(c, cost)
+    if why:
+        return {"ok": False, "error": why}
+    c["builds"].append({"room": room, "wing": [spot[0], spot[1]], "need": build_hours(room, max(1, _lvl(c, room))), "done": 0.0, "cost": cost,
+                        "at": c["hour"], "crew": [], "slotted": 1})
+    return {"ok": True}
+
+
+def move_room(st: dict, room: str, cell, now: float) -> dict:
+    """Move a room (or the Treasure Vault) to empty alcoves on an open floor: `cell` is where its first alcove goes.
+    Free and at once: where a room stands changes only what it can merge with."""
+    c = _c(st, now)
+    p = c["plots"].get(room)
+    spot = _cell(cell)
+    if not p or spot is None:
+        return {"ok": False, "error": "Nothing to move there."}
+    if any(b["room"] == room for b in c["builds"]):
+        return {"ok": False, "error": "The builders are at work on it. Move it when they are done."}
+    if spot[0] >= floors_open(c):
+        return {"ok": False, "error": f"That floor opens at Main Hall level {FLOOR_HALL[spot[0]]}."}
+    used = _taken(c, skip=room)
+    # the alcove picked may be any of the ones the room will stand in: slide left until it fits
+    start = next((s for s in range(spot[1], spot[1] - p["w"], -1)
+                  if 0 <= s and s + p["w"] <= GRID_SLOTS and not any((spot[0], s + i) in used for i in range(p["w"]))), None)
+    if start is None:
+        return {"ok": False, "error": f"It needs {_n(p['w'], 'empty alcove')} side by side there."}
+    p["f"], p["s"] = spot[0], start
     return {"ok": True}
 
 
@@ -4146,10 +4423,10 @@ def room_slots(c: dict, room: str) -> int:
     if not lv or room not in POSTS:
         return 0
     if room == "fields":
-        return 2 * lv                                  # the farmers the terraces hold (_job_open)
+        return 2 * lv * _w(c, room)                    # the farmers the terraces hold (_job_open)
     if room == "main_hall":
         return HELPERS_PER_SITE * builders(c)          # helpers, two to a builder
-    return 2 + lv
+    return (2 + lv) * _w(c, room)
 
 
 def posted(c: dict, room: str) -> list[dict]:
@@ -4342,8 +4619,13 @@ def hall_opens(c: dict, target: int) -> list[str]:
     was = HALL_LADDER[target - 1]["cap"]
     if x["cap"] > was:
         held = [ROOMS[k]["name"] for k in ROOMS
-                if k != "main_hall" and _lvl(c, k) + sum(1 for b in c["builds"] if b["room"] == k) >= was and was < ROOMS[k]["max"]]
+                if k != "main_hall" and _lvl(c, k) + _queued(c, k) >= was and was < ROOMS[k]["max"]]
         opens.append(f"Other rooms up to level {x['cap']}" + (f" ({_and(held)} {_be(len(held))} waiting on it)" if held else ""))
+    if target in FLOOR_HALL:
+        opens.append(f"A new floor: {GRID_SLOTS} more alcoves to build in")
+    for w, h in WIDE_HALL.items():
+        if h == target:
+            opens.append(f"Rooms can be merged {'two' if w == 2 else 'three'} alcoves wide")
     opens.extend(x.get("more", ()))
     opens.append("+4 fame as the valley sees it rise")
     return opens
@@ -4523,14 +4805,23 @@ def view(st: dict, now: float) -> dict:
     free = len(c["builds"]) < builders(c)
     for rid, r in ROOMS.items():
         level = _lvl(c, rid)
-        queued = sum(1 for b in c["builds"] if b["room"] == rid)
+        queued = _queued(c, rid)
         nxt = level + queued
         cost = room_cost(c, rid, nxt) if nxt < r["max"] else None
         locked = build_block(c, rid, nxt) if cost else ""
+        plot = c["plots"].get(rid)
+        wing = next((b["wing"] for b in c["builds"] if b["room"] == rid and b.get("wing")), None)
+        if cost and not locked and wing:
+            locked = "Its wing is still being built: the two halls must match."
+        if cost and not locked and not plot and not free_cells(c):
+            locked = "No empty alcove on the open floors."
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
-                      "hours": _f(build_hours(rid, nxt + 1)) if cost else 0,
+                      "plot": {"f": int(plot["f"]), "s": int(plot["s"]), "w": int(plot["w"])} if plot else None,
+                      "wing": {"f": int(wing[0]), "s": int(wing[1])} if wing else None,
+                      "wide": _wide_view(c, rid, free),
+                      "hours": _f(build_hours(rid, nxt + 1, _w(c, rid))) if cost else 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
-                      "lock_short": build_block_short(c, rid, nxt) if locked else "",
+                      "lock_short": (build_block_short(c, rid, nxt) or ("Wing being built" if wing else "No empty alcove")) if locked else "",
                       "affordable": bool(cost) and not locked and free and all(c["res"][k] >= v for k, v in cost.items()),
                       "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])],
                       "tray_full": bool(tray.get(rid)) and tray_full(c, rid),
@@ -4591,6 +4882,7 @@ def view(st: dict, now: float) -> dict:
                        "per_hour": _f(math.prod(x for _, x in farm_rows(c)), 2), "blight_days": _f(blight_left(c) / 24.0, 1)},
         "rooms": rooms,
         "hall_next": _hall_view(hall_next(c)),
+        "grid": _grid_view(c),
         "builds": [_build_view(c, i, b) for i, b in enumerate(c["builds"])],
         "builders": {"n": builders(c), "busy": len(_running(c)), "rows": [{"label": str(a), "n": _f(b)} for a, b in builder_rows(c)],
                      "next_hall": next((h for h in BUILDER_HALLS if h > _lvl(c, "main_hall")), 0),
@@ -4616,10 +4908,34 @@ def view(st: dict, now: float) -> dict:
     }
 
 
+def _wide_view(c: dict, rid: str, free: bool) -> dict | None:
+    """A room's width and what a wing would cost and give (None for the Hall, which never merges)."""
+    if rid in FIXED_W:
+        return None
+    w = _w(c, rid)
+    why = wing_block(c, rid)
+    cost = wing_cost(c, rid) if _lvl(c, rid) and w < 3 else {}
+    return {"w": w, "x": _f(WIDE_X[w], 2), "max": wide_max(c), "why": str(why), "cells": [[int(f), int(s)] for f, s in wing_cells(c, rid)] if not why else [],
+            "cost": {k: _f(v) for k, v in cost.items()}, "hours": _f(build_hours(rid, max(1, _lvl(c, rid)))) if cost else 0,
+            "affordable": bool(cost) and not why and free and all(c["res"][k] >= v for k, v in cost.items()),
+            "rows": [{"label": str(a), "now": str(b), "then": str(d)} for a, b, d in merge_rows(c, rid)] if cost else [],
+            "yield": str(WIDE_YIELD.get(rid, "")), "word": WIDE_WORD[w]}
+
+
+def _grid_view(c: dict) -> dict:
+    v = c["plots"]["vault"] if "vault" in c["plots"] else None
+    n = floors_open(c)
+    return {"floors": GRID_FLOORS, "slots": GRID_SLOTS, "open": n, "next_floor": int(FLOOR_HALL[n]) if n < GRID_FLOORS else 0,
+            "vault": {"f": int(v["f"]), "s": int(v["s"]), "w": 1} if v else None,
+            "free": [[int(f), int(s)] for f, s in free_cells(c)], "wide_max": wide_max(c),
+            "wide_halls": {str(w): int(h) for w, h in WIDE_HALL.items()}}
+
+
 def _build_view(c: dict, i: int, b: dict) -> dict:
     running = i < builders(c)
     rows = build_rate_rows(c, b) if running else []
-    return {"room": b["room"], "name": ROOMS[b["room"]]["name"], "level": _lvl(c, b["room"]) + 1 + sum(1 for x in c["builds"][:i] if x["room"] == b["room"]),
+    return {"room": b["room"], "name": ROOMS[b["room"]]["name"], "wing": bool(b.get("wing")),
+            "level": _lvl(c, b["room"]) if b.get("wing") else _lvl(c, b["room"]) + 1 + sum(1 for x in c["builds"][:i] if x["room"] == b["room"] and not x.get("wing")),
             "pct": _f(100.0 * b["done"] / b["need"]), "need": _f(b["need"], 1), "done": _f(min(b["done"], b["need"]), 1),
             "running": running, "left": _f(build_left(c, b), 1), "rate": _f(sum(x for _, x in rows), 2) if rows else 0,
             "rows": [{"label": str(a), "x": _f(x, 2)} for a, x in rows], "blue": _f(b.get("blue", 0.0), 1),
@@ -4784,8 +5100,8 @@ def _repair(c: dict) -> None:
                    and isinstance(x.get("need"), (int, float)) and x["need"] > 0 and isinstance(x.get("done"), (int, float))][:20]
     for i, x in enumerate(c["builds"]):
         # a job from before builders (`need` in disciple work-hours) keeps the share it had done, on the builders' clock
-        lv = _lvl(c, x["room"]) + 1 + sum(1 for y in c["builds"][:i] if y["room"] == x["room"])
-        need = build_hours(x["room"], lv)
+        lv = max(1, _lvl(c, x["room"])) if x.get("wing") else _lvl(c, x["room"]) + 1 + sum(1 for y in c["builds"][:i] if y["room"] == x["room"] and not y.get("wing"))
+        need = build_hours(x["room"], lv, 1 if x.get("wing") else _w(c, x["room"]))
         if not x.get("slotted"):
             x["done"] = need * max(0.0, min(1.0, float(x["done"]) / float(x["need"])))
             x["need"], x["slotted"] = need, 1
@@ -4800,6 +5116,7 @@ def _repair(c: dict) -> None:
     c["blueprints"] = {"n": int(num(bp.get("n"), 0, BLUEPRINT_BANK)), "day": str(bp.get("day") or "")[:10]}
     c["master_builds_until"] = int(num(c.get("master_builds_until"), 0, 1e9))
     c[HELD_SECS] = num(c.get(HELD_SECS), 0, MAX_OFFLINE_HOURS * SECS_PER_HOUR_OFFLINE)
+    _layout(c)                                            # every room on the grid, nothing overlapping (old saves land here)
     for k in ("tray_seen", "inspected", "room_idle"):
         d = c.get(k) if isinstance(c.get(k), dict) else {}
         c[k] = {r: int(num(v, -1, 1e9, -1)) for r, v in d.items() if r in ROOMS}
