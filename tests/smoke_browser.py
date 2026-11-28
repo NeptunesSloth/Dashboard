@@ -122,9 +122,16 @@ def main() -> int:
         pg.click(".pawn")
         pg.wait_for_selector("#sheet .body", timeout=5000)
         pg.keyboard.press("Escape")
-        pg.click(".room[data-room='library']")
+        # the grid: a standing room opens its sheet; an empty alcove offers the rooms not built yet, and building
+        # one there puts it on the map in that alcove
+        pg.click(".room[data-room='fields']")
         pg.wait_for_selector("#sheet .body", timeout=5000)
         pg.keyboard.press("Escape")
+        pg.click(".alcove[data-cell='1,1']")
+        pg.wait_for_selector("#sheet [data-new='storehouse']", timeout=5000)
+        pg.click("#sheet [data-new='storehouse']")
+        pg.wait_for_selector(".hq .room[data-room='storehouse']", timeout=5000)
+        assert not pg.query_selector(".alcove[data-cell='1,1']"), "the alcove a room was built in is still offered as empty"
         pg.click("[data-speed='0']")
 
         # 3) a study session answers and gives feedback
