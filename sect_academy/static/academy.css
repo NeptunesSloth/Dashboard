@@ -1117,6 +1117,11 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .room { isolation: isolate; cursor: pointer; }
 .room .tiles { position: absolute; inset: 0; z-index: -1; display: flex; }
 .room .tiles i { flex: 1 1 0; background-size: 100% 100%; background-repeat: no-repeat; }
+.room .tiles, .hq .cap { filter: brightness(1.22) saturate(1.06); }
+/* the glows fade out before the room's edge, so no box shows on the painting */
+.room.can::after { box-shadow: none; background: radial-gradient(62% 58% at 50% 100%, #f0c15e42, transparent 72%); }
+.room.tray::before { background: radial-gradient(60% 55% at 50% 34%, #ffb64a2e 0%, #ffb64a12 45%, transparent 72%); }
+.room.trayfull::before { background: radial-gradient(64% 60% at 50% 42%, #ffb64a55 0%, #ffb64a22 45%, transparent 74%); }
 .room .lit { position: absolute; inset: 0; border-radius: 4px; pointer-events: none; transition: background .15s, box-shadow .15s; }
 .room:hover, .room:focus-visible { background: none; box-shadow: none; outline: none; }
 .room:hover .lit, .room:focus-visible .lit { background: #f0c15e14; box-shadow: inset 0 0 0 2px #f0c15ecc; }
@@ -1125,9 +1130,9 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .hq .cap.r { -webkit-mask-image: linear-gradient(270deg, transparent, #000 55%); mask-image: linear-gradient(270deg, transparent, #000 55%); }
 /* a room still being built, and a wing before the wall comes down: the tile unlit under a builder's hatching */
 .room.closed, .room.building { background: none; backdrop-filter: none; }
-.room.closed .tiles, .room.wingsite .tiles { filter: grayscale(.75) brightness(.42); }
-.room.closed .lit, .room.wingsite .lit { background: repeating-linear-gradient(135deg, #0a070566 0 10px, #e9b44c14 10px 20px); }
-.room .crew { left: 0; right: 0; top: 23%; max-width: none; justify-content: center; flex-wrap: nowrap; }
+.room.closed .tiles, .room.wingsite .tiles { filter: grayscale(.7) brightness(.62); }
+.room.closed .lit, .room.wingsite .lit { background: repeating-linear-gradient(135deg, #0a070559 0 10px, #e9b44c0f 10px 20px); }
+.room .crew { left: min(15%, 26px); right: auto; top: 22%; max-width: none; flex-wrap: nowrap; }
 .room .crew .face { width: clamp(16px, 2.2vw, 28px); height: clamp(16px, 2.2vw, 28px); }
 .room .crew .more { align-self: center; font: 700 .68rem var(--serif); color: #f8e6bf; text-shadow: 0 1px 2px #000; }
 .room .plaque { bottom: 5%; max-width: 96%; font-size: clamp(.56rem, .92vw, .76rem); line-height: 1.35; }
@@ -1142,8 +1147,8 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .alcove.ok { background: #3fae8214; box-shadow: inset 0 0 0 2px #3fae82aa, inset 0 0 26px #3fae8226; }
 .alcove.ok .plaque { color: #d6f5e6; border-color: #3fae82; }
 .alcove.ok:hover, .alcove.ok:focus-visible { background: #3fae8230; box-shadow: inset 0 0 0 3px #d6f5e6, inset 0 0 36px #3fae8255; }
-.hq.placing .room { cursor: default; } .hq.placing .room .tiles { filter: brightness(.6); }
-.floorlock { position: absolute; display: grid; place-items: center; background: #070504c4; pointer-events: none; }
+.hq.placing .room { cursor: default; } .hq.placing .room .tiles { filter: brightness(.7); }
+.floorlock { position: absolute; display: grid; place-items: center; background: #0a0705a3; pointer-events: none; }
 .floorlock span { font: italic 600 clamp(.6rem, 1vw, .82rem) var(--serif); color: #a8977a; letter-spacing: .01em; }
 /* while a disciple is in hand the glow sits over the tile */
 .hq.holding .room.fit-good, .hq.holding .room.fit-fair, .hq.holding .room.fit-poor, .hq.holding .room.fit-full, .hq.holding .room.fit-none, .hq.holding .room.over { background: none; box-shadow: none; }

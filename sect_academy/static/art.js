@@ -14,7 +14,7 @@ export function cellRect(f, s, w = 1) {
   return [GX[a], GY[row], GX[b] - GX[a], GY[row + 1] - GY[row]];
 }
 /** A whole floor's rectangle. */
-export function floorRect(f) { const row = 4 - int(f, 0, 4); return [GX[0], GY[row], GX[6] - GX[0], GY[row + 1] - GY[row]]; }
+export function floorRect(f) { const row = 4 - int(f, 0, 4); return [0, GY[row], 100, GY[row + 1] - GY[row]]; }
 
 const TILES = new Set(['main_hall', 'dormitory', 'fields', 'storehouse', 'library', 'meditation', 'alchemy', 'training', 'ward', 'spirit_vein', 'market', 'vault']);
 /** The painted tile of a known room ('' for anything else). The Main Hall's tile is two alcoves wide. */
