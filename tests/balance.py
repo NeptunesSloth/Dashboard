@@ -6,6 +6,8 @@ numbers the balance is judged by. Two profiles:
 
 * ``idle``: never builds, researches or reassigns anyone; clicks the first button on every event.
 * ``collect``: careful, and taps every tray twice a sect day (SECT_OVERHAUL_PLAN 3.6: tapping must be optional).
+* ``merge``: careful, and builds a wing onto a room whenever one is allowed and twice its cost is in the stores
+  (SECT_OVERHAUL_PLAN 3.6 (4): merged rooms must help without tipping the game over).
 * ``careful``: builds and researches in a sensible order, keeps a food reserve, fights only when
   the odds are good, heals the wounded, takes breakthroughs at good odds, and acts on the
   sect's alerts (a disciple who has stopped cultivating gets meditation time).
@@ -30,16 +32,17 @@ BUILD_ORDER = (["fields", "storehouse", "main_hall", "training", "library", "dor
                 "meditation", "dormitory", "alchemy", "main_hall", "library", "training", "ward", "market"]
                + ["main_hall", "fields", "storehouse", "dormitory", "meditation", "library", "training", "ward", "spirit_vein", "alchemy"] * 5)
 GATHER_RICE_DAYS = 8                     # a careful player sends someone for wood or stone with this many days of rice in hand
+MERGE_ORDER = ["fields", "storehouse", "library", "meditation", "training", "alchemy", "ward", "dormitory", "spirit_vein"]
 RESEARCH_ORDER = ["irrigation", "masonry", "granary", "sword_forms", "qi_array", "refinement", "ward_ii", "dao_heart"]
 
 
 def _legal(c: dict, room: str) -> bool:
-    have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+    have = colony._lvl(c, room) + colony._queued(c, room)
     return have < colony.ROOMS[room]["max"] and not colony.build_block(c, room, have)
 
 
 def _afford(c: dict, room: str) -> bool:
-    have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+    have = colony._lvl(c, room) + colony._queued(c, room)
     return all(c["res"][k] >= v for k, v in colony.room_cost(c, room, have).items())
 
 
@@ -142,7 +145,7 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
         queued = False
         for room in BUILD_ORDER:
             built[room] = built.get(room, 0) + 1
-            have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+            have = colony._lvl(c, room) + colony._queued(c, room)
             if have >= built[room] or have >= colony.ROOMS[room]["max"]:
                 continue
             if hasattr(colony, "build_block") and colony.build_block(c, room, have):
@@ -241,8 +244,13 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
                 opt = ev["options"][0]["id"] if profile == "idle" else _careful_choice(c, ev)
                 if not colony.resolve(st, opt, T0)["ok"]:
                     colony.resolve(st, ev["options"][-1]["id"], T0)
-            if profile in ("careful", "collect"):
+            if profile in ("careful", "collect", "merge"):
                 _careful_orders(st, c, seen_alerts)
+            if profile == "merge" and c["hour"] % 6 == 3 and len(c["builds"]) < colony.builders(c):
+                for room in MERGE_ORDER:
+                    if not colony.wing_block(c, room) and all(c["res"][k] >= 2 * v for k, v in colony.wing_cost(c, room).items()):
+                        colony.widen(st, room, T0)
+                        break
             if profile == "collect" and c["hour"] % 24 in (9, 17):     # taps every tray twice a sect day
                 for room in list(colony.trays(c)):
                     colony.inspect_tray(st, room, T0)
@@ -323,6 +331,7 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
     out["fame"] = round(c["fame"])
     out["pop"] = len(c["pawns"])
     out["rooms"] = sum(c["rooms"].values())
+    out["wide"] = sum(p["w"] - 1 for k, p in c["plots"].items() if k not in colony.FIXED_W)
     out["loss"] = out["deaths"] > 0 or out["stolen"] >= 10 or out["min_food_days"] < 4      # lost something that mattered
     return out
 
@@ -332,14 +341,14 @@ if __name__ == "__main__":
     days = int(sys.argv[1]) if len(sys.argv) > 1 else 150
     seeds = [int(s) for s in sys.argv[2].split(",")] if len(sys.argv) > 2 else [12345]
     for tell in ("calm", "balanced", "harsh"):
-        for prof in ("idle", "careful"):
+        for prof in ("idle", "careful", "merge"):
             for seed in seeds:
                 t = time.time()
                 r = play(tell, prof, days, seed)
                 qi = r["qi60"]
                 print(f"{tell:8} {prof:7} s{seed:<6} deaths={r['deaths']} pop={r['pop']}/{r['pop_max']} min_rice={r['min_rice']:.0f} ({r['min_food_days']:.1f}d) "
                       f"lean={r['lean_days']} cap_days={r['cap_days']}/{r['rice_cap_days']} rice={r['rice_by_month']} raids={r['raids']} lost={r['raid_losses']} "
-                      f"renown_day={r['renown_day']} fame60={r['fame60']} fame={r['fame']} rooms={r['rooms']} "
+                      f"renown_day={r['renown_day']} fame60={r['fame60']} fame={r['fame']} rooms={r['rooms']} wide={r['wide']} "
                       f"short={r['short_days']} up60={r.get('others_up60')} qi60={list(qi.values())} hurt={r['hurt']} mood={r['mood']} "
                       f"qc80={r['qc80']}/{r['others80']} gap={r['gap']} med={sorted(r['med_share'].values())} stolen={r['stolen']} "
                       f"plague_dead={r['plague_dead']} techs70={r['techs70']} rivals={r['rivals_max']} infil={r['infil']} thefts={r['thefts']} "

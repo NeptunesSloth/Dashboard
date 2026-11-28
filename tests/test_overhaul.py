@@ -456,3 +456,223 @@ def test_room_play_state_survives_a_bad_save(st):
     c["pawns"][1]["post"] = "dungeon"
     s2 = colony.sanitize(c, T0)
     assert s2["rushes"] == [{"k": "fields", "h": 5}] and s2["tray_seen"] == {"fields": -1} and s2["pawns"][1]["post"] == ""
+
+
+# ---------------------------------------------------------------------------
+# stage 5: the grid (5 floors of 6 alcoves) and merging
+# ---------------------------------------------------------------------------
+def _cells(c):
+    out = []
+    for p in c["plots"].values():
+        out += [(p["f"], p["s"] + i) for i in range(p["w"])]
+    return out
+
+
+def _rich(c, hall=5):
+    c["rooms"].update(main_hall=hall, dormitory=2, fields=2, storehouse=2)
+    c["res"].update(wood=5000.0, stone=5000.0, stones=500.0)
+    c["master_builds_until"] = c["hour"] + 10_000                    # a spare builder, so the tests never wait for one
+
+
+def test_a_new_sect_stands_on_the_grid(st):
+    v = colony.view(st, T0)
+    plots = {r["id"]: r["plot"] for r in v["rooms"]}
+    assert plots["main_hall"] == {"f": 0, "s": 2, "w": 2} and plots["fields"] == {"f": 0, "s": 0, "w": 1} and plots["dormitory"] == {"f": 0, "s": 4, "w": 1}
+    assert plots["storehouse"] is None and plots["market"] is None      # not built: no alcove, the alcoves stay empty
+    g = v["grid"]
+    assert (g["floors"], g["slots"], g["open"], g["next_floor"]) == (5, 6, 2, 2) and g["vault"] == {"f": 1, "s": 5, "w": 1}
+    assert len(g["free"]) == 12 - 5 and all(f < 2 for f, _ in g["free"])   # two floors open: 12 alcoves, 5 in use
+    assert all(isinstance(x, int) for cell in g["free"] for x in cell)
+
+
+def test_an_old_save_lands_on_the_grid_with_every_room_and_the_same_levels(st):
+    c = st["colony"]
+    old = dict(main_hall=4, dormitory=4, fields=3, storehouse=3, library=2, meditation=1, alchemy=2, training=2, ward=3, spirit_vein=1, market=1)
+    c["rooms"] = dict(old)
+    c.pop("plots")                                                    # a save from before the grid
+    a = colony.sanitize(c, T0)
+    b = colony.sanitize(c, T0)
+    assert a["plots"] == b["plots"]                                   # the same save always lands the same way
+    assert a["rooms"] == old and all(colony._lvl(a, k) == v for k, v in old.items())
+    assert set(a["plots"]) == set(old) | {"vault"}                    # no room lost, and the vault has its alcove
+    cells = _cells(a)
+    assert len(cells) == len(set(cells)) == 13 and all(0 <= f < 5 and 0 <= s < 6 for f, s in cells)
+    assert all(p["w"] == (2 if k == "main_hall" else 1) for k, p in a["plots"].items())
+    assert {k: (p["f"], p["s"]) for k, p in a["plots"].items()} == colony.DEFAULT_CELL
+    v = colony.view({"colony": a, "settings": {"tz_offset_min": 0}}, T0)
+    assert all(r["plot"] for r in v["rooms"]) and colony.beds(a) == 12 and colony.room_slots(a, "fields") == 6
+
+
+def test_a_damaged_layout_is_repaired_on_load(st):
+    c = st["colony"]
+    c["rooms"].update(storehouse=1, ward=1)
+    c["plots"] = {"main_hall": {"f": 0, "s": 5, "w": 9}, "fields": {"f": 0, "s": 0, "w": 2}, "dormitory": {"f": 0, "s": 1, "w": 1},
+                  "storehouse": "nonsense", "ward": {"f": 7, "s": 0, "w": 1}, "market": {"f": 2, "s": 2, "w": 1}, "bogus": {"f": 1, "s": 1, "w": 1}}
+    c["builds"] = [{"room": "fields", "wing": [3, 3], "need": 3.0, "done": 0.0, "cost": {"wood": 10.0}, "slotted": 1}]
+    wood = c["res"]["wood"]
+    a = colony.sanitize(c, T0)
+    cells = _cells(a)
+    assert len(cells) == len(set(cells)) and set(a["plots"]) == {"main_hall", "vault", "fields", "dormitory", "storehouse", "ward"}
+    assert a["plots"]["main_hall"]["w"] == 2 and a["plots"]["fields"] == {"f": 0, "s": 0, "w": 2}
+    assert not a["builds"] and a["res"]["wood"] == wood + 10          # a wing with nowhere to stand: the materials come back
+
+
+def test_a_new_room_takes_the_empty_alcove_you_choose(st):
+    c = st["colony"]
+    c["res"].update(wood=500.0, stone=500.0)
+    assert not colony.queue_build(st, "storehouse", T0, [0, 2])["ok"]       # the Hall stands there
+    assert not colony.queue_build(st, "storehouse", T0, [2, 0])["ok"]       # the third floor opens at Hall 2
+    assert not colony.queue_build(st, "storehouse", T0, [9, 9])["ok"] and not colony.queue_build(st, "storehouse", T0, "x")["ok"]
+    assert c["res"]["wood"] == 500 and not c["builds"]                     # nothing was paid for a refusal
+    assert colony.queue_build(st, "storehouse", T0, [1, 2])["ok"]
+    assert c["plots"]["storehouse"] == {"f": 1, "s": 2, "w": 1}
+    v = _room(colony.view(st, T0), "storehouse")
+    assert v["plot"] == {"f": 1, "s": 2, "w": 1} and not v["open"] and v["queued"] == 1
+    assert colony.queue_build(st, "ward", T0)["ok"] and c["plots"]["ward"] == {"f": 1, "s": 3, "w": 1}   # no alcove given: its usual place
+    assert colony.cancel_build(st, 0, T0)["ok"]
+    assert "storehouse" not in colony._c(st, T0)["plots"]                 # cancelled before it stood: the alcove is empty again
+    assert [1, 2] in colony.view(st, T0)["grid"]["free"]
+
+
+def test_floors_open_with_the_hall(st):
+    c = st["colony"]
+    assert [colony.floors_open(c | {"rooms": {"main_hall": h}}) for h in range(1, 11)] == [2, 3, 4, 4, 5, 5, 5, 5, 5, 5]
+    assert any("new floor" in o for o in colony.hall_opens(c, 2)) and not any("new floor" in o for o in colony.hall_opens(c, 4))
+    assert any("two alcoves wide" in o for o in colony.hall_opens(c, 3)) and any("three alcoves wide" in o for o in colony.hall_opens(c, 5))
+
+
+def test_merge_rules_same_room_beside_it_and_the_hall_sets_the_width(st):
+    c = st["colony"]
+    _rich(c, hall=2)
+    colony._c(st, T0)
+    assert "Main Hall level 3" in colony.wing_block(c, "fields")           # two wide from Hall 3
+    assert not colony.widen(st, "fields", T0)["ok"]
+    c["rooms"]["main_hall"] = 3
+    assert colony.wing_block(c, "main_hall") and colony.wing_block(c, "vault") and colony.wing_block(c, "library")   # never, never, not built
+    assert colony.wing_cells(c, "fields") == [(0, 1)]                      # beside it, on its floor (the wall is on its left)
+    assert not colony.widen(st, "fields", T0, [1, 0])["ok"] and not colony.widen(st, "fields", T0, [0, 3])["ok"]
+    wood = c["res"]["wood"]
+    cost = colony.wing_cost(c, "fields")
+    assert cost == {k: sum(colony.room_cost(c, "fields", lv)[k] for lv in range(2)) for k in ("wood", "stone")}   # a second hall at the same level
+    assert colony.widen(st, "fields", T0)["ok"] and c["res"]["wood"] == wood - cost["wood"]
+    b = c["builds"][0]
+    assert b["wing"] == [0, 1] and b["need"] == colony.build_hours("fields", 2)
+    assert not colony.queue_build(st, "fields", T0)["ok"]                  # the halls must match: no level while the wing is built
+    assert not colony.queue_build(st, "ward", T0, [0, 1])["ok"]            # the wing's alcove is taken
+    assert colony._w(c, "fields") == 1 and colony.room_slots(c, "fields") == 4
+    v = _room(colony.view(st, T0), "fields")
+    assert v["wing"] == {"f": 0, "s": 1} and v["queued"] == 0 and v["locked"]
+    bv = colony.view(st, T0)["builds"][0]
+    assert bv["wing"] is True and bv["level"] == 2
+    colony.advance(st, int(b["need"]) + 1, T0)
+    assert not c["builds"] and c["plots"]["fields"] == {"f": 0, "s": 0, "w": 2} and c["rooms"]["fields"] == 2
+    assert "Main Hall level 5" in colony.wing_block(c, "fields")           # three wide from Hall 5
+    c["rooms"]["main_hall"] = 5
+    assert not colony.wing_block(c, "fields") is None and colony.wing_cells(c, "fields") == []    # the Hall stands beside it
+    assert "No empty alcove" in colony.wing_block(c, "fields")
+    assert colony.move_room(st, "fields", [2, 0], T0)["ok"] and c["plots"]["fields"] == {"f": 2, "s": 0, "w": 2}
+    assert colony.widen(st, "fields", T0, [2, 2])["ok"]
+    colony.advance(st, 12, T0)
+    assert c["plots"]["fields"]["w"] == 3 and "as wide as a room goes" in colony.wing_block(c, "fields")
+    assert not colony.widen(st, "fields", T0)["ok"]
+
+
+def test_a_wing_on_the_left_moves_the_rooms_first_alcove(st):
+    c = st["colony"]
+    _rich(c, hall=3)
+    colony._c(st, T0)
+    assert colony.wing_cells(c, "dormitory") == [(0, 5)]
+    assert colony.move_room(st, "dormitory", [1, 2], T0)["ok"]
+    assert colony.wing_cells(c, "dormitory") == [(1, 3), (1, 1)]
+    assert colony.widen(st, "dormitory", T0, [1, 1])["ok"]
+    assert not colony.move_room(st, "dormitory", [1, 0], T0)["ok"]         # not while the builders are on it
+    colony.advance(st, 8, T0)
+    assert c["plots"]["dormitory"] == {"f": 1, "s": 1, "w": 2} and colony.beds(c) == 3 * 2 * 2
+
+
+def test_merged_rooms_give_what_the_ledger_says(st):
+    c = st["colony"]
+    _rich(c, hall=5)
+    c["rooms"].update(library=2, ward=2, meditation=1, market=1)
+    colony._c(st, T0)
+    single = {"slots": colony.room_slots(c, "fields"), "cap": colony._cap(c), "ward": colony.ward_power(c), "lib": colony._library_x(c),
+              "farm": colony.farm_rows(c), "cost": colony.room_cost(c, "fields", 2), "hours": colony.build_hours("fields", 3, colony._w(c, "fields"))}
+    rows = {a: (b, d) for a, b, d in colony.merge_rows(c, "fields")}
+    assert rows == {"Places for posted disciples": ("4", "8"), "Rice per farmer-hour": ("×1", "×1.1"),
+                    "Cost of each later level": ("×1", "×1.5"), "Time of each later level": ("×1", "×1.25")}
+    assert colony.merge_rows(c, "dormitory")[0] == ("Beds", "6", "12")
+    for room in ("fields", "storehouse", "ward", "library", "meditation"):
+        c["plots"][room]["w"] = 2
+    assert colony.room_slots(c, "fields") == 2 * single["slots"] and colony._job_open(c, "farm", {"farm": single["slots"]})
+    assert colony._cap(c) == pytest.approx(150 + (single["cap"] - 150) * 1.1)
+    assert colony.ward_power(c) == pytest.approx(single["ward"] * 1.1) and colony._library_x(c) == pytest.approx(single["lib"] * 1.1)
+    assert colony.farm_rows(c) == single["farm"][:2] + [("The Terraces are two alcoves wide", 1.1)] + single["farm"][2:]   # its own ledger row
+    assert any("two alcoves wide" in a for a, _ in colony.research_rows(c)) and any("two alcoves wide" in a for a, _ in colony.qi_rate(c, c["pawns"][0]))
+    cost = colony.room_cost(c, "fields", 2)
+    assert cost["wood"] == pytest.approx(single["cost"]["wood"] * 1.5, abs=5) and cost["wood"] < 2 * single["cost"]["wood"]
+    assert colony.build_hours("fields", 3, 2) == single["hours"] * 1.25
+    c["plots"]["fields"]["w"] = 3
+    assert colony.merge_rows(c, "fields") == []                        # as wide as it goes: nothing more to offer
+    assert colony.room_slots(c, "fields") == 3 * single["slots"] and colony.farm_rows(c)[2] == ("The Terraces are three alcoves wide", 1.2)
+    assert max(colony.build_hours(r, lv, 3) for r in colony.ROOMS for lv in range(1, 11)) <= 36     # no timer over 36 h, merged or not
+    v = _room(colony.view(st, T0), "fields")
+    assert v["wide"]["w"] == 3 and v["wide"]["x"] == 1.2 and not v["wide"]["rows"] and v["plot"]["w"] == 3
+    assert _room(colony.view(st, T0), "main_hall")["wide"] is None
+
+
+def test_merging_keeps_an_alcove_for_every_room_not_built(st):
+    c = st["colony"]
+    _rich(c, hall=3)                                                  # four floors: 24 alcoves; Hall, vault, three rooms
+    colony._c(st, T0)
+    used = set(_cells(c))
+    spare = [(f, s) for f in range(4) for s in range(6) if (f, s) not in used and (f, s) != (0, 1)]
+    for i, cell in enumerate(spare[:len(spare) - 6]):                  # fill the grid until 7 alcoves are left: 7 rooms are not built
+        c["plots"][f"x{i}"] = {"f": cell[0], "s": cell[1], "w": 1}
+    assert len(colony.free_cells(c)) == 7 and sum(1 for k in colony.ROOMS if k not in c["plots"]) == 7
+    assert "Keep an alcove" in colony.wing_block(c, "fields")
+    c["rooms"]["ward"] = 1
+    c["plots"]["ward"] = c["plots"].pop("x0")                          # one more room stands: one alcove to spare
+    assert colony.wing_block(c, "fields") == ""
+
+
+def test_moving_a_room_needs_empty_alcoves_on_an_open_floor(st):
+    c = st["colony"]
+    _rich(c, hall=3)
+    colony._c(st, T0)
+    c["plots"]["storehouse"] = {"f": 1, "s": 0, "w": 2}
+    assert not colony.move_room(st, "storehouse", [4, 0], T0)["ok"]        # the top floor opens at Hall 5
+    assert not colony.move_room(st, "storehouse", [0, 2], T0)["ok"]        # the Hall is there
+    assert not colony.move_room(st, "library", [2, 0], T0)["ok"]           # not built: nothing to move
+    assert colony.move_room(st, "storehouse", [0, 1], T0)["ok"] is False   # one empty alcove between the Terraces and the Hall: too narrow
+    assert colony.move_room(st, "storehouse", [2, 5], T0)["ok"] and c["plots"]["storehouse"] == {"f": 2, "s": 4, "w": 2}   # slides to fit
+    assert colony.move_room(st, "storehouse", [2, 5], T0)["ok"] and c["plots"]["storehouse"]["s"] == 4                    # onto itself is fine
+    assert colony.move_room(st, "vault", [3, 0], T0)["ok"] and colony.view(st, T0)["grid"]["vault"] == {"f": 3, "s": 0, "w": 1}
+    assert colony.move_room(st, "main_hall", [1, 0], T0)["ok"] and c["plots"]["main_hall"] == {"f": 1, "s": 0, "w": 2}
+
+
+def test_the_grid_keeps_the_sect_optional_and_takes_orders_over_the_api(monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from sect_academy.app import app
+    monkeypatch.setenv("SECT_ACADEMY_FILE", ":memory:")
+    s = state.reset_for_tests()
+    colony.setup(s, "Azure Lantern", "Jay", T0)
+    s["colony"]["res"].update(wood=500.0, stone=500.0)
+    client = TestClient(app)
+    r = client.post("/api/sect/build", json={"room": "storehouse", "cell": [1, 1]}).json()
+    assert r["ok"] and next(x for x in r["sect"]["rooms"] if x["id"] == "storehouse")["plot"] == {"f": 1, "s": 1, "w": 1}
+    assert client.post("/api/sect/build", json={"room": "ward", "cell": [1, 2, 3]}).status_code == 422       # a cell is two numbers
+    assert client.post("/api/sect/move-room", json={"room": "vault", "cell": [1, 4]}).json()["ok"]
+    assert not client.post("/api/sect/widen", json={"room": "fields", "cell": [0, 1]}).json()["ok"]         # Hall 1: no merging yet
+    s["settings"]["sect_enabled"] = False
+    assert client.post("/api/sect/widen", json={"room": "fields"}).status_code == 409                        # study only: no orders
+
+
+def test_the_map_is_the_painted_grid_not_the_old_painting():
+    js = (STATIC / "sect.js").read_text(encoding="utf-8")
+    art = (STATIC / "art.js").read_text(encoding="utf-8")
+    assert "hq_grid.webp" in art and "hq.webp" not in art and "SITES" not in art and "siteCrop" not in js
+    assert not (STATIC / "art" / "hq.webp").exists() and (STATIC / "art" / "hq_grid.webp").exists()
+    for room in list(colony.ROOMS) + ["vault"]:
+        assert (STATIC / "art" / f"room_{room}.webp").exists(), room
+        assert f"'{room}'" in art

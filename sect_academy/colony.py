@@ -196,7 +196,11 @@ def _layout(c: dict) -> None:
     def fits(f, s, w):
         return 0 <= f < GRID_FLOORS and 0 <= s and s + w <= GRID_SLOTS and not any((f, s + i) in used for i in range(w))
 
-    for k in want:
+    def width(k):
+        p = old.get(k)
+        return int(p["w"]) if isinstance(p, dict) and isinstance(p.get("w"), int) else 0
+
+    for k in sorted(want, key=lambda k: -width(k)):       # where two overlap, the wider (merged) room keeps its place
         p = old.get(k)
         try:
             f, s, w = int(p["f"]), int(p["s"]), int(p["w"])
@@ -778,6 +782,8 @@ def wing_block(c: dict, room: str) -> str:
 def merge_rows(c: dict, room: str) -> list[tuple[str, str, str]]:
     """What a wing changes, as a ledger: (label, now, merged)."""
     w = _w(c, room)
+    if w >= 3 or room in FIXED_W:
+        return []
     n, lv = w + 1, _lvl(c, room)
     rows = []
     if room == "dormitory":

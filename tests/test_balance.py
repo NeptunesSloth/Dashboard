@@ -75,6 +75,16 @@ def test_tapping_trays_is_optional(careful):
     assert abs(r["pop"] - careful["pop"]) <= 2
 
 
+def test_merging_rooms_helps_without_tipping_the_game(careful):
+    """SECT_OVERHAUL_PLAN 3.6 (4): a careful player who builds wings whenever they can survives balanced as the one
+    who never merges does: wings cost what they give (the Hall climbs a little slower), so nothing needed retuning."""
+    r = play("balanced", "merge", 150, 12345)
+    assert r["wide"] >= 3 and r["deaths"] == careful["deaths"] == 0
+    assert abs(r["min_food_days"] - careful["min_food_days"]) < 2.0, (r["min_food_days"], careful["min_food_days"])
+    assert careful["hall_by_day"][150] - 2 <= r["hall_by_day"][150] <= careful["hall_by_day"][150]
+    assert r["fame"] <= careful["fame"] * 1.15                         # no runaway
+
+
 def test_research_moves_without_study(runs):
     for r in runs.values():
         assert 5 <= r["techs70"] <= 8, r["techs70"]                   # no study at all in the scripted game
