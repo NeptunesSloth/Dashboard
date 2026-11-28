@@ -2,7 +2,7 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, VAULT, backdrop, place, portrait, scene, sectScene, setFaces, siteCrop, siteRect } from '/art.js';
+import { ICON, backdrop, cellRect, floorRect, place, portrait, roomThumb, roomTile, scene, sectScene, setFaces } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
@@ -225,6 +225,37 @@ export function mountSect(h) {
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   }
 
+  // Placing on the grid: a new room (from the Build ledger) or a room being moved waits here for an empty alcove.
+  let placing = null;                               // { mode: 'build' | 'move', room }
+  const roomOf = (id) => S.rooms.find((x) => x.id === id);
+  const box = (r) => `left:${r[0].toFixed(3)}%;top:${r[1].toFixed(3)}%;width:${r[2].toFixed(3)}%;height:${r[3].toFixed(3)}%`;
+  const ORD = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+  const FLOOR = ['ground floor', 'second floor', 'third floor', 'fourth floor', 'top floor'];
+  function startPlacing(mode, room) {
+    placing = { mode, room }; selPawn = ''; sceneSig = ''; paintScene();
+    const m = $('#z-scene'); if (m) m.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function cancelPlacing() { if (!placing) return; placing = null; sceneSig = ''; paintScene(); }
+  function pickCell(f, s) {
+    if (!placing) { alcoveSheet(f, s); return; }
+    const { mode, room } = placing; placing = null; sceneSig = '';
+    order(mode === 'move' ? 'move-room' : 'build', { room, cell: [f, s] });
+  }
+  // A room's painted tiles, side by side (the Main Hall's own tile is two alcoves wide).
+  function tilesHtml(id, w) {
+    const t = roomTile(id); if (!t) return '';
+    const n = id === 'main_hall' ? 1 : w;
+    return `<span class="tiles" aria-hidden="true">${Array.from({ length: n }, () => `<i style="background-image:url(${t})"></i>`).join('')}</span>`;
+  }
+  // The half lantern and pillar at each outer edge of a room are finished by a sliver of the tile's other edge,
+  // so a room beside an empty alcove still ends on a whole lantern.
+  function capsHtml(id, p) {
+    const t = roomTile(id); if (!t) return '';
+    const [x, y, w, hh] = cellRect(p.f, p.s, p.w); const cw = 1.55; const k = id === 'main_hall' ? 2000 : 1000;
+    const cap = (left, side, pos) => `<i class="cap ${side}" style="${box([left, y, cw, hh])};background-image:url(${t});background-size:${k}% 100%;background-position:${pos}% 0" aria-hidden="true"></i>`;
+    return cap(x - cw, 'l', 100) + cap(x + w, 'r', 0);
+  }
+
   function paintScene() {
     const z = $('#z-scene'); if (!z) return;
     if (dragging && z.firstChild) return;          // never repaint under a drag
@@ -235,48 +266,69 @@ export function mountSect(h) {
       const site = p.doing === 'build' ? building[0] : SITE_OF[p.doing] || 'main_hall';
       if (site) (staff[site] = staff[site] || []).push(p);
     });
+    const G = S.grid;
+    if (placing && !(placing.mode === 'move' ? placing.room === 'vault' || (roomOf(placing.room) || {}).plot : roomOf(placing.room) && !roomOf(placing.room).plot)) placing = null;
     const trayText = (r) => (r.tray || []).slice(0, 2).map((t) => `+${t.n} ${t.name}`).join(' ');
     const held = selPawn ? S.pawns.find((p) => p.id === selPawn) : null;
-    const sig = JSON.stringify([S.rooms.map((r) => [r.level, r.affordable, trayText(r), r.tray_full, r.posted.length, r.slots]), building,
+    const sig = JSON.stringify([S.rooms.map((r) => [r.level, r.affordable, trayText(r), r.tray_full, r.posted.length, r.slots, r.plot, r.wing, r.wide && r.wide.affordable]), building, G, placing,
       Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.treasures.length, selPawn, dragging, S.pawns.map((p) => p.id + p.post)]);
     if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
     const pips = (r) => `<i class="pips" aria-hidden="true">${Array.from({ length: r.max }, (_, i) => `<b class="${i < r.level ? 'on' : ''}"></b>`).join('')}</i>`;
-    const rooms = S.rooms.map((r) => {
-      const [x, y, w, hh] = siteRect(r.id);
-      const crew = (staff[r.id] || []).slice(0, 5).map((p) => face(p, 30)).join('');
+    const placed = S.rooms.filter((r) => r.plot);
+    const caps = placed.filter((r) => r.open).map((r) => capsHtml(r.id, r.plot)).join('') + (G.vault ? capsHtml('vault', G.vault) : '');
+    const rooms = placed.map((r) => {
+      const w = r.plot.w; const all = staff[r.id] || []; const show = Math.min(all.length, 3 * w);
+      const crew = all.slice(0, show).map((p) => face(p, 30)).join('') + (all.length > show ? `<b class="more">+${all.length - show}</b>` : '');
       // A room you can afford to raise glows softly on its name plate (no badge, no arrow).
-      const name = `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : building.includes(r.id) ? '<i class="pl-note">building</i>' : ''}`;
+      const name = `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : '<i class="pl-note">being built</i>'}`;
       const fit = held ? (r.slots ? (r.posted.length >= r.slots && held.post !== r.id ? 'full' : held.fit[r.id] || 'poor') : 'none') : '';
       const fitWord = { good: 'suits them well', fair: 'suits them', poor: 'suits them poorly', full: 'is full', none: 'takes no post' }[fit] || '';
-      return `<button class="room ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
-        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${fitWord}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}"${r.affordable && !held ? ' title="Ready to raise"' : ''}>
+      return `<button class="room w${w} ${r.open ? '' : 'closed'} ${building.includes(r.id) && !r.wing ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" style="${box(cellRect(r.plot.f, r.plot.s, w))}"
+        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'being built'}${r.wide && r.wide.w > 1 ? `, ${esc(r.wide.word)}` : ''}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${fitWord}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}"${r.affordable && !held ? ' title="Ready to raise"' : ''}>
+        ${tilesHtml(r.id, w)}<span class="lit" aria-hidden="true"></span>
         <span class="crew" aria-hidden="true">${crew}</span>
         ${held && r.slots ? `<span class="slotn" aria-hidden="true">${r.posted.length}/${r.slots}</span>` : ''}
         <span class="plaque">${name}</span></button>`;
     }).join('');
+    // A wing being built: the room's tile in the next alcove, still dark, until the wall comes down.
+    const wings = placed.filter((r) => r.wing).map((r) => `<button class="room wingsite building" data-wingsite="${esc(r.id)}" style="${box(cellRect(r.wing.f, r.wing.s, 1))}" aria-label="A wing of the ${esc(r.name)}, being built">
+        ${tilesHtml(r.id === 'main_hall' ? '' : r.id, 1)}<span class="lit" aria-hidden="true"></span><span class="plaque"><span class="pl-name">${esc(r.name)}</span><i class="pl-note">wing being built</i></span></button>`).join('');
     // A tray is a button of its own over the room: what the crew made since dawn, brighter when a morning's work waits.
-    const trays = held ? '' : S.rooms.filter((r) => r.tray.length).map((r) => {
-      const [x, y, w, hh] = siteRect(r.id);
-      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.42}%"
+    const trays = held || placing ? '' : placed.filter((r) => r.tray.length).map((r) => {
+      const [x, y, w, hh] = cellRect(r.plot.f, r.plot.s, r.plot.w);
+      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.56}%"
         aria-label="${esc(r.name)} made ${esc(trayText(r))} since the last look. Inspect the work">${r.tray.slice(0, 2).map((t) => `<b class="num">+${t.n}</b> ${esc(t.name)}`).join(' ')}</button>`;
     }).join('');
+    // Empty alcoves are where you build. With a room in hand (placing) every one of them is lit.
+    const pr = placing ? (placing.room === 'vault' ? { name: 'Treasure Vault' } : roomOf(placing.room)) : null;
+    const alcoves = held ? '' : G.free.map(([f, s]) => `<button class="alcove ${placing ? 'ok' : ''}" data-cell="${f},${s}" style="${box(cellRect(f, s, 1))}"
+        aria-label="Empty alcove, ${FLOOR[f]}, ${ORD[s]} from the left. ${pr ? `Put the ${esc(pr.name)} here` : 'Build here'}"><span class="plaque">${placing ? 'Place here' : 'Build here'}</span></button>`).join('');
+    const locks = Array.from({ length: G.floors - G.open }, (_, i) => G.open + i).map((f) => `<div class="floorlock" style="${box(floorRect(f))}"><span>${f === G.open ? `This floor opens at Main Hall ${G.next_floor}` : 'Not yet opened'}</span></div>`).join('');
     const roster = S.pawns.filter((p) => !p.away).map((p) => `<button class="token ${selPawn === p.id ? 'on' : ''}" data-token="${esc(p.id)}" aria-pressed="${selPawn === p.id}"
         aria-label="${esc(p.name)}${p.post ? `, posted to the ${esc((S.rooms.find((r) => r.id === p.post) || {}).name || '')}` : ''}. Pick up to post">${face(p, 34)}<span><b>${esc(p.name.split(' ').slice(-1)[0])}</b><small>${esc(p.post ? (S.rooms.find((r) => r.id === p.post) || {}).name || '' : p.doing || '')}</small></span></button>`).join('');
-    const [vx, vy, vw, vh] = VAULT;
-    z.innerHTML = `<div class="hq ${held ? 'holding' : ''}">${sectScene()}<div class="daylight" id="daylight"></div>${rooms}${trays}
-      <button class="room vault" data-vault style="left:${vx}%;top:${vy}%;width:${vw}%;height:${vh}%" aria-label="Treasure vault: manuals, treasures and the world beyond">
-        <span class="plaque">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></button></div>
-      <div class="roster" role="group" aria-label="Post disciples to rooms"><span class="rhint">${held ? `Now choose a room for ${esc(held.name)}. <button class="btn" data-unpick>Cancel</button>` : 'Drag a disciple onto a room to post them there, or tap one and then a room.'}</span><div class="tokens">${roster}</div></div>`;
+    const hint = held ? `Now choose a room for ${esc(held.name)}. <button class="btn" data-unpick>Cancel</button>`
+      : pr ? `Choose an empty alcove for the ${esc(pr.name)}. <button class="btn" data-unplace>Cancel</button>`
+        : 'Drag a disciple onto a room to post them there, or tap one and then a room. Tap an empty alcove to build in it.';
+    z.innerHTML = `<div class="hq ${held ? 'holding' : ''} ${placing ? 'placing' : ''}">${sectScene()}${locks}${caps}${rooms}${wings}
+      ${G.vault ? `<button class="room vault" data-vault style="${box(cellRect(G.vault.f, G.vault.s, 1))}" aria-label="Treasure vault: manuals, treasures and the world beyond">
+        ${tilesHtml('vault', 1)}<span class="lit" aria-hidden="true"></span><span class="plaque"><span class="pl-name">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></span></button>` : ''}
+      ${alcoves}<div class="daylight" id="daylight"></div>${trays}</div>
+      <div class="roster" role="group" aria-label="Post disciples to rooms"><span class="rhint">${hint}</span><div class="tokens">${roster}</div></div>`;
     z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => { if (Date.now() - heldAt < 400) return; if (selPawn) postTo(b.dataset.room); else roomSheet(b.dataset.room); }; });
+    z.querySelectorAll('[data-wingsite]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.wingsite); });
+    z.querySelectorAll('[data-cell]').forEach((b) => { b.onclick = () => { const [f, s] = b.dataset.cell.split(',').map(Number); pickCell(f, s); }; });
     z.querySelectorAll('[data-token]').forEach((b) => {
       b.onpointerdown = (e) => startDrag(e, b.dataset.token, b);
-      b.onclick = () => { if (Date.now() - heldAt < 400) return; selPawn = selPawn === b.dataset.token ? '' : b.dataset.token; sceneSig = ''; paintScene(); };
+      b.onclick = () => { if (Date.now() - heldAt < 400) return; placing = null; selPawn = selPawn === b.dataset.token ? '' : b.dataset.token; sceneSig = ''; paintScene(); };
     });
     z.querySelectorAll('[data-tray]').forEach((b) => { b.onclick = () => collect(b); });
     const un = $('[data-unpick]', z); if (un) un.onclick = cancelPick;
-    z.onkeydown = (e) => { if (e.key === 'Escape' && selPawn) { e.stopPropagation(); cancelPick(); } };
-    $('[data-vault]', z).onclick = () => { tab = 'world'; sessionStorage.setItem('sect.tab', tab); paintTabs(); $('#z-tabs').scrollIntoView({ behavior: 'smooth' }); };
+    const up = $('[data-unplace]', z); if (up) up.onclick = cancelPlacing;
+    z.onkeydown = (e) => { if (e.key === 'Escape' && (selPawn || placing)) { e.stopPropagation(); cancelPick(); cancelPlacing(); } };
+    const vb = $('[data-vault]', z);
+    if (vb) vb.onclick = () => { if (selPawn) { cancelPick(); return; } tab = 'world'; sessionStorage.setItem('sect.tab', tab); paintTabs(); $('#z-tabs').scrollIntoView({ behavior: 'smooth' }); };
+    paintLight();
   }
 
   // Tapping a tray: the numbers count up and lift away, then the server's answer (the crew's thought) is toasted.
@@ -355,6 +407,7 @@ export function mountSect(h) {
       b.onpointerup = b.onpointerleave = b.onpointercancel = () => { clearTimeout(press); };
     });
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
+    z.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => startPlacing('build', b.dataset.place); });
     z.querySelectorAll('[data-roomtile]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.roomtile); });
     z.querySelectorAll('[data-rushbuild]').forEach((b) => { b.onclick = () => rushSheet(Number(b.dataset.rushbuild)); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
@@ -450,21 +503,25 @@ export function mountSect(h) {
     const B = S.builders;
     const running = S.builds.filter((b) => b.running);
     const lamp = (b, i) => (b ? `<li class="lamp" style="--p:${b.pct}">
-        <span class="ring"><span class="rthumb" style="${siteCrop(b.room, 1)}" aria-hidden="true"></span></span>
-        <span class="ltxt"><b>${esc(b.name)} ${b.level}</b><span class="num">${esc(awayT(b.left))} left</span><small class="dim">with the app closed, or ${esc(watchT(b.left))} if you watch · ${b.pct}% done</small>
+        <span class="ring"><span class="rthumb" style="${roomThumb(b.room)}" aria-hidden="true"></span></span>
+        <span class="ltxt"><b>${esc(b.name)} ${b.wing ? 'wing' : b.level}</b><span class="num">${esc(awayT(b.left))} left</span><small class="dim">with the app closed, or ${esc(watchT(b.left))} if you watch · ${b.pct}% done</small>
           <span class="row">${benchButtons(i)}</span>${benchSpeed(b, i)}</span></li>`
       : '<li class="lamp empty"><span class="ring"></span><span class="ltxt"><b>Free</b><small class="dim">waiting for orders</small></span></li>');
     const groups = { can: [], short: [], locked: [], max: [] };
     S.rooms.forEach((r) => groups[roomState(r)].push(r));
+    const merge = S.rooms.filter((r) => r.wide && r.wide.affordable);
     const shortOf = (r) => Object.entries(r.cost).filter(([k, v]) => haveRes(k) < v).map(([k, v]) => `${v - haveRes(k)} ${k === 'stones' ? 'spirit stones' : k}`).join(', ');
-    const row = (r, st) => `<li class="lrow ${st}"><button class="lthumb" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1)}" aria-label="${esc(r.name)}: details"></button>
-        <span class="grow"><b>${esc(r.name)}</b> ${r.open ? lvPips(r) : '<span class="small dim">new</span>'}<br>
+    const row = (r, st) => `<li class="lrow ${st}"><button class="lthumb" data-roomtile="${esc(r.id)}" style="${roomThumb(r.id)}" aria-label="${esc(r.name)}: details"></button>
+        <span class="grow"><b>${esc(r.name)}</b> ${r.open ? lvPips(r) : '<span class="small dim">new</span>'}${r.wide && r.wide.w > 1 ? ` <span class="small dim">${esc(r.wide.word)}</span>` : ''}<br>
           ${st === 'locked' ? `<small class="dim">${esc(r.lock_short || r.locked)}</small>` : st === 'max' ? '<small class="dim">Highest level</small>' : `<span class="rt-cost">${costChips(r.cost)}</span>`}</span>
-        ${st === 'can' ? `<span class="lgo"><button class="btn primary" data-build="${esc(r.id)}">${r.open ? 'Raise' : 'Build'}</button><small class="dim">ready in about ${esc(awayT(r.hours))}</small></span>`
+        ${st === 'can' ? `<span class="lgo">${r.plot ? `<button class="btn primary" data-build="${esc(r.id)}">Raise</button>` : `<button class="btn primary" data-place="${esc(r.id)}">Choose an alcove</button>`}<small class="dim">ready in about ${esc(awayT(r.hours))}</small></span>`
     : st === 'short' ? `<small class="lneed">Needs ${esc(shortOf(r) || 'a free builder')}</small>` : ''}</li>`;
     const sect = (title, list, st) => (list.length ? `<h4 class="lhead">${esc(title)} <span class="dim small">${list.length}</span></h4><ul class="lrows">${list.map((r) => row(r, st)).join('')}</ul>` : '');
+    const mrow = (r) => `<li class="lrow can"><button class="lthumb" data-roomtile="${esc(r.id)}" style="${roomThumb(r.id)}" aria-label="${esc(r.name)}: details"></button>
+        <span class="grow"><b>${esc(r.name)}</b> <span class="small dim">${esc(r.wide.word)} now</span><br><span class="rt-cost">${costChips(r.wide.cost)}</span></span>
+        <span class="lgo"><button class="btn" data-roomtile="${esc(r.id)}">See the merge</button><small class="dim">a wing, ready in about ${esc(awayT(r.wide.hours))}</small></span></li>`;
     return `<div class="ledger">${builderHead()}<ul class="lamps">${Array.from({ length: B.n }, (_, i) => lamp(running[i], i)).join('')}</ul>
-      ${sect('Ready to raise', groups.can, 'can')}${sect('Gathering materials', groups.short, 'short')}${sect('Waiting on the Main Hall', groups.locked, 'locked')}${sect('Complete', groups.max, 'max')}</div>`;
+      ${sect('Ready to raise', groups.can, 'can')}${merge.length ? `<h4 class="lhead">Ready to merge <span class="dim small">${merge.length}</span></h4><ul class="lrows">${merge.map(mrow).join('')}</ul>` : ''}${sect('Gathering materials', groups.short, 'short')}${sect('Waiting on the Main Hall', groups.locked, 'locked')}${sect('Complete', groups.max, 'max')}</div>`;
   }
 
   function research() {
@@ -820,26 +877,78 @@ export function mountSect(h) {
   }
   function rushSheet(index) {
     const b = S.builds.filter((x) => x.running)[index]; if (!b || !b.rush) return;
-    openSheet(`<h2>${esc(b.name)} to level ${b.level}</h2>${rushHtml(b.rush, 'the build')}
+    openSheet(`<h2>${esc(b.name)} ${b.wing ? "wing" : `to level ${b.level}`}</h2>${rushHtml(b.rush, 'the build')}
       <button class="btn primary" data-dorush>Rush it (${b.rush.chance}% risk)</button>`);
     const go = $('[data-dorush]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('rush-build', { index }); };
+  }
+
+  // What a wing gives, as a ledger: now against merged, then the price.
+  function mergeHtml(r) {
+    const W = r.wide; const next = ['', 'two alcoves wide', 'three alcoves wide'][W.w] || '';
+    return `<div class="rushbox mergebox"><h3>Merge: the ${esc(r.name)}, ${esc(next)}</h3>
+      <p class="small">A wing is built in the alcove beside it, at level ${r.level}. When it is done the wall comes down and the halls are one room.</p>
+      <table class="mergeled"><tr><th scope="col"></th><th scope="col">Now</th><th scope="col">Merged</th></tr>
+        ${W.rows.map((o) => `<tr><th scope="row">${esc(o.label)}</th><td class="num">${esc(o.now)}</td><td class="num then">${esc(o.then)}</td></tr>`).join('')}</table>
+      <p class="small" style="margin:8px 0 0">The wing: <span class="rt-cost">${costChips(W.cost)}</span></p>
+      <p class="dim small" style="margin:4px 0 0">${esc(readyIn(W.hours))}. It takes a builder, like any job.</p></div>`;
+  }
+  const sideWord = (r, c) => (c[1] < r.plot.s ? 'on the left' : 'on the right');
+  function wingButtons(r, only) {
+    const W = r.wide; const cells = only ? W.cells.filter((c) => c[0] === only[0] && c[1] === only[1]) : W.cells;
+    if (W.why) return `<p class="tag red">${esc(W.why)}</p>`;
+    const short = Object.entries(W.cost).filter(([k, v]) => haveRes(k) < v).map(([k, v]) => `${v - haveRes(k)} more ${k === 'stones' ? 'spirit stones' : k}`).join(' and ');
+    return `<div class="row">${cells.map((c) => `<button class="btn ${W.affordable ? 'primary' : ''}" data-wing="${esc(r.id)}|${c[0]}|${c[1]}" ${W.affordable ? '' : 'disabled'}>Build the wing${cells.length > 1 ? ` ${sideWord(r, c)}` : ''}</button>`).join('')}</div>
+      ${W.affordable ? '' : `<p class="dim small" style="margin-top:6px">${short ? `Needs ${esc(short)}.` : 'Every builder is busy. One comes free when a job finishes.'}</p>`}`;
+  }
+  function bindWings(root) {
+    root.querySelectorAll('[data-wing]').forEach((b) => { b.onclick = async () => { const [room, f, s] = b.dataset.wing.split('|'); closeSheet(); await order('widen', { room, cell: [Number(f), Number(s)] }); }; });
+  }
+
+  // An empty alcove: merge the room beside it into it, or build a room that has no place yet.
+  function alcoveSheet(f, s) {
+    const beside = S.rooms.filter((r) => r.open && r.plot && r.wide && r.plot.f === f && (r.plot.s + r.plot.w === s || r.plot.s - 1 === s) && r.wide.w < 3);
+    const fresh = S.rooms.filter((r) => !r.plot);
+    const state = (r) => (r.locked ? `<small class="dim">${esc(r.lock_short || r.locked)}</small>`
+      : r.affordable ? `<span class="lgo"><button class="btn primary" data-new="${esc(r.id)}">Build here</button><small class="dim">ready in about ${esc(awayT(r.hours))}</small></span>`
+        : `<small class="lneed">Needs ${esc(Object.entries(r.cost).filter(([k, v]) => haveRes(k) < v).map(([k, v]) => `${v - haveRes(k)} ${k === 'stones' ? 'spirit stones' : k}`).join(', ') || 'a free builder')}</small>`);
+    const row = (r) => `<li class="lrow ${r.locked ? 'locked' : r.affordable ? 'can' : 'short'}"><span class="lthumb" style="${roomThumb(r.id)}" aria-hidden="true"></span>
+        <span class="grow"><b>${esc(r.name)}</b><br>${r.locked ? '' : `<small class="dim">${esc(r.effect)}</small><br><span class="rt-cost">${costChips(r.cost)}</span>`}</span>${state(r)}</li>`;
+    fresh.sort((a, b) => (a.locked ? 1 : 0) - (b.locked ? 1 : 0));
+    openSheet(`<h2>An empty alcove</h2><p class="dim">The ${FLOOR[f]}, ${ORD[s]} from the left.</p>
+      ${beside.map((r) => `${mergeHtml(r)}${wingButtons(r, [f, s])}`).join('')}
+      ${fresh.length ? `<h3 style="margin-top:16px">Build a room here</h3><ul class="lrows">${fresh.map(row).join('')}</ul>`
+    : `<p class="small" style="margin-top:14px">Every room is built. ${beside.length ? '' : 'A room standing beside an empty alcove can grow into it; a room can also be moved here from its own sheet.'}</p>`}
+      ${S.grid.wide_max < 3 ? `<p class="dim small" style="margin-top:10px">Rooms merge ${S.grid.wide_max < 2 ? `two alcoves wide from Main Hall ${S.grid.wide_halls['2']}, ` : ''}three wide from Main Hall ${S.grid.wide_halls['3']}.</p>` : ''}`);
+    const sh = $('#sheet');
+    sh.querySelectorAll('[data-new]').forEach((b) => { b.onclick = async () => { closeSheet(); await order('build', { room: b.dataset.new, cell: [f, s] }); }; });
+    bindWings(sh);
   }
 
   function roomSheet(id) {
     const r = S.rooms.find((x) => x.id === id); if (!r) return;
     const crew = r.posted.map((pid) => (S.pawns.find((p) => p.id === pid) || {}).name).filter(Boolean);
-    const R = r.rush;
+    const R = r.rush; const W = r.wide;
+    const wide = W && r.open ? `${W.w > 1 ? `<p class="small">Merged, ${esc(W.word)}${W.yield ? `: ${esc(W.yield.toLowerCase())} ×${W.x}` : ''}. Each level costs and takes more than a single room's, and less than ${W.w} rooms would.</p>` : ''}
+      ${r.wing ? '<p class="small">A wing is being built beside it.</p>' : W.rows.length ? `${mergeHtml(r)}${wingButtons(r)}` : ''}` : '';
     openSheet(`<h2>${esc(r.name)}</h2><p class="dim">${r.open ? `Level ${r.level} of ${r.max}` : 'Not built yet'}${r.queued ? ' · under construction' : ''}</p><p>${esc(r.effect)}</p>
       ${r.slots ? `<p class="small">Posted here (${esc(r.post_jobs.join(', '))} first): ${r.posted.length} of ${r.slots}${crew.length ? `, ${esc(crew.join(', '))}` : ''}. Drag a disciple from the roster under the map onto the room to post them.</p>` : ''}
       ${r.tray.length ? `<p class="small">Made since the last look: ${esc(r.tray.map((t) => `${t.n} ${t.name}`).join(', '))}. It is in the stores already; tapping the tray on the map is the Master's inspection, which pleases the crew (+3 mood for 12 hours, once a day).</p>` : ''}
       ${r.cost ? (r.locked ? `<p class="tag red">${esc(r.locked)}</p>`
-    : `<button class="btn ${r.affordable ? 'primary' : ''}" data-go ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>
+    : r.plot ? `<button class="btn ${r.affordable ? 'primary' : ''}" data-go ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>
            <p class="dim small" style="margin-top:8px">${r.affordable ? `Materials are spent now. ${esc(readyIn(r.hours))}. Disciples with Build as a priority help.`
-    : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`)
+    : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`
+      : `<button class="btn ${r.affordable ? 'primary' : ''}" data-placeit ${r.affordable ? '' : 'disabled'}>Choose an alcove: ${esc(costText(r.cost))}</button>
+           <p class="dim small" style="margin-top:8px">${r.affordable ? `Pick an empty alcove on the map. ${esc(readyIn(r.hours))}.` : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`)
     : '<p class="tag gold">Highest level reached</p>'}
-      ${R ? (R.idle ? `<p class="warn">Putting things right after an incident: idle ${R.idle} more hours.</p>` : R.out.length ? `${rushHtml(R, 'the work')}<button class="btn" data-dorush>Rush it (${R.chance}% risk)</button>` : '<p class="dim small">Nobody has worked here today, so there is nothing to rush.</p>') : ''}`);
-    const go = $('[data-go]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
-    const ru = $('[data-dorush]', $('#sheet')); if (ru) ru.onclick = async () => { closeSheet(); await order('rush', { room: id }); };
+      ${wide}
+      ${R ? (R.idle ? `<p class="warn">Putting things right after an incident: idle ${R.idle} more hours.</p>` : R.out.length ? `${rushHtml(R, 'the work')}<button class="btn" data-dorush>Rush it (${R.chance}% risk)</button>` : '<p class="dim small">Nobody has worked here today, so there is nothing to rush.</p>') : ''}
+      ${r.plot && !r.queued && !r.wing && id !== 'main_hall' ? '<p style="margin-top:14px"><button class="btn quiet" data-move>Move this room to another alcove</button> <span class="dim small">Free, and at once. Where a room stands decides what it can merge into.</span></p>' : ''}`);
+    const sh = $('#sheet');
+    const go = $('[data-go]', sh); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
+    const pl = $('[data-placeit]', sh); if (pl) pl.onclick = () => { closeSheet(); startPlacing('build', id); };
+    const mv = $('[data-move]', sh); if (mv) mv.onclick = () => { closeSheet(); startPlacing('move', id); };
+    const ru = $('[data-dorush]', sh); if (ru) ru.onclick = async () => { closeSheet(); await order('rush', { room: id }); };
+    bindWings(sh);
   }
 
   function paintStyle() {

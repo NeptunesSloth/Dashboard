@@ -213,7 +213,7 @@ def test_a_cloze_blank_forgives_no_slip_in_the_grammar():
 
 
 def test_the_paintings_are_served_from_a_fixed_list():
-    assert client.get("/art/hq.webp").headers["content-type"] == "image/webp"
+    assert client.get("/art/hq_grid.webp").headers["content-type"] == "image/webp"
     assert client.get("/art/nope.webp").status_code == 404 and client.get("/art/..%2Fapp.py").status_code == 404
 
 

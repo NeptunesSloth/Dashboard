@@ -3,40 +3,31 @@
 // places them and lays the live state over them.
 // Nothing in this file takes untrusted text: callers pass numbers, ids and known keys only.
 
-/* Where each room sits in the painted cut-away of the sect (percent of the picture): x, y, w, h. */
-export const SITES = {
-  dormitory:   [2, 3, 31, 19],
-  main_hall:   [34, 3, 22, 19],
-  fields:      [57, 3, 41, 19],
-  market:      [2, 24.5, 96, 14.5],
-  storehouse:  [3, 41, 31, 16.5],
-  library:     [35, 41, 30, 16.5],
-  ward:        [66, 41, 32, 16.5],
-  alchemy:     [3, 59, 31, 16.5],
-  training:    [35, 59, 30, 16.5],
-  spirit_vein: [3, 77.5, 40, 20],
-  meditation:  [44, 77.5, 54, 20],
-};
-export const VAULT = [66, 59, 32, 16.5];        // the treasure vault: opens the World tab
+/* The sect is one painting of 5 floors x 6 empty alcoves (hq_grid.webp); each room is a painted tile laid in its
+   alcove(s). The alcove borders are the lantern lines of the painting, in percent of the picture. */
+const GX = [3.395, 18.519, 33.951, 49.815, 65.617, 81.173, 96.481];     // left to right
+const GY = [5.149, 24.099, 42.842, 61.792, 80.33, 99.279];              // top to bottom (floor 4 is the top one)
+const int = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(v) || 0)));
+/** The rectangle of `w` alcoves from alcove `s` on floor `f` (0 = the ground floor): [x, y, width, height] in percent. */
+export function cellRect(f, s, w = 1) {
+  const row = 4 - int(f, 0, 4); const a = int(s, 0, 5); const b = int(a + int(w, 1, 3), a + 1, 6);
+  return [GX[a], GY[row], GX[b] - GX[a], GY[row + 1] - GY[row]];
+}
+/** A whole floor's rectangle. */
+export function floorRect(f) { const row = 4 - int(f, 0, 4); return [GX[0], GY[row], GX[6] - GX[0], GY[row + 1] - GY[row]]; }
 
-export function siteRect(id) { return SITES[id] || [0, 0, 0, 0]; }
-
-/** A crop of the painted sect centred on one room, as inline CSS for a tile of the given aspect (width / height).
- *  Numbers only: the id picks a known site, anything else gets the middle of the painting. */
-export function siteCrop(id, aspect = 1.5) {
-  const [x, y, w, h] = SITES[id] || [30, 30, 40, 40];
-  const art = 1620 / 971;                              // the painting's own aspect
-  const scale = Math.max(100 / Math.max(w, 1), (100 * art) / (aspect * Math.max(h, 1)));   // the room covers the tile: the painting is this many tiles wide
-  const imgH = scale / art * aspect;                   // and this many tiles tall
-  const cx = (x + w / 2) / 100; const cy = (y + h / 2) / 100;
-  const px = scale > 1 ? Math.max(0, Math.min(100, ((scale * cx - 0.5) / (scale - 1)) * 100)) : 50;
-  const py = imgH > 1 ? Math.max(0, Math.min(100, ((imgH * cy - 0.5) / (imgH - 1)) * 100)) : 50;
-  return `background-image:url(/art/hq.webp);background-size:${(scale * 100).toFixed(1)}% auto;background-position:${px.toFixed(1)}% ${py.toFixed(1)}%`;
+const TILES = new Set(['main_hall', 'dormitory', 'fields', 'storehouse', 'library', 'meditation', 'alchemy', 'training', 'ward', 'spirit_vein', 'market', 'vault']);
+/** The painted tile of a known room ('' for anything else). The Main Hall's tile is two alcoves wide. */
+export function roomTile(id) { return TILES.has(id) ? `/art/room_${id}.webp` : ''; }
+/** A room's tile as inline CSS for a small round thumbnail. Known ids only. */
+export function roomThumb(id) {
+  const t = roomTile(id);
+  return t ? `background-image:url(${t});background-size:${id === 'main_hall' ? '230% auto' : '150% auto'};background-position:50% 55%` : '';
 }
 
-/** The sect itself: one painting; the page lays rooms, crews and veils over it. */
+/** The sect itself: the empty halls; the page lays the rooms, crews and veils over them. */
 export function sectScene() {
-  return '<img class="art" src="/art/hq.webp" alt="A cut-away painting of your sect: five lantern-lit floors of halls" draggable="false">';
+  return '<img class="art" src="/art/hq_grid.webp" alt="A cut-away painting of your sect: five lantern-lit floors of rock-cut halls" draggable="false">';
 }
 
 const BACKDROPS = new Set(['map', 'seclusion', 'technique', 'treasure', 'leader', 'hall', 'pill', 'mission']);

@@ -1112,3 +1112,51 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
   .wm-lab { padding: 1px 6px 8px; } .wm-lab b { font-size: .7rem; } .wm-lab small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .wm-mk.sel::before, .wm-mk.sel .wm-glow { animation: none; } .wm-glow, .wm-mk .wm-em { transition: none; } }
+
+/* ---------------- the grid: 5 floors x 6 alcoves, each room a painted tile ---------------- */
+.room { isolation: isolate; cursor: pointer; }
+.room .tiles { position: absolute; inset: 0; z-index: -1; display: flex; }
+.room .tiles i { flex: 1 1 0; background-size: 100% 100%; background-repeat: no-repeat; }
+.room .lit { position: absolute; inset: 0; border-radius: 4px; pointer-events: none; transition: background .15s, box-shadow .15s; }
+.room:hover, .room:focus-visible { background: none; box-shadow: none; outline: none; }
+.room:hover .lit, .room:focus-visible .lit { background: #f0c15e14; box-shadow: inset 0 0 0 2px #f0c15ecc; }
+.hq .cap { position: absolute; background-repeat: no-repeat; pointer-events: none; }
+.hq .cap.l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 55%); mask-image: linear-gradient(90deg, transparent, #000 55%); }
+.hq .cap.r { -webkit-mask-image: linear-gradient(270deg, transparent, #000 55%); mask-image: linear-gradient(270deg, transparent, #000 55%); }
+/* a room still being built, and a wing before the wall comes down: the tile unlit under a builder's hatching */
+.room.closed, .room.building { background: none; backdrop-filter: none; }
+.room.closed .tiles, .room.wingsite .tiles { filter: grayscale(.75) brightness(.42); }
+.room.closed .lit, .room.wingsite .lit { background: repeating-linear-gradient(135deg, #0a070566 0 10px, #e9b44c14 10px 20px); }
+.room .crew { left: 0; right: 0; top: 23%; max-width: none; justify-content: center; flex-wrap: nowrap; }
+.room .crew .face { width: clamp(16px, 2.2vw, 28px); height: clamp(16px, 2.2vw, 28px); }
+.room .crew .more { align-self: center; font: 700 .68rem var(--serif); color: #f8e6bf; text-shadow: 0 1px 2px #000; }
+.room .plaque { bottom: 5%; max-width: 96%; font-size: clamp(.56rem, .92vw, .76rem); line-height: 1.35; }
+.room.vault .plaque { padding: 2px 10px 1px; border-radius: 8px; border-color: #4a3a28; }
+.room .plaque .pl-name { overflow: hidden; text-overflow: ellipsis; }
+/* an empty alcove: nothing drawn until you point at it; with a room in hand every free one is lit */
+.alcove { position: absolute; border: 0; padding: 0; background: transparent; border-radius: 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, box-shadow .15s; }
+.alcove .plaque { position: absolute; left: 50%; bottom: 5%; transform: translateX(-50%); padding: 2px 10px 1px; border-radius: 8px; white-space: nowrap; opacity: 0; transition: opacity .15s;
+  background: #120d0ae6; color: #d8c49c; border: 1px solid #4a3a28; font: 600 clamp(.56rem, .92vw, .76rem)/1.35 var(--serif); }
+.alcove:hover, .alcove:focus-visible { background: #f0c15e12; box-shadow: inset 0 0 0 2px #f0c15e99; outline: none; }
+.alcove:hover .plaque, .alcove:focus-visible .plaque, .alcove.ok .plaque { opacity: 1; }
+.alcove.ok { background: #3fae8214; box-shadow: inset 0 0 0 2px #3fae82aa, inset 0 0 26px #3fae8226; }
+.alcove.ok .plaque { color: #d6f5e6; border-color: #3fae82; }
+.alcove.ok:hover, .alcove.ok:focus-visible { background: #3fae8230; box-shadow: inset 0 0 0 3px #d6f5e6, inset 0 0 36px #3fae8255; }
+.hq.placing .room { cursor: default; } .hq.placing .room .tiles { filter: brightness(.6); }
+.floorlock { position: absolute; display: grid; place-items: center; background: #070504c4; pointer-events: none; }
+.floorlock span { font: italic 600 clamp(.6rem, 1vw, .82rem) var(--serif); color: #a8977a; letter-spacing: .01em; }
+/* while a disciple is in hand the glow sits over the tile */
+.hq.holding .room.fit-good, .hq.holding .room.fit-fair, .hq.holding .room.fit-poor, .hq.holding .room.fit-full, .hq.holding .room.fit-none, .hq.holding .room.over { background: none; box-shadow: none; }
+.hq.holding .room.fit-good .lit { background: #3fae8226; box-shadow: inset 0 0 0 2px #3fae82, inset 0 0 30px #3fae8240; }
+.hq.holding .room.fit-fair .lit { background: #e9b44c1f; box-shadow: inset 0 0 0 2px #e9b44ccc, inset 0 0 26px #e9b44c33; }
+.hq.holding .room.fit-poor .lit { background: #9a8f8014; box-shadow: inset 0 0 0 2px #9a8f8099; }
+.hq.holding .room.fit-full .lit, .hq.holding .room.fit-none .lit, .hq.holding .room.vault .lit { background: #0a0705b0; }
+.hq.holding .room.over .lit { box-shadow: inset 0 0 0 3px #fff3d6, inset 0 0 40px #f0c15e66; }
+.room .slotn { top: 6%; right: 4%; z-index: 1; }
+/* the merge ledger: now against merged */
+.mergeled { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .9rem; }
+.mergeled th, .mergeled td { padding: 4px 8px; border-bottom: 1px solid #3b2d22; text-align: right; font-weight: 400; }
+.mergeled th[scope="row"] { text-align: left; color: var(--ink); } .mergeled th[scope="col"] { color: var(--dim); font-size: .8rem; }
+.mergeled td.then { color: #9be0bf; font-weight: 700; }
+.mergebox + .row, .mergebox + .tag { margin-bottom: 10px; }
+span.lthumb { cursor: default; }
