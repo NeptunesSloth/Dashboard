@@ -1130,7 +1130,7 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .hq .cap.r { -webkit-mask-image: linear-gradient(270deg, transparent, #000 55%); mask-image: linear-gradient(270deg, transparent, #000 55%); }
 /* a room still being built, and a wing before the wall comes down: the tile unlit under a builder's hatching */
 .room.closed, .room.building { background: none; backdrop-filter: none; }
-.room.closed .tiles, .room.wingsite .tiles { filter: grayscale(.7) brightness(.62); }
+.room.closed .tiles, .room.wingsite .tiles { filter: grayscale(.65) brightness(.8); }
 .room.closed .lit, .room.wingsite .lit { background: repeating-linear-gradient(135deg, #0a070559 0 10px, #e9b44c0f 10px 20px); }
 .room .crew { left: min(15%, 26px); right: auto; top: 22%; max-width: none; flex-wrap: nowrap; }
 .room .crew .face { width: clamp(16px, 2.2vw, 28px); height: clamp(16px, 2.2vw, 28px); }
@@ -1165,3 +1165,6 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .mergeled td.then { color: #9be0bf; font-weight: 700; }
 .mergebox + .row, .mergebox + .tag { margin-bottom: 10px; }
 span.lthumb { cursor: default; }
+/* the building grows: floors not yet in use are cut out from under the roof */
+.hq .hqin { position: absolute; left: 0; right: 0; bottom: 0; }
+.hq .roof { position: absolute; left: 0; right: 0; top: 0; background: url(/art/hq_grid.webp) top center / 100% auto no-repeat; pointer-events: none; }

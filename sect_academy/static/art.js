@@ -16,6 +16,10 @@ export function cellRect(f, s, w = 1) {
 /** A whole floor's rectangle. */
 export function floorRect(f) { const row = 4 - int(f, 0, 4); return [0, GY[row], 100, GY[row + 1] - GY[row]]; }
 
+/** The building grows with the sect: with `show` floors in use, the floors above them are cut out from under the roof.
+ *  Returns [cut, roof]: the share of the painting hidden, and the roof strip's height, both in percent of the painting. */
+export function gridCut(show) { return [GY[5 - int(show, 1, 5)] - GY[0], GY[0]]; }
+
 const TILES = new Set(['main_hall', 'dormitory', 'fields', 'storehouse', 'library', 'meditation', 'alchemy', 'training', 'ward', 'spirit_vein', 'market', 'vault']);
 /** The painted tile of a known room ('' for anything else). The Main Hall's tile is two alcoves wide. */
 export function roomTile(id) { return TILES.has(id) ? `/art/room_${id}.webp` : ''; }

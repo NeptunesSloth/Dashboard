@@ -2,7 +2,7 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, backdrop, cellRect, floorRect, place, portrait, roomThumb, roomTile, scene, sectScene, setFaces } from '/art.js';
+import { ICON, backdrop, cellRect, floorRect, gridCut, place, portrait, roomThumb, roomTile, scene, sectScene, setFaces } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
@@ -252,8 +252,8 @@ export function mountSect(h) {
   function capsHtml(id, p) {
     const t = roomTile(id); if (!t) return '';
     const [x, y, w, hh] = cellRect(p.f, p.s, p.w); const cw = 1.55; const k = id === 'main_hall' ? 2000 : 1000;
-    const cap = (left, side, pos) => `<i class="cap ${side}" style="${box([left, y, cw, hh])};background-image:url(${t});background-size:${k}% 100%;background-position:${pos}% 0" aria-hidden="true"></i>`;
-    return cap(x - cw, 'l', 100) + cap(x + w, 'r', 0);
+    const cap = (left, side, pos) => `<i class="cap ${side}" style="${box([left, y, cw + 0.15, hh])};background-image:url(${t});background-size:${k}% 100%;background-position:${pos}% 0" aria-hidden="true"></i>`;
+    return cap(x - cw, 'l', 100) + cap(x + w - 0.15, 'r', 0);        // the right one tucks under the tile: no hairline between them
   }
 
   function paintScene() {
@@ -304,16 +304,21 @@ export function mountSect(h) {
     const pr = placing ? (placing.room === 'vault' ? { name: 'Treasure Vault' } : roomOf(placing.room)) : null;
     const alcoves = held ? '' : G.free.map(([f, s]) => `<button class="alcove ${placing ? 'ok' : ''}" data-cell="${f},${s}" style="${box(cellRect(f, s, 1))}"
         aria-label="Empty alcove, ${FLOOR[f]}, ${ORD[s]} from the left. ${pr ? `Put the ${esc(pr.name)} here` : 'Build here'}"><span class="plaque">${placing ? 'Place here' : 'Build here'}</span></button>`).join('');
-    const locks = Array.from({ length: G.floors - G.open }, (_, i) => G.open + i).map((f) => `<div class="floorlock" style="${box(floorRect(f))}"><span>${f === G.open ? `This floor opens at Main Hall ${G.next_floor}` : 'Not yet opened'}</span></div>`).join('');
+    // Only the floors in use are shown: the painting is cut under the roof, so the building grows as the Hall rises.
+    const top = Math.max(0, ...placed.map((r) => r.plot.f), ...placed.filter((r) => r.wing).map((r) => r.wing.f), G.vault ? G.vault.f : 0);
+    const show = Math.max(G.open, top + 1);
+    const [cut, roofH] = gridCut(show); const keep = 100 - cut;
+    const locks = Array.from({ length: show - G.open }, (_, i) => G.open + i).map((f) => `<div class="floorlock" style="${box(floorRect(f))}"><span>${f === G.open ? `This floor opens at Main Hall ${G.next_floor}` : 'Not yet opened'}</span></div>`).join('');
     const roster = S.pawns.filter((p) => !p.away).map((p) => `<button class="token ${selPawn === p.id ? 'on' : ''}" data-token="${esc(p.id)}" aria-pressed="${selPawn === p.id}"
         aria-label="${esc(p.name)}${p.post ? `, posted to the ${esc((S.rooms.find((r) => r.id === p.post) || {}).name || '')}` : ''}. Pick up to post">${face(p, 34)}<span><b>${esc(p.name.split(' ').slice(-1)[0])}</b><small>${esc(p.post ? (S.rooms.find((r) => r.id === p.post) || {}).name || '' : p.doing || '')}</small></span></button>`).join('');
     const hint = held ? `Now choose a room for ${esc(held.name)}. <button class="btn" data-unpick>Cancel</button>`
       : pr ? `Choose an empty alcove for the ${esc(pr.name)}. <button class="btn" data-unplace>Cancel</button>`
         : 'Drag a disciple onto a room to post them there, or tap one and then a room. Tap an empty alcove to build in it.';
-    z.innerHTML = `<div class="hq ${held ? 'holding' : ''} ${placing ? 'placing' : ''}">${sectScene()}${locks}${caps}${rooms}${wings}
+    z.innerHTML = `<div class="hq ${held ? 'holding' : ''} ${placing ? 'placing' : ''}" style="aspect-ratio:1620 / ${(9.71 * keep).toFixed(2)}"><div class="hqin" style="height:${(10000 / keep).toFixed(3)}%">${sectScene()}${locks}${caps}${rooms}${wings}
       ${G.vault ? `<button class="room vault" data-vault style="${box(cellRect(G.vault.f, G.vault.s, 1))}" aria-label="Treasure vault: manuals, treasures and the world beyond">
         ${tilesHtml('vault', 1)}<span class="lit" aria-hidden="true"></span><span class="plaque"><span class="pl-name">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></span></button>` : ''}
       ${alcoves}<div class="daylight" id="daylight"></div>${trays}</div>
+      ${cut > 0 ? `<div class="roof" style="height:${(100 * roofH / keep).toFixed(3)}%" aria-hidden="true"></div>` : ''}</div>
       <div class="roster" role="group" aria-label="Post disciples to rooms"><span class="rhint">${hint}</span><div class="tokens">${roster}</div></div>`;
     z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => { if (Date.now() - heldAt < 400) return; if (selPawn) postTo(b.dataset.room); else roomSheet(b.dataset.room); }; });
     z.querySelectorAll('[data-wingsite]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.wingsite); });
