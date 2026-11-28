@@ -291,19 +291,21 @@ export function mountSect(h) {
     const FIT_WORD = { good: 'suits them well', fair: 'suits them', poor: 'suits them poorly', full: 'is full', none: 'takes no post' };
     const freeText = (r) => { const n = Math.max(0, r.slots - r.posted.length); return `${n} place${n === 1 ? '' : 's'} free`; };
     const fitNote = (r) => { const f = fitOf(r); return f === 'none' ? 'no post here' : f === 'full' ? `full, ${r.posted.length} of ${r.slots}` : `${FIT_WORD[f]} · ${freeText(r)}`; };
-    const restNote = (r) => [r.open && r.slots ? `${r.posted.length} of ${r.slots} places taken` : '', r.affordable ? 'ready to raise' : '', r.wide && r.wide.affordable ? 'a wing can be built' : ''].filter(Boolean).join(' · ');
+    const restNote = (r) => [r.open && r.slots ? `${r.posted.length} of ${r.slots} posted` : '', r.affordable ? 'ready to raise' : '', r.wide && r.wide.affordable ? 'a wing can be built' : ''].filter(Boolean).join(' · ');
     const roomAria = (r) => `${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'being built'}${r.wide && r.wide.w > 1 ? `, ${esc(r.wide.word)}` : ''}${r.affordable ? ', you can afford the next level' : ''}${held ? `: post ${esc(held.name)} here, ${FIT_WORD[fitOf(r)] || ''}${r.slots ? `, ${r.posted.length} of ${r.slots} places taken` : ''}` : ''}`;
     const trayHtml = (r) => r.tray.slice(0, 2).map((t) => `<b class="num">+${t.n}</b> ${esc(t.name)}`).join(' ');
     const trayAria = (r) => `${esc(r.name)} made ${esc(trayText(r))} since the last look. Inspect the work`;
-    const beam = ([x, y, w, hh], f, id, cls, html) => `<span class="nm ${cls}" data-hot="${esc(id)}" aria-hidden="true" style="left:${(x + w / 2).toFixed(3)}%;top:${(y + hh + (f === 0 ? -0.75 : 0.5)).toFixed(3)}%">${html}</span>`;
-    const lintel = ([x, y, w, hh], id, cls, text) => (text ? `<span class="nt ${cls}" data-hot="${esc(id)}" aria-hidden="true" style="left:${(x + w / 2).toFixed(3)}%;top:${(y + hh * 0.13).toFixed(3)}%">${esc(text)}</span>` : '');
+    const beam = ([x, y, w, hh], f, id, cls, html) => `<span class="nm ${cls}" data-hot="${esc(id)}" aria-hidden="true" style="left:${(x + w / 2).toFixed(3)}%;top:${(y + hh + (f === 0 ? -0.9 : 0.5)).toFixed(3)}%">${html}</span>`;
+    // (at the painting's two edges the line is set flush with the room, so a long one is never cut off)
+    const lintel = ([x, y, w, hh], id, cls, text, s0) => { const side = s0 === 0 ? 'al-l' : s0 + w >= 6 ? 'al-r' : ''; const at = side === 'al-l' ? x + 3.4 : side === 'al-r' ? x + w - 3.4 : x + w / 2;
+      return text ? `<span class="nt ${cls} ${side}" data-hot="${esc(id)}" aria-hidden="true" style="left:${at.toFixed(3)}%;top:${(y + hh * 0.17).toFixed(3)}%">${esc(text)}</span>` : ''; };
     let words = '';
     const rooms = placed.map((r) => {
       const w = r.plot.w; const all = staff[r.id] || []; const show = Math.min(all.length, 3 * w + 1);
       const crew = all.slice(0, show).map((p) => face(p, 24)).join('') + (all.length > show ? `<b class="more">+${all.length - show}</b>` : '');
       const fit = fitOf(r); const rect = cellRect(r.plot.f, r.plot.s, w);
       words += beam(rect, r.plot.f, r.id, `${r.affordable ? 'can' : ''} ${fit ? `fit-${fit}` : ''}`, `<b>${esc(r.name)}</b>${r.open ? `<i>${r.level}</i>` : '<em>being built</em>'}`)
-        + lintel(rect, r.id, fit ? `fit-${fit}` : '', held ? fitNote(r) : restNote(r));
+        + lintel(rect, r.id, fit ? `fit-${fit}` : '', held ? fitNote(r) : restNote(r), r.plot.s);
       return `<button class="room w${w} ${r.open ? '' : 'closed'} ${building.includes(r.id) && !r.wing ? 'building' : ''} ${r.affordable ? 'can' : ''} ${r.tray.length ? 'tray' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-room="${esc(r.id)}" data-hot="${esc(r.id)}" style="${box(rect)};--w:${w}"
         aria-label="${roomAria(r)}">
         ${tilesHtml(r.id, w)}<span class="lit" aria-hidden="true"></span>
@@ -321,7 +323,7 @@ export function mountSect(h) {
     // tray shows when you point at the room); look B keeps it in the rail. Either way the room itself glows.
     const trays = held || placing || MAP_LOOK !== 'A' ? '' : placed.filter((r) => r.tray.length).map((r) => {
       const [x, y, w, hh] = cellRect(r.plot.f, r.plot.s, r.plot.w);
-      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" data-hot="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.31}%"
+      return `<button class="traybtn ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" data-hot="${esc(r.id)}" style="left:${x + w / 2}%;top:${y + hh * 0.33}%"
         aria-label="${trayAria(r)}">${trayHtml(r)}</button>`;
     }).join('');
     // Empty alcoves are where you build: nothing is written on one until you point at it. With a room in hand
@@ -346,7 +348,7 @@ export function mountSect(h) {
       const yOf = (v) => 100 - (100 - v) * 100 / keep;
       const row = (r) => {
         const all = staff[r.id] || []; const fit = fitOf(r);
-        const crew = held ? fitNote(r) : !r.open ? 'being built' : r.wing ? 'a wing being built' : r.slots ? `${r.posted.length} of ${r.slots}` : all.length ? `${all.length} here` : '';
+        const crew = held ? fitNote(r).replace(/places? free/, 'free') : !r.open ? 'being built' : r.wing ? 'a wing being built' : r.slots ? `${r.posted.length} of ${r.slots}` : all.length ? `${all.length} here` : '';
         const made = !held && !placing && r.tray.length ? `<button class="rmade ${r.tray_full ? 'full' : ''}" data-tray="${esc(r.id)}" aria-label="${trayAria(r)}">${trayHtml(r)}</button>` : '';
         return `<div class="rrow ${r.affordable ? 'can' : ''} ${r.tray_full ? 'trayfull' : ''} ${fit ? `fit-${fit}` : ''}" data-hot="${esc(r.id)}"><button class="rname" data-railroom="${esc(r.id)}" aria-label="${roomAria(r)}">${esc(r.name)}${r.open ? `<i>${r.level}</i>` : ''}</button><span class="rcrew">${esc(crew)}</span>${made}</div>`;
       };
@@ -357,7 +359,7 @@ export function mountSect(h) {
         const [, fy, , fh] = floorRect(f);
         return `<div class="rfloor" style="top:${yOf(fy).toFixed(3)}%;height:${(fh * 100 / keep).toFixed(3)}%">${f >= G.open ? `<p class="rnone">${lockText(f)}</p>` : here.length ? here.map((x) => x[1]).join('') : '<p class="rnone">Empty</p>'}</div>`;
       }).join('');
-      rail = `<div class="rail" role="group" aria-label="The rooms, floor by floor"><p class="rcap" style="height:${(100 * roofH / keep).toFixed(3)}%">${held ? `where ${esc(held.name.split(' ').slice(-1)[0])} would fit` : 'room and level · places taken · made since dawn'}</p>${floors}</div>`;
+      rail = `<div class="rail" role="group" aria-label="The rooms, floor by floor"><p class="rcap" style="height:${(100 * roofH / keep).toFixed(3)}%">${held ? `where ${esc(held.name.split(' ').slice(-1)[0])} would fit` : 'room and level · posted · made since dawn'}</p>${floors}</div>`;
     }
     const roster = S.pawns.filter((p) => !p.away).map((p) => `<button class="token ${selPawn === p.id ? 'on' : ''}" data-token="${esc(p.id)}" aria-pressed="${selPawn === p.id}"
         aria-label="${esc(p.name)}${p.post ? `, posted to the ${esc((S.rooms.find((r) => r.id === p.post) || {}).name || '')}` : ''}. Pick up to post">${face(p, 34)}<span><b>${esc(p.name.split(' ').slice(-1)[0])}</b><small>${esc(p.post ? (S.rooms.find((r) => r.id === p.post) || {}).name || '' : p.doing || '')}</small></span></button>`).join('');
@@ -379,6 +381,8 @@ export function mountSect(h) {
     wrap.addEventListener('focusin', (e) => hot(hotOf(e.target)));
     wrap.addEventListener('focusout', () => hot(''));
     const was = hotId; hotId = ''; hot(was);
+    // a disciple picked up by tap: focus stays on their token, so Escape (handled on this zone) puts them down
+    if (held && !z.contains(document.activeElement)) { const t = $('.token.on', z); if (t) t.focus({ preventScroll: true }); }
     z.querySelectorAll('[data-railroom]').forEach((b) => { b.onclick = () => {
       if (Date.now() - heldAt < 400) return;
       const id = b.dataset.railroom;

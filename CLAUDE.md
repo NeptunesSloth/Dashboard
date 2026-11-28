@@ -131,8 +131,10 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   keep the lantern-night palette that matches `static/art/`. New images go in
   `static/art/` as WebP and are served from the fixed list in `app.py`.
 - **Sect overhaul** (`docs/SECT_OVERHAUL_PLAN.md`, approved; built stage by stage):
-  the home map has no upgrade badges (an affordable room's name plate glows, level
-  pips under the name; the Build tab is a ledger: lantern timers, rooms sorted by
+  the home map has no upgrade badges and nothing boxed on the painting (a room's name
+  is carved on the beam under it with its level as a numeral, and warms to gold when affordable; crews stand on
+  the floor line; slots, fit and the rest show on hover, focus or while dragging; `MAP_LOOK` in `sect.js` is a
+  temporary A/B: names on the beams, or a ledger rail beside the map, until the owner picks; the Build tab is a ledger: lantern timers, rooms sorted by
   ready / short of materials / waiting on the Hall — the owner's picks, one path only);
   `colony.trays` lights a room with what its crew made since dawn (view
   only until stage 4); `colony.hall_next` feeds the "Main Hall n" card under the map.

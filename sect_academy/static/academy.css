@@ -1113,28 +1113,31 @@ span.lthumb { cursor: default; }
 .mapwrap { display: grid; gap: 14px; }
 .hq .words { position: absolute; inset: 0; pointer-events: none; }
 .nm, .nt { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; font-family: var(--serif); transition: opacity .25s, color .25s; }
-.nm { font-size: clamp(.5rem, .98vw, .8rem); line-height: 1; font-weight: 600; letter-spacing: .03em; color: #c9b58a;
+.nm { font-size: clamp(.5rem, .98vw, .8rem); line-height: 1; font-weight: 600; letter-spacing: .03em; color: #bfae8a;
   text-shadow: 0 -1px 0 #000c, 0 1px 0 #ffffff12, 0 0 4px #000; }
 .nm b { font-weight: 600; } .nm i { font-style: normal; font-size: .86em; margin-left: .5em; color: #9c8a68; font-variant-numeric: lining-nums; }
 .nm em { font-style: italic; font-weight: 500; color: #9c8a68; } .nm b + em { margin-left: .5em; }
 /* a room you can afford to raise: its name warms to gold, like a lantern lit behind the carving (no badge, no arrow) */
-.nm.can { color: #f2c66a; text-shadow: 0 -1px 0 #000c, 0 0 9px #e9b44c99, 0 0 2px #000; } .nm.can i { color: #d9ad55; }
-.nm.hot, .nm.over { color: #fff0cf; } .nm.hot i, .nm.over i { color: #e0cba0; }
+.nm.can { color: #f7cd72; text-shadow: 0 -1px 0 #000c, 0 0 10px #e9b44cb3, 0 0 2px #000; } .nm.can i { color: #d9ad55; }
+.nm.hot, .nm.over { color: #fff4dc; text-shadow: 0 -1px 0 #000c, 0 0 8px #fff3d666, 0 0 2px #000; } .nm.hot i, .nm.over i { color: #e0cba0; }
 .nm.empty, .nm.site { opacity: 0; } .nm.empty.hot, .nm.empty.ok, .nm.site.hot { opacity: 1; }
 .nm.empty.ok em { color: #a9dcc3; } .nm.empty.ok.hot em { color: #e6fff3; }
 .nt { opacity: 0; font-size: clamp(.5rem, .9vw, .74rem); line-height: 1.2; font-style: italic; font-weight: 500; color: #ead9b4; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
-.nt.hot, .hq.holding .nt { opacity: 1; }
+.nt.hot, .hq.holding .nt { opacity: 1; } .nt.al-l { transform: translate(0, -50%); } .nt.al-r { transform: translate(-100%, -50%); }
 .hq.holding .nt.fit-good { color: #a6e6c8; } .hq.holding .nt.fit-fair { color: #f2d48f; } .hq.holding .nt.fit-poor { color: #c4b8a4; }
 .hq.holding .nt.fit-full, .hq.holding .nt.fit-none { color: #9d8f7c; }
 .hq.holding .nm.fit-full, .hq.holding .nm.fit-none { color: #8a7b62; text-shadow: 0 -1px 0 #000c; }
 .hq.holding .nt.over { color: #fff; }
+/* look B while a disciple is in hand: the rail says how each room suits them; the painting only for the room pointed at */
+.lookB .hq.holding .nt:not(.over) { opacity: 0; }
 .lookB .nm { opacity: 0; } .lookB .nm.hot:not(.empty), .lookB .hq.holding .nm, .lookB .nm.empty.hot, .lookB .nm.empty.ok, .lookB .nm.site.hot { opacity: 1; }
 /* pointing at a room: its lanterns lift a little, nothing is outlined; the keyboard's focus gets one thin warm line */
 .room .lit { transition: background .25s, box-shadow .25s; }
 .room:hover .lit, .room.hot .lit { background: radial-gradient(75% 85% at 50% 100%, #f0c15e2e, #f0c15e10 60%, transparent 85%); }
-.room:focus-visible .lit, .alcove:focus-visible { box-shadow: inset 0 0 0 1px #f0c15ecc; outline: none; }
+.room .tiles { transition: filter .25s; } .room:hover:not(.closed) .tiles, .room.hot:not(.closed) .tiles { filter: brightness(1.38) saturate(1.1); }
+.room:focus-visible .lit, .alcove:focus-visible { box-shadow: inset 0 0 0 2px #f0c15e; outline: none; }
 /* the crew stand on the room's floor line, shoulder to shoulder */
-.room .crew { position: absolute; left: calc(22% / var(--w, 1)); bottom: 8.5%; display: flex; align-items: flex-end; pointer-events: none; }
+.room .crew { position: absolute; left: calc(22% / var(--w, 1)); bottom: 11%; display: flex; align-items: flex-end; pointer-events: none; }
 .room .crew::after { content: ""; position: absolute; left: -4px; right: -4px; bottom: -3px; height: 7px; border-radius: 50%; background: radial-gradient(closest-side, #000000a6, transparent); z-index: -1; }
 .room .crew .face { width: clamp(13px, 1.9vw, 24px); height: clamp(13px, 1.9vw, 24px); box-shadow: 0 0 0 1px #140d08, 0 1px 3px #000c; }
 .room .crew .face + .face { margin-left: clamp(-7px, -.5vw, -3px); }
@@ -1144,13 +1147,13 @@ span.lthumb { cursor: default; }
 /* a morning's work waiting: the room glows, and what was made fades in over it, in plain serif (a button all the same) */
 .room.trayfull::before { background: radial-gradient(60% 62% at 50% 46%, #ffb64a4d 0%, #ffb64a1f 48%, transparent 76%); }
 .traybtn { position: absolute; z-index: 2; transform: translate(-50%, -50%); display: inline-flex; gap: .35em; align-items: baseline; white-space: nowrap; cursor: pointer;
-  padding: 4px 8px; border: 0; background: none; border-radius: 4px; color: #ffe9bd; font: italic 500 clamp(.56rem, .98vw, .82rem)/1.3 var(--serif);
+  padding: 2px 8px; border: 0; background: none; border-radius: 4px; color: #ffe9bd; font: italic 600 clamp(.58rem, 1.02vw, .86rem)/1.3 var(--serif);
   text-shadow: 0 1px 2px #000, 0 0 10px #f0a83acc, 0 0 3px #000; opacity: 0; pointer-events: none; transition: opacity .5s, transform .3s, color .2s; }
 .traybtn .num { font: 600 1.18em var(--serif); font-style: normal; color: #fff4d8; }
 .traybtn.full, .traybtn.hot, .traybtn:focus-visible { opacity: 1; pointer-events: auto; }
 .traybtn:not(.full) { color: #e2cfa4; text-shadow: 0 1px 2px #000, 0 0 3px #000; }
 .traybtn:hover, .traybtn:focus-visible { color: #fff; outline: none; }
-.traybtn:focus-visible { box-shadow: 0 0 0 1px #f0c15ecc; }
+.traybtn:focus-visible { box-shadow: 0 0 0 2px #f0c15e; }
 .traybtn.taken, .rmade.taken { opacity: 0; transition: transform .6s ease-out .25s, opacity .45s ease-in .4s; }
 .traybtn.taken { transform: translate(-50%, -160%); }
 @media (prefers-reduced-motion: no-preference) { .traybtn.full { animation: trayin .9s ease-out both; } }
@@ -1164,24 +1167,27 @@ span.lthumb { cursor: default; }
 .hq.holding .room.fit-good .lit { background: radial-gradient(80% 95% at 50% 100%, #3fae8259, #3fae8221 55%, transparent 85%); }
 .hq.holding .room.fit-fair .lit { background: radial-gradient(80% 95% at 50% 100%, #e9b44c47, #e9b44c1a 55%, transparent 85%); }
 .hq.holding .room.fit-poor .lit { background: radial-gradient(70% 80% at 50% 100%, #b7a98f26, transparent 80%); }
-.hq.holding .room.fit-full .lit, .hq.holding .room.fit-none .lit { background: #0a0705a6; }
-.hq.holding .room.over:not(.fit-full):not(.fit-none) .lit { box-shadow: inset 0 0 0 1px #fff3d6b3, inset 0 -30px 50px -24px #fff3d680; }
+.hq.holding .room.fit-full .tiles, .hq.holding .room.fit-none .tiles { filter: brightness(.6) saturate(.55); transition: filter .25s; }
+.hq.holding .room.over:not(.fit-full):not(.fit-none) .tiles { filter: brightness(1.34) saturate(1.1); }
+.hq.holding .room.over:not(.fit-full):not(.fit-none) .lit { box-shadow: inset 0 -34px 46px -26px #fff3d699; }
+.hq.holding .nm.over { text-shadow: 0 -1px 0 #000c, 0 0 10px #fff3d6aa, 0 0 2px #000; }
 /* look B, the ledger rail: the rooms floor by floor, each floor level with its floor on the painting */
 @media (min-width: 900px) { .lookB { grid-template-columns: minmax(0, 1fr) clamp(250px, 26%, 290px); align-items: stretch; } }
 .rail { position: relative; font-family: var(--serif); color: #cdbb95; font-size: .84rem; line-height: 1.25; min-width: 0; }
 .rcap { margin: 0; display: flex; align-items: flex-end; padding: 0 2px 5px; font-style: italic; font-size: .72rem; color: #8f8068; white-space: nowrap; overflow: hidden; }
 .rfloor { display: flex; flex-direction: column; justify-content: center; border-top: 1px solid #3b2d2299; padding: 2px 0; }
 .rnone { margin: 0; padding: 0 2px; font-style: italic; color: #7d705c; font-size: .78rem; }
-.rrow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 0 10px; align-items: baseline; padding: 1px 2px; border-radius: 3px; transition: background .2s; }
+.rrow { display: grid; grid-template-columns: minmax(0, 1fr) 3.4em 5.4em; gap: 0 8px; align-items: baseline; padding: 1px 2px; border-radius: 3px; transition: background .2s; }
 .rrow button { all: unset; cursor: pointer; font: inherit; color: inherit; }
 .rname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #e6d7b3; }
 .rname i { font-style: normal; margin-left: .5em; color: #9c8a68; font-size: .92em; }
-.rcrew { color: #9c8a68; font-size: .92em; white-space: nowrap; font-variant-numeric: lining-nums; }
-.rmade { white-space: nowrap; color: #b9a67e; font-style: italic; font-size: .92em; transition: opacity .3s; } .rmade .num { font-style: normal; }
+.rcrew { color: #9c8a68; font-size: .92em; white-space: nowrap; font-variant-numeric: lining-nums; text-align: right; }
+.rrow[class*="fit-"] { grid-template-columns: minmax(0, 1fr) auto; }
+.rmade { white-space: nowrap; text-align: right; overflow: hidden; text-overflow: ellipsis; color: #b9a67e; font-style: italic; font-size: .92em; transition: opacity .3s; } .rmade .num { font-style: normal; }
 .rmade.full { color: #ffe2a6; text-shadow: 0 0 8px #f0a83a99; }
 .rrow.can .rname { color: #f2c66a; text-shadow: 0 0 8px #e9b44c66; } .rrow.can .rname i { color: #d9ad55; }
 .rrow.hot, .rrow.over { background: linear-gradient(90deg, #f0c15e1f, #f0c15e08 70%, transparent); } .rrow.hot .rname, .rrow.over .rname { color: #fff0cf; }
-.rrow button:focus-visible { box-shadow: 0 0 0 1px #f0c15ecc; border-radius: 2px; }
+.rrow button:focus-visible { box-shadow: 0 0 0 2px #f0c15e; border-radius: 2px; }
 .rrow.fit-good .rcrew { color: #a6e6c8; } .rrow.fit-fair .rcrew { color: #f2d48f; } .rrow.fit-poor .rcrew { color: #c4b8a4; }
 .rrow.fit-full .rname, .rrow.fit-none .rname { color: #8a7b62; }
 @media (max-width: 899px) { .rail { display: grid; gap: 2px; } .rail .rfloor { position: static; height: auto !important; } .rcap { height: auto !important; } }
