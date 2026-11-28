@@ -55,6 +55,14 @@ export function scene(kind, painted = false) {
   return painted === true ? `/art/scene_${kind}.webp` : backdrop(SCENE_FALLBACK[kind]);
 }
 
+/* World map emblems: one small painting per kind of place (static/art/place_<kind>.webp, 128x128, transparent).
+   The server lists the ones that exist (S.place_art); a kind that is not painted yet has no picture at all. */
+const PLACES = new Set(['home', 'sect', 'ally', 'rival', 'demonic', 'village', 'wilds', 'valley', 'ruins', 'marsh', 'lord', 'branch']);
+/** The emblem for a known kind of place, or '' when it is not painted (have: the server's list). */
+export function place(kind, have) {
+  return PLACES.has(kind) && Array.isArray(have) && have.includes(kind) ? `/art/place_${kind}.webp` : '';
+}
+
 /* ---------------- characters ---------------- */
 function hash(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
 let FACES = ['disciple', 'analyst', 'architect', 'engineer', 'researcher', 'trader'];

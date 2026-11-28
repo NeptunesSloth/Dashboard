@@ -837,3 +837,40 @@ def test_view_lists_the_disciple_faces_that_exist():
     for n in colony.FACES:
         assert _re.fullmatch(r"[a-z0-9_]{1,24}", n) and (art / f"p_{n}.webp").is_file()
     assert "leader" not in colony.FACES and "elder" not in colony.FACES
+
+
+def test_world_map_emblems_are_painted_files_listed_by_the_server(st, monkeypatch):
+    """Map markers are painted emblems (static/art/place_<kind>.webp). The view names each place's emblem and lists
+    the ones that exist, so the page never asks for a missing picture; with none painted it shows banners only."""
+    import re as _re
+    from pathlib import Path
+
+    from sect_academy import app as webapp
+    art = Path(colony.__file__).parent / "static" / "art"
+    assert colony.PLACE_ART == {k for k in colony.PLACE_KINDS if (art / f"place_{k}.webp").is_file()}
+    # no stray or placeholder emblem in the repo: every place_*.webp is a known kind
+    assert {f.stem[6:] for f in art.glob("place_*.webp")} <= set(colony.PLACE_KINDS)
+    v = colony.view(st, T0)
+    assert v["place_art"] == sorted(colony.PLACE_ART)
+    assert all(m["emblem"] in colony.PLACE_KINDS for m in v["map"])
+    by = {m["id"]: m["emblem"] for m in v["map"]}
+    assert by["home"] == "home" and by["marsh"] == "marsh" and by["forest"] == "wilds" and by["lord"] == "lord" and by["ruins"] == "ruins"
+    # a sect's emblem follows how it stands: ally first, then the demonic hall, then a rival's war banner
+    c = st["colony"]
+    s0, s1, s2 = c["sects"][:3]
+    s0["kind"], s0["rel"], s0["ally"] = "righteous", 60, True
+    s1["kind"], s1["rel"], s1["ally"] = "righteous", -30, False
+    s2["kind"], s2["rel"], s2["ally"] = "demonic", -30, False
+    c["branches"].append({"name": "East Hall", "leader": "Mei"})
+    monkeypatch.setattr(colony, "PLACE_ART", frozenset({"rival", "home"}))     # as if two emblems had been painted
+    v = colony.view(st, T0)
+    by = {m["id"]: m["emblem"] for m in v["map"]}
+    assert [by[str(s["id"])] for s in (s0, s1, s2)] == ["ally", "rival", "demonic"] and by["branch0"] == "branch"
+    assert v["place_art"] == ["home", "rival"]
+    s1["rel"] = 0
+    assert {m["id"]: m["emblem"] for m in colony.view(st, T0)["map"]}[str(s1["id"])] == "sect"
+    # the page knows the same kinds (art.js builds the path from this fixed set only), and the file route is a fixed list
+    js = (art.parent / "art.js").read_text(encoding="utf-8")
+    kinds = _re.search(r"const PLACES = new Set\(\[([^\]]*)\]\)", js).group(1)
+    assert set(_re.findall(r"'([a-z]+)'", kinds)) == set(colony.PLACE_KINDS)
+    assert all(f"place_{k}.webp" in webapp.ART for k in colony.PLACE_KINDS if (art / f"place_{k}.webp").is_file())

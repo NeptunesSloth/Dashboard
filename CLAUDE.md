@@ -165,10 +165,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   an `incident` scene.
 - **World map** (`sect.js` `worldMap`): a list of places beside the painting, a
   hanging banner per landmark, the chosen place's card opened under its row in the
-  list (never on the painting, so it hides no label). Places are seals (印章), one
-  CJK character each (`SEAL_CHAR`/`SEAL_PLACE`, system CJK fonts only), the kind in
-  words beside them or in the tooltip; rival sects say "Hostile" in words.
-  `SEAL_LOOK` (A square stamps / B round medallions) is temporary until the owner picks.
+  list (never on the painting, so it hides no label). Markers are **painted emblems
+  only**: `static/art/place_<kind>.webp` (`colony.PLACE_KINDS`; the view gives each
+  place its `emblem` and lists the files that exist in `place_art`, `art.place()`
+  builds the path). Until an emblem is painted there is no icon: the banner hangs
+  from a soft point of lantern light (cinnabar rival, jade ally, dim not-yet-known)
+  and the list row is name + status with a thin coloured left rule. Never draw a
+  marker in CSS: the owner rejected dots, flat shapes and both seal looks. Status
+  stays in words ("Hostile −26", "Sworn ally", "Not yet known").
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the

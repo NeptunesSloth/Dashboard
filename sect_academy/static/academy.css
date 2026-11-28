@@ -1030,56 +1030,52 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .rushodds { display: flex; gap: 18px; margin: 8px 0; } .rushodds div { display: grid; } .rushodds b { font: 700 1.5rem/1.1 var(--serif); color: #f8e6bf; }
 .rushodds small { color: var(--dim); font-size: .78rem; max-width: 22ch; }
 /* ---- World map (sect.js worldMap): a list of places beside the painting, banners on the landmarks, the chosen
-   place's card opened under its row in the list, so it never hides a seal or a label ---- */
+   place's card opened under its row in the list, so it never hides a marker or a label ---- */
 .wm { display: grid; gap: 14px; margin-bottom: 10px; grid-template-columns: 258px minmax(0, 1fr); align-items: start; }
 .wm .worldmap.wm-paint { aspect-ratio: 3 / 2; background-size: 100% 100%; margin: 0; border-color: #6b5230; box-shadow: 0 14px 34px #0008; }
 .wm .worldmap.wm-paint::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: 0 0 80px 20px #0b0806aa inset; border-radius: inherit; }
-/* the seal (印章): one hand-set character per kind of place, in the system's CJK fonts (no web font: offline rule).
-   --c is the seal's colour: cinnabar for a rival, jade for an ally, gold for other sects, ink for the country. */
-.seal { --sz: 26px; --c: #5a4630; --c2: #e9d6ac; --paper: #f4e6c4;
-  display: inline-grid; place-items: center; flex: none; width: var(--sz); height: var(--sz); box-sizing: border-box; padding: 0; margin: 0; font-style: normal; user-select: none;
-  -webkit-text-stroke: .35px currentColor;   /* the thin system brush faces, cut a little deeper */
-  font: 700 calc(var(--sz) * .64)/1 "KaiTi", "STKaiti", "Kaiti SC", "BiauKai", "Noto Serif CJK SC", "Noto Serif CJK TC", "Source Han Serif SC",
-    "Songti SC", "SimSun", "Yu Mincho", "Microsoft YaHei", "Microsoft JhengHei", "Yu Gothic", "Malgun Gothic", "Noto Sans CJK SC", "WenQuanYi Zen Hei", serif; }
-.seal.t-home, .seal.t-branch { --c: var(--sect-colour, #c9962e); --c2: var(--sect-colour, #e9b44c); }
-.seal.t-sect { --c: #a77a2c; --c2: #e2b45a; }
-.seal.t-ally { --c: #2f7d5c; --c2: #5fc79a; }
-.seal.t-foe { --c: #b3301c; --c2: #f0644c; }
-/* A: a square stamp, the character cut out of the colour (白文), a thin paper line inside a slightly uneven edge */
-.seals-A .seal { background: var(--c); color: var(--paper); border-radius: 3px 5px 2px 4px / 4px 2px 5px 3px; transform: rotate(-2deg);
-  box-shadow: inset 0 0 0 2px var(--c), inset 0 0 0 3px #f4e6c4b3, .6px -.8px 0 var(--c), -.8px .6px 0 var(--c), 0 2px 4px #000b; }
-.seals-A .seal.t-home, .seals-A .seal.t-branch { color: #2a180c;   /* the sect's own colours are all light: an ink character (朱文) */
-  box-shadow: inset 0 0 0 2px var(--c), inset 0 0 0 3px #2a180c80, .6px -.8px 0 var(--c), -.8px .6px 0 var(--c), 0 2px 4px #000b; }
-/* B: a round lacquer medallion, a gold rim, the character inlaid in the colour */
-.seals-B .seal { background: #1a110c; color: var(--c2); border: 2px solid #c9a050; border-radius: 50%;
-  box-shadow: inset 0 0 0 2px #1a110c, inset 0 0 0 3.5px var(--ring, #c9a05055), 0 0 0 1px #0b0705, 0 2px 4px #000b; }
-.seals-B .seal:not(.t-home, .t-branch, .t-sect, .t-ally, .t-foe) { --c2: #e9d6ac; }
-.seals-B .wm-mk .seal.t-ally, .seals-B .wm-mk .seal.t-foe { --ring: var(--c2); }   /* on the map, an ally or a rival: a second ring in its colour */
-.seals-B .seal.t-home { --sz: 34px; border-color: var(--sect-colour, #c9a050); border-width: 3px; }
-/* a place not yet known: the seal is faded paper, hatched, its character barely there */
-.seals-A .seal.unknown, .seals-B .seal.unknown { background: repeating-linear-gradient(45deg, #8a7f6c 0 2px, #5d5547 2px 5px); color: #e6dcc6;
-  border-color: #8a7f6c; border-style: dashed; text-shadow: 0 0 2px #3a332b; opacity: .85; }
-/* a marker on the map: the seal on its spot, its name on a hanging banner under it */
-.wm-mk { all: unset; position: absolute; z-index: 2; width: 38px; height: 38px; transform: translate(-50%, -50%); cursor: pointer; display: grid; place-items: center; }
-.wm-mk .seal { --sz: 28px; transition: scale .15s; }
-.wm-mk.t-home .seal { --sz: 36px; } .wm-mk.t-branch .seal { --sz: 22px; }
-.wm-mk.sel .seal, .wm-mk.hl .seal, .wm-mk:hover .seal { scale: 1.18; }
-.wm-mk.sel::before { content: ''; position: absolute; left: calc(50% - 26px); top: calc(50% - 26px); width: 52px; height: 52px; border-radius: 50%; border: 2px solid #f6d58e; box-shadow: 0 0 18px #f0a850aa; animation: wm-glow 2.4s ease-in-out infinite; }
-@keyframes wm-glow { 50% { opacity: .45; transform: scale(1.12); } }
-.wm-lab { position: absolute; left: 50%; top: calc(50% + 19px); transform: translateX(-50%); display: grid; justify-items: center; gap: 0; white-space: nowrap;
+/* A marker on the map. Painted emblem (static/art/place_<kind>.webp) when it exists: .em, the picture on the spot and
+   the name banner hanging under it. Until then no icon: the banner hangs from a small point of lantern light (.wm-glow,
+   a soft radial light with no edge), cinnabar for a rival, jade for an ally, dim for a place not yet known.
+   --r is how far the banner stands off the spot. */
+.wm-mk { all: unset; position: absolute; z-index: 2; width: 38px; height: 38px; transform: translate(-50%, -50%); cursor: pointer; display: grid; place-items: center;
+  --r: 9px; --glow: 255, 196, 110; --core: 255, 240, 205; }
+.wm-mk.t-foe { --glow: 240, 84, 58; --core: 255, 214, 200; }
+.wm-mk.t-ally { --glow: 84, 214, 160; --core: 220, 255, 240; }
+.wm-mk.unknown { --glow: 176, 168, 150; --core: 214, 208, 196; }
+.wm-glow { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; pointer-events: none; transition: scale .15s;
+  background: radial-gradient(circle, rgb(var(--core)) 0, rgba(var(--core), .9) 9%, rgba(var(--glow), .7) 20%, rgba(var(--glow), .28) 42%, rgba(var(--glow), 0) 70%); }
+.wm-mk.t-home .wm-glow { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+.wm-mk.t-branch .wm-glow { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+.wm-mk.unknown .wm-glow { opacity: .55; }
+.wm-mk.hl .wm-glow, .wm-mk:hover .wm-glow { scale: 1.35; }
+.wm-mk.sel .wm-glow { scale: 1.7; animation: wm-glow 2.4s ease-in-out infinite; }
+@keyframes wm-glow { 50% { opacity: .6; } }
+.wm-mk.em { --r: 24px; } .wm-mk.em.t-home { --r: 28px; } .wm-mk.em.t-branch { --r: 20px; }
+.wm-em { display: block; flex: none; width: 28px; height: 28px; object-fit: contain; user-select: none; }
+.wm-mk .wm-em { width: 44px; height: 44px; max-width: none; filter: drop-shadow(0 2px 3px #000c); transition: scale .15s; }
+.wm-mk.t-home .wm-em { width: 52px; height: 52px; } .wm-mk.t-branch .wm-em { width: 36px; height: 36px; }
+.wm-mk.t-foe .wm-em { filter: drop-shadow(0 0 5px rgba(240, 84, 58, .75)) drop-shadow(0 2px 3px #000c); }
+.wm-mk.t-ally .wm-em { filter: drop-shadow(0 0 5px rgba(84, 214, 160, .7)) drop-shadow(0 2px 3px #000c); }
+.unknown .wm-em { filter: grayscale(1) brightness(.75); opacity: .7; }
+.wm-mk.sel .wm-em, .wm-mk.hl .wm-em, .wm-mk:hover .wm-em { scale: 1.15; }
+.wm-mk.em.sel::before { content: ''; position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; margin: -38px 0 0 -38px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(var(--glow), .55) 0, rgba(var(--glow), .25) 45%, rgba(var(--glow), 0) 70%); animation: wm-glow 2.4s ease-in-out infinite; }
+.wm-lab { position: absolute; left: 50%; top: calc(50% + var(--r)); transform: translateX(-50%); display: grid; justify-items: center; gap: 0; white-space: nowrap;
   padding: 4px 10px 12px; border-radius: 2px 2px 0 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
   background: #4a1b13f0; border-top: 3px solid #d9a441; }
 .wm-lab b { font: 700 .8rem/1.25 var(--serif); color: #f8e6bf; }
 .wm-lab small { font-size: .72rem; line-height: 1.2; color: #ffd2c4; }
-.t-home .wm-lab { top: calc(50% + 23px); background: #5a3f12f0; } .t-home .wm-lab b { font-size: .9rem; }
+.t-home .wm-lab { background: #5a3f12f0; } .t-home .wm-lab b { font-size: .9rem; }
 .t-wilds .wm-lab, .t-village .wm-lab, .t-realm .wm-lab, .t-kingdom .wm-lab, .t-ruin .wm-lab { background: #22301ff0; }
 .t-sect .wm-lab, .t-ally .wm-lab, .t-branch .wm-lab { background: #1c2a40f0; }
+.t-ally .wm-lab { border-top-color: #5fc79a; } .t-foe .wm-lab { border-top-color: #f0644c; } .unknown .wm-lab { border-top-color: #8a7f6c; }
 .t-foe .wm-lab small { font-weight: 700; }
-.t-branch .wm-lab { top: calc(50% + 14px); padding: 2px 8px 10px; } .t-branch .wm-lab b { font-size: .74rem; }
+.t-branch .wm-lab { padding: 2px 8px 10px; } .t-branch .wm-lab b { font-size: .74rem; }
 .unknown .wm-lab b { color: #bfb3a0; font-style: italic; }
-.wm-mk.lab-r .wm-lab { left: calc(50% + 20px); top: 50%; transform: translateY(-50%); justify-items: start; }
-.wm-mk.lab-l .wm-lab { left: auto; right: calc(50% + 20px); top: 50%; transform: translateY(-50%); justify-items: end; }
-.wm-mk.lab-ul .wm-lab { left: auto; right: calc(50% - 22px); top: auto; bottom: calc(50% + 18px); transform: none; justify-items: end; }
+.wm-mk.lab-r .wm-lab { left: calc(50% + var(--r) + 4px); top: 50%; transform: translateY(-50%); justify-items: start; }
+.wm-mk.lab-l .wm-lab { left: auto; right: calc(50% + var(--r) + 4px); top: 50%; transform: translateY(-50%); justify-items: end; }
+.wm-mk.lab-ul .wm-lab { left: auto; right: calc(50% - var(--r)); top: auto; bottom: calc(50% + var(--r)); transform: none; justify-items: end; }
 .wm-mk.sel, .wm-mk:hover, .wm-mk.hl, .wm-mk:focus-visible { z-index: 4; }
 .wm-mk.sel .wm-lab, .wm-mk.hl .wm-lab, .wm-mk:hover .wm-lab { background: #f8e6bf; } .wm-mk.sel .wm-lab b, .wm-mk.hl .wm-lab b, .wm-mk:hover .wm-lab b { color: #120d0a; }
 .wm-mk.sel .wm-lab small, .wm-mk.hl .wm-lab small, .wm-mk:hover .wm-lab small { color: #8a2a1a; }
@@ -1090,13 +1086,16 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .wm-list ul { list-style: none; margin: 0; padding: 0; }
 .wm-row { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
 .wm-row span { display: grid; min-width: 0; } .wm-row b { font: 700 .9rem var(--serif); color: #f8e6bf; } .wm-row small { font-size: .74rem; color: #bfae8e; }
-.wm-row .seal { --sz: 24px; margin: 0 2px; } .wm-row .seal.t-home { --sz: 28px; margin: 0; } .wm-row .seal.t-branch { --sz: 20px; margin: 0 4px; }
-.wm-row:hover, .wm-row.hl { background: #2c2017; } .wm-row.sel { background: #3a2a18; box-shadow: inset 3px 0 0 #f6d58e; }
+/* no icon until its emblem is painted: a rival or an ally carries a thin rule in its colour down the left edge */
+.wm-row { --rule: transparent; padding-left: 12px; box-shadow: inset 3px 0 0 var(--rule); }
+.wm-row.t-foe { --rule: #f0644c; } .wm-row.t-ally { --rule: #5fc79a; }
+.wm-row.unknown b { color: #bfb3a0; font-style: italic; }
+.wm-row:hover, .wm-row.hl { background: #2c2017; } .wm-row.sel { background: #3a2a18; }
+.wm-row.sel:not(.t-foe, .t-ally) { --rule: #f6d58e; }
 .wm-row:focus-visible { outline: 3px solid var(--azure); outline-offset: -3px; }
 /* the chosen place's card, under its row in the list (the row names it) */
 .wm-card { position: relative; margin: 4px 0 8px; padding: 10px 12px 12px; border-radius: 12px; border: 1px solid #6b5230; background: #211812; box-shadow: 0 6px 18px #0008; }
-.wm-kind { display: flex; align-items: center; gap: 10px; margin: 0; padding-right: 26px; font-size: .84rem; color: #d9c7a0; }
-.wm-kind .seal { --sz: 22px; } .wm-kind .seal.t-home { --sz: 26px; }
+.wm-kind { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; padding-right: 26px; font-size: .84rem; color: #d9c7a0; }
 .wm-text, .wm-stand { margin: 0 0 10px; font-size: .92rem; line-height: 1.5; color: #e9dcc0; }
 .wm-stand .small { font-size: .82rem; }
 .wm-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -1112,4 +1111,4 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 @media (max-width: 640px) {
   .wm-lab { padding: 1px 6px 8px; } .wm-lab b { font-size: .7rem; } .wm-lab small { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .wm-mk.sel::before { animation: none; } .wm-mk .seal { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .wm-mk.sel::before, .wm-mk.sel .wm-glow { animation: none; } .wm-glow, .wm-mk .wm-em { transition: none; } }

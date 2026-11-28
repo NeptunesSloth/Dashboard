@@ -2,7 +2,7 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, VAULT, backdrop, portrait, scene, sectScene, setFaces, siteCrop, siteRect } from '/art.js';
+import { ICON, VAULT, backdrop, place, portrait, scene, sectScene, setFaces, siteCrop, siteRect } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
@@ -507,34 +507,32 @@ export function mountSect(h) {
 
   // ---- the World map ----------------------------------------------------------------------------------------------
   // A list of places beside the map (hovering one lights the other), hanging banners for labels, and the chosen
-  // place's card opened under its row in the list, so it never hides a seal or a label on the painting (the map is
+  // place's card opened under its row in the list, so it never hides a marker or a label on the painting (the map is
   // too full for a card on it to find a clear spot).
-  // Each place is a seal (印章) cut with one character, its kind always in words beside it or in its tooltip.
-  // Two seal looks while the owner chooses: A, square carved stamps; B, round lacquer medallions with a gold rim.
-  const SEAL_LOOK = 'A';
+  // A place's marker is a painted emblem (art.place: static/art/place_<kind>.webp) when that file exists. Until it
+  // does there is no icon at all: on the map the banner hangs from a small point of lantern light, in the list the
+  // row is the name and its standing. What a place is always stands in words (the row's second line, the tooltip).
   let mapSel = sessionStorage.getItem('sect.mapsel') || '';
   const MAP_KIND = { home: 'Your sect', sect: 'Sect', ally: 'Sworn ally', foe: 'Rival sect', village: 'Village', wilds: 'Wilds',
     ruin: 'Ruins', realm: 'Secret realm', kingdom: 'Mortal kingdom', branch: 'Branch sect' };
-  // the character on each seal: by kind, or by the place itself where the country has its own (forest, valley)
-  const SEAL_CHAR = { home: '宗', branch: '分', ally: '盟', foe: '敵', sect: '派', village: '村', wilds: '野', ruin: '墟', realm: '秘', kingdom: '府' };
-  const SEAL_PLACE = { forest: '林', valley: '谷' };
   const mapSect = (m) => (m.type === 'sect' ? S.sects.find((x) => x.id === m.id) : null);
-  // what a marker is, in words as well as seal and colour: the second line never relies on colour alone
+  // what a marker is, in words as well as colour: the second line never relies on colour alone
   function mapMark(m) {
+    const em = place(m.emblem, S.place_art);
     const s = mapSect(m);
     if (s) {
       const cls = s.ally ? 'ally' : s.rel <= -15 ? 'foe' : 'sect';
-      const ch = s.ally ? SEAL_CHAR.ally : s.kind === 'demonic' ? '魔' : SEAL_CHAR[cls];
-      return { cls, ch, known: true, sub: s.ally ? 'Sworn ally' : `${s.stance} ${s.rel > 0 ? '+' : ''}${s.rel}`, kind: `${MAP_KIND[cls]}, ${s.kind}` };
+      return { cls, em, known: true, sub: s.ally ? 'Sworn ally' : `${s.stance} ${s.rel > 0 ? '+' : ''}${s.rel}`, kind: `${MAP_KIND[cls]}, ${s.kind}` };
     }
-    if (m.type === 'kingdom' && worldGates().kingdom) return { cls: 'kingdom', ch: SEAL_CHAR.kingdom, known: false, sub: 'Not yet known', kind: MAP_KIND.kingdom };
-    if (m.type === 'home') return { cls: 'home', ch: SEAL_CHAR.home, known: true, sub: 'Home', kind: MAP_KIND.home };
+    if (m.type === 'kingdom' && worldGates().kingdom) return { cls: 'kingdom', em, known: false, sub: 'Not yet known', kind: MAP_KIND.kingdom };
+    if (m.type === 'home') return { cls: 'home', em, known: true, sub: 'Home', kind: MAP_KIND.home };
     const b = m.type === 'branch' ? S.branches[Number(m.id.slice(6))] : null;
-    if (b) return { cls: 'branch', ch: SEAL_CHAR.branch, known: true, sub: `Led by ${b.leader}`, kind: MAP_KIND.branch };
+    if (b) return { cls: 'branch', em, known: true, sub: `Led by ${b.leader}`, kind: MAP_KIND.branch };
     const cls = MAP_KIND[m.type] ? m.type : 'wilds';
-    return { cls, ch: SEAL_PLACE[m.id] || SEAL_CHAR[cls], known: true, sub: m.far || '', kind: MAP_KIND[m.type] || 'Place' };
+    return { cls, em, known: true, sub: m.far || '', kind: MAP_KIND[m.type] || 'Place' };
   }
-  const seal = (k) => `<i class="seal t-${k.cls}${k.known ? '' : ' unknown'}" aria-hidden="true">${k.ch}</i>`;
+  // the painted emblem, or nothing (em is a fixed /art/ path from art.place, never user text)
+  const emblem = (k) => (k.em ? `<img class="wm-em" src="${k.em}" alt="" draggable="false">` : '');
   const mapTip = (m, k) => `${m.name}: ${k.kind}${k.sub && k.sub !== k.kind ? ` (${k.sub})` : ''}`;
   const mapAt = (m) => `left:${Number(m.x)}%;top:${Number(m.y)}%`;
   // where a label sits so it stays on the painting: beside the marker at the edges, below it elsewhere
@@ -574,7 +572,7 @@ export function mountSect(h) {
       const b = S.branches[Number(m.id.slice(6))];
       if (b) stand = b.sulking ? 'Sends nothing for now: you left them to stand alone.' : 'Sends 15 rice and 5 spirit stones every twelve days.';
     }
-    return `<p class="wm-kind">${seal(k)}${esc(k.kind)}${m.far ? ` · ${esc(m.far)}` : ''}</p>
+    return `<p class="wm-kind${k.known ? '' : ' unknown'}">${emblem(k)}${esc(k.kind)}${m.far ? ` · ${esc(m.far)}` : ''}</p>
       ${m.type === 'home' || m.trip || s ? '' : `<p class="wm-text">${esc(m.text)}</p>`}
       ${stand ? `<p class="wm-stand">${stand}</p>` : ''}
       ${acts ? `<div class="wm-acts">${acts}</div>` : ''}`;
@@ -582,8 +580,8 @@ export function mountSect(h) {
 
   function mapMarker(m, sel) {
     const k = mapMark(m);
-    return `<button class="wm-mk t-${k.cls} ${mapSide(m)}${sel ? ' sel' : ''}${k.known ? '' : ' unknown'}" style="${mapAt(m)}" data-mk="${esc(m.id)}"
-      aria-pressed="${sel}" aria-label="${esc(m.name)}: ${esc(k.kind)}${k.sub ? `, ${esc(k.sub)}` : ''}" title="${esc(mapTip(m, k))}">${seal(k)}
+    return `<button class="wm-mk t-${k.cls} ${mapSide(m)}${k.em ? ' em' : ''}${sel ? ' sel' : ''}${k.known ? '' : ' unknown'}" style="${mapAt(m)}" data-mk="${esc(m.id)}"
+      aria-pressed="${sel}" aria-label="${esc(m.name)}: ${esc(k.kind)}${k.sub ? `, ${esc(k.sub)}` : ''}" title="${esc(mapTip(m, k))}">${k.em ? emblem(k) : '<i class="wm-glow" aria-hidden="true"></i>'}
       <span class="wm-lab" aria-hidden="true"><b>${esc(m.name)}</b>${k.sub && (k.cls === 'foe' || !k.known) ? `<small>${esc(k.sub)}</small>` : ''}</span></button>`;
   }
 
@@ -594,15 +592,15 @@ export function mountSect(h) {
     const groups = [['Your sect', (m) => m.type === 'home' || m.type === 'branch'], ['Sects of the region', (m) => m.type === 'sect'], ['The country', (m) => !['home', 'branch', 'sect'].includes(m.type)]];
     const card = (m) => `<div class="wm-card" role="region" aria-label="${esc(m.name)}" aria-live="polite">
       <button class="wm-x" data-mk="" aria-label="Close ${esc(m.name)}">×</button>${mapBody(m)}</div>`;
-    const row = (m) => { const k = mapMark(m); const on = !!sel && sel.id === m.id; return `<li><button class="wm-row${on ? ' sel' : ''}" data-mk="${esc(m.id)}" aria-pressed="${on}" aria-expanded="${on}" title="${esc(mapTip(m, k))}">
-      ${seal(k)}<span><b>${esc(m.name)}</b><small>${esc(k.sub || k.kind)}</small></span></button>${on ? card(m) : ''}</li>`; };
-    return `<div class="wm seals-${SEAL_LOOK}">
+    const row = (m) => { const k = mapMark(m); const on = !!sel && sel.id === m.id; return `<li><button class="wm-row t-${k.cls}${on ? ' sel' : ''}${k.known ? '' : ' unknown'}" data-mk="${esc(m.id)}" aria-pressed="${on}" aria-expanded="${on}" title="${esc(mapTip(m, k))}">
+      ${emblem(k)}<span><b>${esc(m.name)}</b><small>${esc(k.sub || k.kind)}</small></span></button>${on ? card(m) : ''}</li>`; };
+    return `<div class="wm">
       <nav class="wm-list" aria-label="Places on the map">${groups.map(([t, f]) => { const ms = S.map.filter(f); return ms.length ? `<p class="wm-group">${esc(t)}</p><ul>${ms.map(row).join('')}</ul>` : ''; }).join('')}</nav>
       <div class="worldmap wm-paint" style="${mapBg}">${S.map.map((m) => mapMarker(m, !!sel && m.id === sel.id)).join('')}</div></div>`;
   }
 
   function bindMap(z) {
-    // focus stays where the choice was made (the seal or the row); closing the card returns it to that place's row
+    // focus stays where the choice was made (the marker or the row); closing the card returns it to that place's row
     const pick = (id, from) => {
       const was = mapSel;
       mapSel = id; sessionStorage.setItem('sect.mapsel', id); tabSig = ''; paintTabs();

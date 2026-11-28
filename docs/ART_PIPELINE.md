@@ -274,7 +274,7 @@ need new paintings. Same look, same opening and closing prompt lines, 3 variants
 each with a contact sheet, owner picks. Commit each batch on its own
 ("Art: round 4 <batch>").
 
-### Batch A: the room grid (stage 5, needed first)
+### Batch A: the room grid (stage 5) and the map's place emblems (needed first)
 
 The home map becomes a grid: **5 floors of 6 alcoves** cut into the mountain.
 Each room fills 1, 2 or 3 alcoves side by side (merged rooms), so a room is
@@ -296,6 +296,39 @@ as `room_main_hall` at 800x300 (two alcoves wide).
 **Check before delivering**: put three copies of one tile side by side; the
 seams must read as one long hall. Reject tiles whose floor or ceiling line jumps.
 
+**Place emblems for the World map (required, part of Batch A).** The map's
+markers are painted emblems; the page draws none itself. Until an emblem's file
+exists that place shows only its name banner hanging from a point of lantern
+light, so each emblem appears on the next start of the app once its file is in
+`static/art/` (the server lists the ones that exist: `colony.PLACE_ART`).
+
+12 emblems, `place_<kind>.webp`, **128x128, transparent ground**, each **one tiny
+painted object** in the lantern-night style, centred, filling most of the square.
+They are shown at 44px on the map and **28px in the list, so each must read at
+28px**: one bold shape, warm rim light, **clearly different silhouettes** from
+one another (shrink the twelve to 28px side by side on a dark ground and reject
+any two that could be confused). **No text, no characters, no frame or disc
+behind the object.**
+
+| File | Subject |
+|---|---|
+| `place_home` | your pagoda hall with a gold lantern hanging at its door |
+| `place_sect` | a pagoda roof (another sect, neither friend nor foe) |
+| `place_ally` | a pagoda roof flying a jade-green banner |
+| `place_rival` | a pagoda roof flying a crimson war banner |
+| `place_demonic` | a black hall with a red lantern and bone charms |
+| `place_village` | a thatched hut |
+| `place_wilds` | a pine with a beast's eyes glowing under it |
+| `place_valley` | a herb basket on green terraces |
+| `place_ruins` | a broken pillar |
+| `place_marsh` | a pool in mist with a glowing rift above it (the secret realm) |
+| `place_lord` | a walled keep with a pennant |
+| `place_branch` | a small hall (a branch of your own sect: smaller and plainer than `place_home`) |
+
+Generate each on a plain **mid-grey** background at 512x512 or larger, cut it
+out (rembg or by hand), scale to 128x128 and deliver as **WebP with alpha**. Check
+the cut-out on the dark map: no grey fringe.
+
 ### Batch B: the courtyard and its pieces (stage 6)
 
 | File | Size | Subject |
@@ -316,12 +349,3 @@ hand); deliver as WebP with alpha.
 | `scene_assault` | 1152x768 | your war party at a rival sect's gate: cultivators with swords and talismans charging up stone steps, the enemy formation barrier flaring |
 | `scene_season` | 1152x768 | a ranking ceremony: sect banners in rows before a great stone stele, an elder announcing, crowds |
 | `crest_<league>` (5) | 192x192 | painted round emblems on dark ground: `crest_bronze` (bronze bell), `crest_silver` (silver crane), `crest_gold` (gold sun), `crest_jade` (jade dragon), `crest_heaven` (white phoenix over clouds) |
-
-### Optional: painted place emblems for the World map
-
-The World map now marks places with carved seal stamps drawn by the page. If the
-owner prefers painted ones, make 12 small emblems (128x128, transparent):
-`place_home`, `place_sect`, `place_ally`, `place_rival`, `place_demonic`,
-`place_village`, `place_wilds`, `place_valley`, `place_ruins`, `place_marsh`,
-`place_realm`, `place_lord`, each a tiny painted object (a pagoda roof, a
-village hut, a pine, a broken pillar...), no text.

@@ -354,6 +354,10 @@ SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "brea
                "festival_spring", "festival_moon", "festival_ghost", "festival_winter")
 SCENE_CAP = 5                       # unseen scenes kept; older ones drop off (the chronicle still has them)
 SCENE_ART = frozenset(k for k in SCENE_KINDS if (Path(__file__).parent / "static" / "art" / f"scene_{k}.webp").is_file())
+# World map markers are painted emblems (static/art/place_<kind>.webp). The view lists the ones that exist
+# (`place_art`), so a missing one is never requested; until it is painted the map shows the name banner alone.
+PLACE_KINDS = ("home", "sect", "ally", "rival", "demonic", "village", "wilds", "valley", "ruins", "marsh", "lord", "branch")
+PLACE_ART = frozenset(k for k in PLACE_KINDS if (Path(__file__).parent / "static" / "art" / f"place_{k}.webp").is_file())
 # Disciple faces: the six originals first (so existing disciples keep their face
 # until more are added), then any extra static/art/p_<name>.webp, sorted.
 _FACE_BASE = ("disciple", "analyst", "architect", "engineer", "researcher", "trader")

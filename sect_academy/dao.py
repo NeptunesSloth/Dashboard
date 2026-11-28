@@ -79,6 +79,8 @@ PLACES_ON_MAP = [("valley", "Herb Valley", "A day's walk east. Herbs, and the ra
                  ("marsh", "Misty Marsh", "Where the secret realm opens.", 15, 84, "realm", "In the mists below", ""),
                  ("village", "Willow Village", "Mortals at the mountain's foot. They ask for help, and remember it.", 45, 77, "village", "At the mountain's foot", ""),
                  ("lord", "The lord's seat", "The lowland kingdom.", 41, 93, "kingdom", "Down in the lowlands", "")]
+# the painted emblem each place takes (static/art/place_<kind>.webp, C.PLACE_KINDS)
+PLACE_EMBLEM = {"valley": "valley", "forest": "wilds", "ruins": "ruins", "marsh": "marsh", "village": "village", "lord": "lord"}
 MAP_HOME = (55, 41)
 MAP_SECTS = ((37, 7), (81, 18), (90, 55))          # the three painted pagodas
 MAP_BRANCHES = ((48, 55), (77, 48), (20, 60))      # the smaller halls
@@ -1159,12 +1161,16 @@ def view(c: dict) -> dict:
         "branches": [{"name": str(b["name"]), "leader": str(b["leader"]), "sulking": b.get("sulking", 0) > C._day(c)} for b in c["branches"]],
         "style": {"colour": str(c["style"]["colour"]), "hex": COLOURS.get(c["style"]["colour"], COLOURS["gold"]), "motto": str(c["style"]["motto"])},
         "colours": list(COLOURS),
-        "map": [{"id": "home", "name": str(c["name"]), "text": "Home.", "x": MAP_HOME[0], "y": MAP_HOME[1], "kind": "home", "type": "home", "far": "", "trip": ""}]
-               + [{"id": i, "name": n, "text": t, "x": x, "y": y, "kind": "place", "type": k, "far": f, "trip": tr} for i, n, t, x, y, k, f, tr in PLACES_ON_MAP]
+        # each place names its painted emblem (`emblem`, one of C.PLACE_KINDS); `place_art` lists the emblems that exist
+        "place_art": sorted(C.PLACE_ART),
+        "map": [{"id": "home", "name": str(c["name"]), "text": "Home.", "x": MAP_HOME[0], "y": MAP_HOME[1], "kind": "home", "type": "home", "far": "", "trip": "", "emblem": "home"}]
+               + [{"id": i, "name": n, "text": t, "x": x, "y": y, "kind": "place", "type": k, "far": f, "trip": tr, "emblem": PLACE_EMBLEM[i]}
+                  for i, n, t, x, y, k, f, tr in PLACES_ON_MAP]
                + [{"id": str(s["id"]), "name": str(s["name"]), "text": f"{s['kind'].capitalize()} sect. {C.stance(float(s['rel']))}.",
                    "kind": "ally" if s.get("ally") else "foe" if s["rel"] <= -15 else "sect", "type": "sect", "far": "", "trip": "",
+                   "emblem": "ally" if s.get("ally") else "demonic" if s["kind"] == "demonic" else "rival" if s["rel"] <= -15 else "sect",
                    "x": MAP_SECTS[i % 3][0], "y": MAP_SECTS[i % 3][1]} for i, s in enumerate(c["sects"])]
-               + [{"id": f"branch{i}", "name": str(b["name"]), "text": f"Led by {b['leader']}.", "kind": "branch", "type": "branch", "far": "", "trip": "",
+               + [{"id": f"branch{i}", "name": str(b["name"]), "text": f"Led by {b['leader']}.", "kind": "branch", "type": "branch", "far": "", "trip": "", "emblem": "branch",
                    "x": MAP_BRANCHES[i % 3][0], "y": MAP_BRANCHES[i % 3][1]} for i, b in enumerate(c["branches"])],
     }
 
