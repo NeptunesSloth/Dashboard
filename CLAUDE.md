@@ -81,7 +81,7 @@ sect_academy/
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
                 pictures.js (picture lessons: pins, drag/tap exercises),
                 handwriting.js (writing pad, live stroke hints, demo, self-check),
-                art.js (places the painted art), art/*.webp, academy.css, sw.js,
+                art.js (places the painted art: the room grid, tiles, scenes, emblems), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
 tests/          test_engine.py, test_tracks.py, test_sect_optional.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
                 test_handwriting.py, test_overhaul.py (the sect overhaul, stage by stage),
@@ -163,6 +163,20 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   `contain_rows` show; an uncontained incident idles the room 6 h (`room_idle`,
   checked in `_job_open`) or sets the build back, wounds but never kills, and queues
   an `incident` scene.
+  **Grid and merging** (stage 5): the home map is `hq_grid.webp` (5 floors × 6 alcoves) with a painted tile per room
+  (`room_<type>.webp`; `art.js` `cellRect` holds the alcove borders, measured on the painting). One room of each kind:
+  its level stays in `c["rooms"]`, where it stands is `c["plots"]` (`{room: {f, s, w}}`, floor 0 = the ground; the Hall
+  is always 2 wide, the vault 1). `colony._layout` runs on every `_c` and in `_repair`: every standing room, the Hall and
+  the vault get alcoves (an old save lands on `DEFAULT_CELL`), nothing overlaps, so tests may still poke `c["rooms"]`.
+  Floors open with the Hall (`FLOOR_HALL`); the page shows only the floors in use, cut under the roof. A new room takes
+  the empty alcove you pick (`queue_build(..., cell)`; none given = its usual place). **Merging**: `widen` builds a wing
+  (a build job with `wing: [f, s]`, cost `wing_cost` = every level so far, a builder like any job) in the empty alcove
+  beside a room; when done the room is one alcove wider (2 from Hall 3, 3 from Hall 5, `WIDE_HALL`). Width gives
+  places/beds × width and yield `WIDE_X` (1.1 / 1.2), and later levels cost `WIDE_COST` and take `WIDE_TIME` (never
+  over 36 h); every one is a ledger row (`merge_rows` in the room and alcove sheets, plus rows in `farm_rows`,
+  `research_rows`, `qi_rate`). No level while a wing is built (the halls must match), and a wing is refused if it
+  would leave fewer empty alcoves than rooms not yet built. `move_room` is free. Count queued levels with
+  `colony._queued` (a wing is not a level). Balance profile `merge` (wings whenever affordable) is pinned level with careful.
 - **World map** (`sect.js` `worldMap`): a list of places beside the painting, a
   hanging banner per landmark, the chosen place's card opened under its row in the
   list (never on the painting, so it hides no label). Markers are **painted emblems

@@ -947,7 +947,7 @@ export function mountSect(h) {
     : '<p class="tag gold">Highest level reached</p>'}
       ${wide}
       ${R ? (R.idle ? `<p class="warn">Putting things right after an incident: idle ${R.idle} more hours.</p>` : R.out.length ? `${rushHtml(R, 'the work')}<button class="btn" data-dorush>Rush it (${R.chance}% risk)</button>` : '<p class="dim small">Nobody has worked here today, so there is nothing to rush.</p>') : ''}
-      ${r.plot && !r.queued && !r.wing && id !== 'main_hall' ? '<p style="margin-top:14px"><button class="btn quiet" data-move>Move this room to another alcove</button> <span class="dim small">Free, and at once. Where a room stands decides what it can merge into.</span></p>' : ''}`);
+      ${r.plot && !r.queued && !r.wing && id !== 'main_hall' ? '<p style="margin:14px 0 2px"><button class="btn quiet" data-move>Move this room to another alcove</button></p><p class="dim small" style="margin:0">Free, and at once. Where a room stands decides what it can merge into.</p>' : ''}`);
     const sh = $('#sheet');
     const go = $('[data-go]', sh); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
     const pl = $('[data-placeit]', sh); if (pl) pl.onclick = () => { closeSheet(); startPlacing('build', id); };

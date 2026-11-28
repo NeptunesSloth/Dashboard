@@ -401,6 +401,10 @@ panel, phone 390 px for the changed screen), added to the playtest notes.
 | **7. Raiding rivals** | War party, rival bases, stars, scouting | Nothing | Expeditions (`road.py`), relations | Scouting screen; a 2★ result scene |
 | **8. Leagues and seasons** | Standing, the AI ladder, season-end scene, reset | Nothing | `fame` and `renown()` as reputation | League ladder; season-end scene |
 
+Stage 5 as built: one room of each kind (its level stays in `c["rooms"]`, `c["plots"]` holds floor, alcove
+and width), and merging is a wing built beside the room at its level; the Main Hall stays two alcoves wide.
+CLAUDE.md has the rules.
+
 Stages 1–4 work with today's painting. Stage 5 needs the new home art; until it is painted, the
 grid can be drawn over a backdrop the way `art.scene()` falls back today.
 

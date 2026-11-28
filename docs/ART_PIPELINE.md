@@ -85,8 +85,10 @@ reference. The six disciple faces are nearly identical today; make them clearly
 different people (men and women, different ages, hair, robes and colours) while
 keeping the chibi style, face centred, head and shoulders, dark background.
 
-**`hq` must keep its layout.** The game places clickable rooms over it at fixed
-percentages (`SITES` and `VAULT` in `sect_academy/static/art.js`). After
+**`hq` is retired** (sect overhaul stage 5): the home map is now `hq_grid.webp` with a
+`room_<type>.webp` tile per room, laid on the alcove borders in `cellRect`
+(`sect_academy/static/art.js`); a repainted grid must keep those borders. The
+rest of this paragraph is how the old single painting was checked. After
 generating, draw those rectangles over each variant (scale the percentages to the
 image size) and show the owner; reject any variant where a room has moved out of
 its box. Lower the denoise if they drift.
